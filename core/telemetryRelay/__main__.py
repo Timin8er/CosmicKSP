@@ -1,5 +1,5 @@
 from TCR import Downlink, translate
-from CosmicKSP.core import settings
+from CosmicKSP import settings
 import pprint
 
 dl = Downlink(settings.TELEMACHUS_HOST, settings.TELEMACHUS_PORT, settings.FREQUENCY)

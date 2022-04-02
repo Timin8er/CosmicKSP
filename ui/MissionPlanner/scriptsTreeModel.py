@@ -2,8 +2,8 @@ from PyQt5.QtCore import QAbstractItemModel, Qt, QModelIndex
 from PyQt5.QtGui import QIcon
 import os
 from . import icons
-from KOSCommander.core import scriptObject, storage
-from KOSCommander import settings
+from CosmicKSP.core import scriptObject, storage
+from CosmicKSP import settings
 
 class folderItem():
 

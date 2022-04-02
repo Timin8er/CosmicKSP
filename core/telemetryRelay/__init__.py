@@ -2,7 +2,7 @@ import websocket
 import socket
 import json
 import time
-from CosmicKSP.core import settings
+from CosmicKSP import settings
 
 
 class Downlink(object):

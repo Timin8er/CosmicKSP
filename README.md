@@ -1,8 +1,3 @@
----
-layout: projectpage
-title: Cosmic KSP
----
-
 # **Cosmic KSP**
 
 ## **Overview**
