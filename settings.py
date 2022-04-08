@@ -4,25 +4,29 @@ SCRIPT_STORAGE_FILE = os.path.join(os.path.dirname(__file__), 'scripts.json')
 
 REAL_GAME_INSTANCE = {
     'DIR':r'C:\KSP\CosmicKSP',
-    'HOST':'127.0.0.1',
-    'PORT':5410,
-    'TIMEOUT':10,
     'TELEMACHUS':{
         'HOST':'127.0.0.1',
         'PORT':8085,
         'FREQUENCY':500,
+    },
+    'KOS': {
+        'HOST':'127.0.0.1',
+        'PORT':5410,
+        'TIMEOUT':10,
     }
 }
 
 SIM_GAME_INSTANCE = {
     'DIR':r'C:\KSP\CosmicKSP_Sim',
-    'HOST':'127.0.0.1',
-    'PORT':5411,
-    'TIMEOUT':10,
     'TELEMACHUS':{
         'HOST':'127.0.0.1',
         'PORT':8085,
         'FREQUENCY':500,
+    },
+    'KOS': {
+        'HOST':'127.0.0.1',
+        'PORT':5410,
+        'TIMEOUT':10,
     }
 }
 

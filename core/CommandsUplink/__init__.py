@@ -1,18 +1,23 @@
 from time import sleep, time
 import telnetlib
-from KOSCommander import settings
 import os
+from PyQt5.QtCore import QObject, pyqtSignal
 
-class kosConnection():
+class kosConnection(QObject):
 
-    def __init__(self):
+    commandSent = pyqtSignal(str)
 
+    def __init__(self, instance):
+        super().__init__()
+        self.settings = instance
         self._connection = None
         self._time_deadline = 0
 
+        self.open()
+
 
     def open(self):
-        self._connection = telnetlib.Telnet(settings.HOST, settings.PORT, settings.TIMEOUT)
+        self._connection = telnetlib.Telnet(self.settings['KOS']['HOST'], self.settings['KOS']['PORT'], self.settings['KOS']['TIMEOUT'])
 
         self._connection.read_eager()
         self._connection.write(b'1\n')
@@ -22,19 +27,22 @@ class kosConnection():
         self._connection.read_until(b'')
 
 
-    def kosCommand(self, command_str):
+    def sendCommandStr(self, command_str):
         """ execute a single kos command """
         if self._time_deadline < time():
             self.open()
 
+        if not command_str.endswith('.'):
+            command_str += '.'
+
         self._time_deadline = time() + 15
         self._connection.write(f'{command_str}\n'.encode())
-        print(command_str)
         self._connection.read_until(b'')
+        self.commandSent.emit(command_str)
         sleep(.2)
 
 
-    def kosStop(self):
+    def stop(self):
         """ hault the kos terminal """
         if self._time_deadline < time():
             self.open()
@@ -46,7 +54,7 @@ class kosConnection():
         args = [f'{volume}:/{script_instance.name}.ks'] + [str(i) for i in list(args)]
         com = '", "'.join(args)
         command_str = f'runpath("{com}").\n'
-        self.kosCommand(command_str)
+        self.sendCommandStr(command_str)
 
         if timeout:
             sleep(timeout)
@@ -57,10 +65,10 @@ class kosConnection():
         """ upload the given script object to the kos ship """
 
         # write script to temp file
-        temp_file = os.path.join(settings.GAME_INSTANCE, 'Ships', 'Script', 'temp_upload.ks')
+        temp_file = os.path.join(self.settings['DIR'], 'Ships', 'Script', 'temp_upload.ks')
 
         with open(temp_file, 'w') as f:
             f.write(script_instance.text)
 
         # upload the file
-        self.kosCommand(f'COPYPATH("1:/temp_upload.ks", "0:/{script_instance.name}.ks").')
+        self.sendCommandStr(f'COPYPATH("1:/temp_upload.ks", "0:/{script_instance.name}.ks").')
