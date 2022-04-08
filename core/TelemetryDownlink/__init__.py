@@ -9,9 +9,22 @@ from PyQt5.QtCore import QThread, pyqtSignal
 TELEMETRY_SUBSCIPTIONS = [
     'v.missionTime',
     't.universalTime',
+    'p.paused',
     'v.altitude',
-    'r.resource[LiquidFuel]'
+    'v.lat',
+    'v.long',
+    'r.resource[electricity]',
+    's.sensor.acc',
+    's.sensor.temp',
+    'f.abort',
+    'f.throttle',
 ]
+
+FLIGHT = 0
+PAUSED = 1
+NO_POWER = 2
+OFF = 3
+NOT_FOUND = 4
 
 
 class telemachusDownlink(object):
@@ -166,7 +179,7 @@ class telemachusDownlink(object):
 class telemetryRelayThread(QThread):
 
     telemReport = pyqtSignal(dict)
-    signalStatus = pyqtSignal(bool)
+    signalStatus = pyqtSignal(int)
 
 
     def __init__(self, game_instance):
@@ -175,7 +188,7 @@ class telemetryRelayThread(QThread):
 
 
     def run(self):
-        connected = False
+        signal = None
         last_recieved = datetime.datetime.now()
         timeout_interval = (self.telemachus_instance['FREQUENCY'] * 2) / 1000
 
@@ -184,16 +197,11 @@ class telemetryRelayThread(QThread):
         while True:
             data = dl.update() # get telem data
 
-            # if not data hase come in the last interval, emit that the connection is dead
-            if connected and (datetime.datetime.now() - last_recieved).total_seconds() > timeout_interval:
-                connected = False
-                self.signalStatus.emit(False)
-
             # if found data
             if data:
-                if not connected: # reset connection status
-                    connected = True
-                    self.signalStatus.emit(True)
+                if signal != data['p.paused']: # reset connection status
+                    signal = data['p.paused']
+                    self.signalStatus.emit(data['p.paused'])
 
                 last_recieved = datetime.datetime.now()
                 self.telemReport.emit(data)
