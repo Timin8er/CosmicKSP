@@ -5,7 +5,7 @@ import time
 from CosmicKSP import settings
 
 
-class Downlink(object):
+class tlmDownlink(object):
     """initially coppied from https://github.com/ec429/konrad/blob/master/downlink.py"""
 
     def __init__(self, addr, port, rate, logf=None):

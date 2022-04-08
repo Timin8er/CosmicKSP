@@ -1,9 +1,9 @@
-from TCR import Downlink, translate
+from . import tlmDownlink, translate
 from CosmicKSP import settings
 import pprint
 
-dl = Downlink(settings.TELEMACHUS_HOST, settings.TELEMACHUS_PORT, settings.FREQUENCY)
-for key in settings.SUBSCRIPTIONS:
+dl = tlmDownlink(settings.TELEMACHUS_HOST, settings.TELEMACHUS_PORT, settings.TELEMACHUS_FREQUENCY)
+for key in settings.TELEMETRY_SUBSCIPTIONS:
     dl.subscribe(key)
 
 while True:

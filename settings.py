@@ -25,6 +25,7 @@ COSMOS_PORT = 1248
 
 
 TELEMETRY_SUBSCIPTIONS = [
+    't.universalTime',
     'v.altitude',
     'r.resource[LiquidFuel]'
 ]
