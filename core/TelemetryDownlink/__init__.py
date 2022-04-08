@@ -2,22 +2,33 @@ import websocket
 import socket
 import json
 import time
-from CosmicKSP import settings
+import datetime
+from PyQt5.QtCore import QThread, pyqtSignal
 
 
-class tlmDownlink(object):
+TELEMETRY_SUBSCIPTIONS = [
+    'v.missionTime',
+    't.universalTime',
+    'v.altitude',
+    'r.resource[LiquidFuel]'
+]
+
+
+class telemachusDownlink(object):
     """initially coppied from https://github.com/ec429/konrad/blob/master/downlink.py"""
 
-    def __init__(self, addr, port, rate, logf=None):
-        self.uri = "ws://%s:%d/datalink"%(addr, port)
-        self.rate = rate
+    def __init__(self, telemachus_instance, logf=None):
+        self.uri = "ws://%s:%d/datalink"%(telemachus_instance['HOST'], telemachus_instance['PORT'])
+        self.rate = telemachus_instance['FREQUENCY']
         self.subscriptions = {}
         self.data = {}
         self.logf = logf
         self.reconnect()
-        self.subscribe('v.missionTime')
         self.body_ids = {} # name => ID
         self.bodies_subscribed = False
+
+        for key in TELEMETRY_SUBSCIPTIONS:
+            self.subscribe(key)
 
 
     def reconnect(self):
@@ -151,8 +162,38 @@ class tlmDownlink(object):
             self.disconnect()
 
 
-def translate(data:dict, rules):
-    dstring = ''
-    for key, formating in rules.items():
-        dstring += formating.format(data[key])
-    return dstring
+
+class telemetryRelayThread(QThread):
+
+    telemReport = pyqtSignal(dict)
+    signalStatus = pyqtSignal(bool)
+
+
+    def __init__(self, game_instance):
+        super().__init__()
+        self.telemachus_instance = game_instance['TELEMACHUS']
+
+
+    def run(self):
+        connected = False
+        last_recieved = datetime.datetime.now()
+        timeout_interval = (self.telemachus_instance['FREQUENCY'] * 2) / 1000
+
+        dl = telemachusDownlink(self.telemachus_instance)
+
+        while True:
+            data = dl.update() # get telem data
+
+            # if not data hase come in the last interval, emit that the connection is dead
+            if connected and (datetime.datetime.now() - last_recieved).total_seconds() > timeout_interval:
+                connected = False
+                self.signalStatus.emit(False)
+
+            # if found data
+            if data:
+                if not connected: # reset connection status
+                    connected = True
+                    self.signalStatus.emit(True)
+
+                last_recieved = datetime.datetime.now()
+                self.telemReport.emit(data)
