@@ -1,9 +1,6 @@
-import os
-
-SCRIPT_STORAGE_FILE = os.path.join(os.path.dirname(__file__), 'scripts.json')
-
 REAL_GAME_INSTANCE = {
     'DIR':r'C:\KSP\CosmicKSP',
+    'GAME_NAME': 'default',
     'TELEMACHUS':{
         'HOST':'127.0.0.1',
         'PORT':8085,
@@ -18,9 +15,10 @@ REAL_GAME_INSTANCE = {
 
 SIM_GAME_INSTANCE = {
     'DIR':r'C:\KSP\CosmicKSP_Sim',
+    'GAME_NAME': 'default',
     'TELEMACHUS':{
         'HOST':'127.0.0.1',
-        'PORT':8085,
+        'PORT':8086,
         'FREQUENCY':500,
     },
     'KOS': {
@@ -32,17 +30,3 @@ SIM_GAME_INSTANCE = {
 
 COSMOS_IP = '127.0.0.1'
 COSMOS_PORT = 1248
-
-
-# PRINT_TRANSLATION = {
-#     'v.missionTime':'{:.3f} ',
-#     'v.altitude':'{:.3f} ',
-#     'r.resource[LiquidFuel]':'{:.3f}'
-# }
-#
-#
-# STRING_TRANSLATION = {
-#     'v.missionTime':'{:20}',
-#     'v.altitude':'{:20}',
-#     'r.resource[LiquidFuel]':'{:20}'
-# }

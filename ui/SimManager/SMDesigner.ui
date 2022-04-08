@@ -11,16 +11,16 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Cosmic KSP Relay</string>
+   <string>Cosmic KSP Sim Manager</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <layout class="QHBoxLayout" name="headerLayout">
       <item>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="transferGameStateBtn">
         <property name="text">
-         <string>Transfer Quicksave</string>
+         <string>Transfer Game State</string>
         </property>
        </widget>
       </item>

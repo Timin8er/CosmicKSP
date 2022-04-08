@@ -21,9 +21,9 @@ class Ui_SimMainWindow(object):
         self.verticalLayout.setObjectName("verticalLayout")
         self.headerLayout = QtWidgets.QHBoxLayout()
         self.headerLayout.setObjectName("headerLayout")
-        self.pushButton = QtWidgets.QPushButton(self.centralwidget)
-        self.pushButton.setObjectName("pushButton")
-        self.headerLayout.addWidget(self.pushButton)
+        self.transferGameStateBtn = QtWidgets.QPushButton(self.centralwidget)
+        self.transferGameStateBtn.setObjectName("transferGameStateBtn")
+        self.headerLayout.addWidget(self.transferGameStateBtn)
         spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.headerLayout.addItem(spacerItem)
         self.verticalLayout.addLayout(self.headerLayout)
@@ -53,7 +53,7 @@ class Ui_SimMainWindow(object):
 
     def retranslateUi(self, SimMainWindow):
         _translate = QtCore.QCoreApplication.translate
-        SimMainWindow.setWindowTitle(_translate("SimMainWindow", "Cosmic KSP Relay"))
-        self.pushButton.setText(_translate("SimMainWindow", "Transfer Quicksave"))
+        SimMainWindow.setWindowTitle(_translate("SimMainWindow", "Cosmic KSP Sim Manager"))
+        self.transferGameStateBtn.setText(_translate("SimMainWindow", "Transfer Game State"))
         self.label.setText(_translate("SimMainWindow", "Command:"))
         self.sendCmdBtn.setText(_translate("SimMainWindow", "Send"))
