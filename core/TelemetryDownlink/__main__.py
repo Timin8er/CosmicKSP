@@ -1,13 +1,11 @@
-from . import tlmDownlink, translate
+from . import telemachusDownlink
 from CosmicKSP import settings
-import pprint
+import datetime
 
-dl = tlmDownlink(settings.TELEMACHUS_HOST, settings.TELEMACHUS_PORT, settings.TELEMACHUS_FREQUENCY)
-for key in settings.TELEMETRY_SUBSCIPTIONS:
-    dl.subscribe(key)
+dl = telemachusDownlink(settings.REAL_GAME_INSTANCE['TELEMACHUS'])
 
 while True:
     data = dl.update()
     if data:
-        print(translate(data, settings.PRINT_TRANSLATION))
-    # pprint.pprint(d)
+        mission_time = datetime.timedelta(seconds=data['v.missionTime'])
+        print(f'[{mission_time}] : ', data)
