@@ -188,7 +188,7 @@ class telemetryRelayThread(QThread):
 
 
     def run(self):
-        signal = None
+        signal_state = -1
         last_recieved = datetime.datetime.now()
         timeout_interval = (self.telemachus_instance['FREQUENCY'] * 2) / 1000
 
@@ -197,11 +197,16 @@ class telemetryRelayThread(QThread):
         while True:
             data = dl.update() # get telem data
 
+            if signal_state >= 0 and (datetime.datetime.now() -last_recieved).total_seconds() > timeout_interval:
+                signal_state = -1
+                self.signalStatus.emit(-1)
+
             # if found data
             if data:
-                if signal != data['p.paused']: # reset connection status
-                    signal = data['p.paused']
-                    self.signalStatus.emit(data['p.paused'])
+                if signal_state != data['p.paused']: # reset connection status
+                    signal_state = data['p.paused']
+                    self.signalStatus.emit(signal_state)
 
                 last_recieved = datetime.datetime.now()
-                self.telemReport.emit(data)
+                if signal_state != 5: # not construction
+                    self.telemReport.emit(data)

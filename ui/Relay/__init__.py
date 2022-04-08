@@ -62,12 +62,14 @@ class relayWidget(QtWidgets.QWidget):
 
 
     def logTelemetry(self, data):
-        mission_time = datetime.timedelta(seconds=data['v.missionTime'])
+        mission_time = datetime.timedelta(seconds=data.get('v.missionTime', 0))
         self.tmlLog(f'Telem Recieved T+{mission_time}')
 
 
     def logTelemetryStatus(self, status):
-        if status == 0:
+        if status == -1:
+            self.tmlLog(f'Status: Signal Lost')
+        elif status == 0:
             self.tmlLog(f'Status: Flight')
         elif status == 1:
             self.tmlLog(f'Status: Paused')
@@ -77,6 +79,8 @@ class relayWidget(QtWidgets.QWidget):
             self.tmlLog(f'Status: Off')
         elif status == 4:
             self.tmlLog(f'Status: not found')
+        elif status == 5:
+            self.tmlLog(f'Status: Construction')
 
 
     def __del__(self):
