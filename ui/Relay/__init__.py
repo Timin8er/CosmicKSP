@@ -119,7 +119,7 @@ class relayUIMainWindow(QtWidgets.QMainWindow, Ui_RelayMainWindow):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-        self.setWindowIcon(QIcon(GPS_SIGNAL))
+        self.setWindowIcon(QIcon(icons.ROCKET))
 
         self.relay_widget = relayWidget(settings.REAL_GAME_INSTANCE)
         self.centralwidget.layout().addWidget(self.relay_widget)

@@ -1,166 +1,57 @@
-from PyQt5.QtWidgets import QMainWindow, QMessageBox
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import QModelIndex
-from .mainWindowDesigner import Ui_KPI
 import os
-from . import icons
-from KOSCommander.core import profileObject, scriptObject, inputObject, storage
-from .scriptsTreeModel import scriptsTreeModel
-from .profilesModel import profilesListModel
-from .scriptEditor import scriptEditor
+import shutil
+from PyQt5 import QtWidgets
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon
 
+from CosmicKSP import settings
+from CosmicKSP.ui.Relay import relayWidget
+from CosmicKSP.ui import icons
 
-class mainWindow(QMainWindow, Ui_KPI):
+from .MPDesigner import Ui_MissionPlannerWindow
 
+class missionPlannerMainWindow(QtWidgets.QMainWindow, Ui_MissionPlannerWindow):
 
-    def __init__(self, *args, **kwargs):
-        QMainWindow.__init__(self, *args, **kwargs)
+    def __init__(self):
+        super().__init__()
         self.setupUi(self)
         self.setWindowIcon(QIcon(icons.ROCKET))
 
-        self.btnLockScripts.clicked.connect(self.toggleScriptsLock)
-        self.btnLockProfiles.clicked.connect(self.toggleProfilesLock)
-        self.btnLockCommand.clicked.connect(self.toggleCommandLock)
-        self.btnScriptInterupt.clicked.connect(lambda: self.connection.ks_stop())
+        self.relay_widget = relayWidget(settings.SIM_GAME_INSTANCE)
+        self.centralwidget.layout().insertWidget(1, self.relay_widget)
 
-        self.btnClearCommand.setIcon(QIcon(icons.CLEAR))
-        self.btnClearCommand.clicked.connect(self.clear)
+        self.relay_widget.commandLayout.addWidget(self.cmdSendWidget)
 
-        self.scripts_tree_model = scriptsTreeModel()
-        self.scriptsView.setModel(self.scripts_tree_model)
-        self.scriptsView.expandAll()
-        self.scriptsView.resizeColumnToContents(0)
-        self.scriptsView.selectionModel().currentChanged.connect(self.useCurrentScript)
+        self.btnSend.clicked.connect(self.sendCommand)
+        # self.btnStop.clicked.connect(self.sendStop)
+        self.transferGameStateBtn.clicked.connect(self.transferQuicksave)
 
-        # ======================================================================
-        self.profiles_model = profilesListModel()
-        self.profilesView.setModel(self.profiles_model)
-        self.profilesView.selectionModel().currentChanged.connect(self.useCurrentProfile)
+        self.btnSend.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_MediaPlay))
+        self.btnStop.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_MediaStop))
 
-        # ======================================================================
-        self.btnConnection.setIcon(QIcon(icons.GPS_DISCONNECTED))
+        # self.btnAddCommandList.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_MediaPlay))
+        self.btnRemoveCommandList.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_DialogDiscardButton))
 
-        self.btnNewScript.setIcon(QIcon(icons.NEW))
-        self.btnNewScript.clicked.connect(self.newScript)
-
-        self.btnEditScript.setIcon(QIcon(icons.EDIT))
-        self.btnEditScript.clicked.connect(self.editScript)
-
-        self.btnDeleteScript.setIcon(QIcon(icons.DELETE))
-        self.btnDeleteScript.clicked.connect(self.deleteScript)
-
-        self.btnSaveScripts.clicked.connect(self.saveScripts)
-        self.btnSaveScripts.setIcon(QIcon(icons.SAVE))
-
-        self.btnNewProfile.clicked.connect(self.newProfile)
-        self.btnNewProfile.setIcon(QIcon(icons.NEW))
-
-        self.btnDeleteProfile.clicked.connect(lambda: self.profiles_model.removeProfile(self.currentProfile()))
-        self.btnDeleteProfile.setIcon(QIcon(icons.DELETE))
-
-        self.profileNameEdit.editingFinished.connect(lambda: setattr(self.currentProfile(), 'name', self.profileNameEdit.text()))
-
-        # self.connection = kos_connection('127.0.0.1', '5410', 10)
-
-        self.clear()
+        # self.btnAddCommand.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_MediaPlay))
+        self.btnRemoveCommand.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_DialogDiscardButton))
 
 
-    def clear(self):
-        self.script_edit_unlocked = False
-        self.toggleScriptsLock()
-
-        self.profiles_edit_unlocked = False
-        self.toggleProfilesLock()
-
-        self.command_edit_unlocked = False
-        self.toggleCommandLock()
-
-        self.scriptsView.setCurrentIndex(QModelIndex())
+    def sendCommand(self):
+        cmd_text = self.commandEdit.text()
+        self.relay_widget.commands_uplink.sendCommandStr(cmd_text)
+        self.commandEdit.setText('')
 
 
-    def toggleScriptsLock(self):
-        self.script_edit_unlocked ^= True
-        self.btnNewScript.setEnabled(self.script_edit_unlocked)
-        self.btnEditScript.setEnabled(self.script_edit_unlocked)
-        self.btnDeleteScript.setEnabled(self.script_edit_unlocked)
-        self.btnLockScripts.setIcon(QIcon(icons.TOGGLE_ON) if self.script_edit_unlocked else QIcon(icons.TOGGLE_OFF))
+    def sendStop(self):
+        self.relay_widget.commands_uplink.stop()
 
 
-    def toggleProfilesLock(self):
-        self.profiles_edit_unlocked ^= True
-        self.btnNewProfile.setEnabled(self.profiles_edit_unlocked)
-        self.profileNameEdit.setEnabled(self.profiles_edit_unlocked)
-        self.btnDeleteProfile.setEnabled(self.profiles_edit_unlocked)
-        self.btnLockProfiles.setIcon(QIcon(icons.TOGGLE_ON) if self.profiles_edit_unlocked else QIcon(icons.TOGGLE_OFF))
+    def transferQuicksave(self):
+        real_qs  = os.path.join(settings.REAL_GAME_INSTANCE['DIR'], 'saves', settings.REAL_GAME_INSTANCE['GAME_NAME'], 'quicksave.sfs')
+        real_qsm = os.path.join(settings.REAL_GAME_INSTANCE['DIR'], 'saves', settings.REAL_GAME_INSTANCE['GAME_NAME'], 'quicksave.loadmeta')
 
+        sim_qs  = os.path.join(settings.SIM_GAME_INSTANCE['DIR'], 'saves', settings.SIM_GAME_INSTANCE['GAME_NAME'], 'quicksave.sfs')
+        sim_qsm = os.path.join(settings.SIM_GAME_INSTANCE['DIR'], 'saves', settings.SIM_GAME_INSTANCE['GAME_NAME'], 'quicksave.loadmeta')
 
-    def toggleCommandLock(self):
-        self.command_edit_unlocked ^= True
-        self.commandEdit.setEnabled(self.command_edit_unlocked)
-        self.btnLockCommand.setIcon(QIcon(icons.TOGGLE_ON) if self.command_edit_unlocked else QIcon(icons.TOGGLE_OFF))
-
-
-    def currentScript(self):
-        index = self.scriptsView.currentIndex()
-        node = index.internalPointer()
-        if not node:
-            return
-        script = index.internalPointer()._data
-
-        if script and isinstance(script, scriptObject):
-            return script
-        else:
-            return None
-
-
-    def currentProfile(self):
-        return self.profilesView.currentIndex().internalPointer()
-
-
-    def useCurrentScript(self):
-        script = self.currentScript()
-        self.profiles_model.loadData(script)
-
-
-    def useCurrentProfile(self):
-        profile = self.currentProfile()
-        if profile:
-            name = profile.name if profile else ''
-            self.profileNameEdit.blockSignals(True)
-            self.profileNameEdit.setText(name)
-            self.profileNameEdit.blockSignals(False)
-
-
-    def editScript(self):
-        if scriptEditor.edit(self.currentScript()):
-            self.scripts_tree_model.refresh(self.scripts_tree_model._data)
-            self.scriptsView.expandAll()
-
-
-    def newScript(self):
-        obj = scriptObject()
-        if scriptEditor.edit(obj):
-            self.scripts_tree_model.insertScript(obj)
-            self.scriptsView.expandAll()
-
-
-    def deleteScript(self):
-        script = self.currentScript()
-        if not script:
-            return
-
-        msg = f'Are you sure you want to delete this script "{script.name}"?'
-        reply = QMessageBox.warning(self, 'Delete', msg, QMessageBox.Yes, QMessageBox.No)
-
-        if reply == QMessageBox.Yes:
-            self.scripts_tree_model.removeScript(script)
-            self.scriptsView.expandAll()
-
-    def saveScripts(self):
-        storage.save(self.scripts_tree_model._data)
-        QMessageBox.information(self, 'Save', 'Scripts Saved')
-
-
-    def newProfile(self):
-        row = self.profiles_model.insertProfile()
-        self.profilesView.setCurrentIndex(self.profiles_model.index(row, 0))
+        shutil.copyfile(real_qs, sim_qs)
+        shutil.copyfile(real_qsm, sim_qsm)

@@ -47,6 +47,7 @@ class kosConnection(QObject):
         if self._time_deadline < time():
             self.open()
         _ = self._connection.write(telnetlib.IP)
+        self.commandSent.emit(str(telnetlib.IP))
 
 
     def kosRunScript(self, script_instance, *args, volume=1, timeout=0):

@@ -27,3 +27,27 @@ class command():
         self.commandText = cmd.get('command', '')
         self.description = cmd.get('description', '')
         self.arguements = [commandArgument(arg) for arg in cmd.get('arguements', [])]
+        self.edited = False
+
+
+def commandSequence():
+
+    def __init__(self):
+        self.content = []
+        self.name = ''
+        self.edited = False
+
+
+    def append(self, cmd):
+        self.content.append(cmd)
+
+
+    def insert(self, index, cmd):
+        self.content.insert(index, cmd)
+
+
+    def remove(self, cmd):
+        if isinstance(cmd, int):
+            self.content.pop(cmd):
+        else:
+            self.content.remove(cmd)
