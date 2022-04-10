@@ -23,7 +23,7 @@ SIM_GAME_INSTANCE = {
     },
     'KOS': {
         'HOST':'127.0.0.1',
-        'PORT':5410,
+        'PORT':5411,
         'TIMEOUT':10,
     }
 }

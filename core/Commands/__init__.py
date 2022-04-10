@@ -30,7 +30,7 @@ class command():
         self.edited = False
 
 
-def commandSequence():
+class commandSequence():
 
     def __init__(self):
         self.content = []
@@ -48,6 +48,6 @@ def commandSequence():
 
     def remove(self, cmd):
         if isinstance(cmd, int):
-            self.content.pop(cmd):
+            self.content.pop(cmd)
         else:
             self.content.remove(cmd)

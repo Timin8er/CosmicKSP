@@ -1,12 +1,13 @@
 import os
 import shutil
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QAbstractListModel, QModelIndex
 from PyQt5.QtGui import QIcon
 
 from CosmicKSP import settings
 from CosmicKSP.ui.Relay import relayWidget
 from CosmicKSP.ui import icons
+from CosmicKSP.core.Commands import commandSequence, command, commandArgument
 
 from .MPDesigner import Ui_MissionPlannerWindow
 
@@ -29,11 +30,18 @@ class missionPlannerMainWindow(QtWidgets.QMainWindow, Ui_MissionPlannerWindow):
         self.btnSend.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_MediaPlay))
         self.btnStop.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_MediaStop))
 
-        # self.btnAddCommandList.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_MediaPlay))
-        self.btnRemoveCommandList.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_DialogDiscardButton))
+        # self.btnAddCommandSequence.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_MediaPlay))
+        self.btnRemoveCommandSequence.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_DialogDiscardButton))
 
         # self.btnAddCommand.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_MediaPlay))
         self.btnRemoveCommand.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_DialogDiscardButton))
+
+        self.commandSequencesView.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection);
+
+        self.command_sequences_view_model = commandSequenceViewModel()
+        self.btnAddCommandSequence.clicked.connect(self.command_sequences_view_model.newCommandList)
+        self.btnRemoveCommandSequence.clicked.connect(self.removeSelectedCommandSequence)
+        self.commandSequencesView.setModel(self.command_sequences_view_model)
 
 
     def sendCommand(self):
@@ -55,3 +63,54 @@ class missionPlannerMainWindow(QtWidgets.QMainWindow, Ui_MissionPlannerWindow):
 
         shutil.copyfile(real_qs, sim_qs)
         shutil.copyfile(real_qsm, sim_qsm)
+
+
+    def removeSelectedCommandSequence(self):
+        index = self.commandSequencesView.selectionModel().currentIndex()
+        if index.isValid():
+            self.command_sequences_view_model.removeRows(index.row(), 1)
+
+
+
+
+class commandSequenceViewModel(QAbstractListModel):
+
+    def __init__(self):
+        super().__init__()
+        self.cl_list = []
+        self.editable = True
+
+    def newCommandList(self):
+        new_cl = commandSequence()
+        new_cl.name = "new sequence"
+        self.cl_list.append(new_cl)
+        self.insertRows(len(self.cl_list)-1, 1)
+
+    def rowCount(self, parent=QModelIndex()):
+        return len(self.cl_list)
+
+    def data(self, index, role=Qt.DisplayRole):
+        if role == Qt.DisplayRole:
+            return self.cl_list[index.row()].name
+
+    def setData(self, index, value, role=Qt.EditRole):
+
+        if role == Qt.EditRole:
+            self.cl_list[index.row()].name = value
+            return True
+
+    def flags(self, index):
+        if self.editable:
+            return Qt.ItemIsEditable | Qt.ItemIsEnabled
+        else:
+            return Qt.ItemIsEnabled
+
+    def insertRows(self, row, count, parent=QModelIndex()):
+        self.beginInsertRows(parent, row, row)
+
+        self.endInsertRows()
+
+    def removeRows(self, row, count, parent=QModelIndex()):
+        self.beginRemoveRows(parent, row, row)
+        self.cl_list.pop(row)
+        self.endRemoveRows()
