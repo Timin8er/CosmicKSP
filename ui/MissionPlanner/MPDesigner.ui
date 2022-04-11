@@ -16,30 +16,6 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <layout class="QHBoxLayout" name="headerLayout">
-      <item>
-       <widget class="QPushButton" name="transferGameStateBtn">
-        <property name="text">
-         <string>Transfer Game State</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-     </layout>
-    </item>
-    <item>
      <widget class="QWidget" name="cmdSendWidget" native="true">
       <layout class="QHBoxLayout" name="cmdLayout">
        <item>
@@ -212,7 +188,7 @@
              <x>0</x>
              <y>0</y>
              <width>308</width>
-             <height>316</height>
+             <height>347</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_2"/>
@@ -234,8 +210,38 @@
      <height>21</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionSave"/>
+   </widget>
+   <widget class="QMenu" name="menuSim_State">
+    <property name="title">
+     <string>Sim State</string>
+    </property>
+    <addaction name="actionCopy_QuickSave"/>
+    <addaction name="actionOther"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuSim_State"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionSave">
+   <property name="text">
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="actionCopy_QuickSave">
+   <property name="text">
+    <string>Copy QuickSave</string>
+   </property>
+  </action>
+  <action name="actionOther">
+   <property name="text">
+    <string>Other</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

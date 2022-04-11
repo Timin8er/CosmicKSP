@@ -7,9 +7,10 @@ from PyQt5.QtGui import QIcon
 from CosmicKSP import settings
 from CosmicKSP.ui.Relay import relayWidget
 from CosmicKSP.ui import icons
-from CosmicKSP.core.Commands import commandSequence, command, commandArgument, COMMANDS
+from CosmicKSP.core.Commands import *
 
 from .MPDesigner import Ui_MissionPlannerWindow
+
 
 class missionPlannerMainWindow(QtWidgets.QMainWindow, Ui_MissionPlannerWindow):
 
@@ -24,8 +25,10 @@ class missionPlannerMainWindow(QtWidgets.QMainWindow, Ui_MissionPlannerWindow):
         self.relay_widget.commandLayout.addWidget(self.cmdSendWidget)
 
         self.btnSend.clicked.connect(self.sendCommand)
-        # self.btnStop.clicked.connect(self.sendStop)
-        self.transferGameStateBtn.clicked.connect(self.transferQuicksave)
+        self.btnStop.clicked.connect(self.sendStop)
+        self.actionCopy_QuickSave.triggered.connect(self.copyQuickSave)
+        self.actionOther.triggered.connect(self.copyOtherState)
+        self.actionSave.triggered.connect(self.saveCommandSequences)
 
         self.btnSend.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_MediaPlay))
         self.btnStop.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_MediaStop))
@@ -60,22 +63,39 @@ class missionPlannerMainWindow(QtWidgets.QMainWindow, Ui_MissionPlannerWindow):
         self.relay_widget.commands_uplink.stop()
 
 
-    def transferQuicksave(self):
-        real_qs  = os.path.join(settings.REAL_GAME_INSTANCE['DIR'], 'saves', settings.REAL_GAME_INSTANCE['GAME_NAME'], 'quicksave.sfs')
-        real_qsm = os.path.join(settings.REAL_GAME_INSTANCE['DIR'], 'saves', settings.REAL_GAME_INSTANCE['GAME_NAME'], 'quicksave.loadmeta')
+    def copyGameState(self, from_instance, to_instance, from_file_name, to_file_name):
+        from_p  = os.path.join(from_instance['DIR'], 'saves', from_instance['GAME_NAME'], f'{from_file_name}.sfs')
+        from_pm = os.path.join(from_instance['DIR'], 'saves', from_instance['GAME_NAME'], f'{from_file_name}.loadmeta')
 
-        sim_qs  = os.path.join(settings.SIM_GAME_INSTANCE['DIR'], 'saves', settings.SIM_GAME_INSTANCE['GAME_NAME'], 'quicksave.sfs')
-        sim_qsm = os.path.join(settings.SIM_GAME_INSTANCE['DIR'], 'saves', settings.SIM_GAME_INSTANCE['GAME_NAME'], 'quicksave.loadmeta')
+        to_p  = os.path.join(to_instance['DIR'], 'saves', to_instance['GAME_NAME'], f'{to_file_name}.sfs')
+        to_pm = os.path.join(to_instance['DIR'], 'saves', to_instance['GAME_NAME'], f'{to_file_name}.loadmeta')
 
-        shutil.copyfile(real_qs, sim_qs)
-        shutil.copyfile(real_qsm, sim_qsm)
+        shutil.copyfile(from_p, to_p)
+        shutil.copyfile(from_pm, to_pm)
+
+
+    def copyQuickSave(self):
+        self.copyGameState(settings.REAL_GAME_INSTANCE, settings.SIM_GAME_INSTANCE, 'quicksave', 'quicksave')
+
+
+    def copyOtherState(self):
+        options = [i for i in os.listdir(os.path.join(settings.REAL_GAME_INSTANCE['DIR'], 'saves', settings.REAL_GAME_INSTANCE['GAME_NAME'])) if i.endswith('sfs')]
+        option, yes = QtWidgets.QInputDialog.getItem(self, 'Select State', '', options)
+        if yes:
+            option = option[:-4]
+            self.copyGameState(settings.REAL_GAME_INSTANCE, settings.SIM_GAME_INSTANCE, option, option)
+
+
+    def saveCommandSequences(self):
+        save_cs(self.command_sequences_view_model.cs_list)
 
 
     def removeSelectedCommandSequence(self):
         index = self.commandSequencesView.selectionModel().currentIndex()
         if index.isValid():
-            self.command_sequences_view_model.cl_list.pop(index.row())
+            self.command_sequences_view_model.cs_list.pop(index.row())
             self.command_sequences_view_model.removeRows(index.row(), 1)
+
 
     def removeSelectedCommands(self):
         index = self.commandsView.selectionModel().currentIndex()
@@ -90,26 +110,26 @@ class commandSequenceViewModel(QAbstractListModel):
 
     def __init__(self):
         super().__init__()
-        self.cl_list = []
+        self.cs_list = load_cs()
         self.editable = True
 
     def newCommandSequence(self):
         new_cl = commandSequence()
         new_cl.name = "new sequence"
-        self.cl_list.append(new_cl)
-        self.insertRows(len(self.cl_list)-1, 1)
+        self.cs_list.append(new_cl)
+        self.insertRows(len(self.cs_list)-1, 1)
 
     def rowCount(self, parent=QModelIndex()):
-        return len(self.cl_list)
+        return len(self.cs_list)
 
     def data(self, index, role=Qt.DisplayRole):
         if role == Qt.DisplayRole:
-            return self.cl_list[index.row()].name
+            return self.cs_list[index.row()].name
 
     def setData(self, index, value, role=Qt.EditRole):
 
         if role == Qt.EditRole:
-            self.cl_list[index.row()].name = value
+            self.cs_list[index.row()].name = value
             return True
 
     def flags(self, index):

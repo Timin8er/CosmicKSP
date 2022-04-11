@@ -1,3 +1,6 @@
+import os
+import json
+
 FLOAT = 0
 STRING = 1
 ENUM = 2
@@ -14,27 +17,48 @@ COMMANDS = [
 
 class commandArgument():
 
-    def __init__(self, arg={}):
-        self.name = arg.get('name', '')
-        self.type = arg.get('type', STRING)
+    def __init__(self, data={}):
+        self.name = data.get('name', '')
+        self.type = data.get('type', STRING)
         self.value = None
+
+    def encode(self):
+        return {
+            'name':self.name,
+            'type':self.type,
+            'value':self.value,
+        }
+
+    @classmethod
+    def decode(cls, data):
+        obj = cls(data)
+        return obj
 
 
 class command():
 
-    def __init__(self, cmd={}):
-        self.name = cmd.get('name', '')
-        self.commandText = cmd.get('command', '')
-        self.description = cmd.get('description', '')
-        self.arguements = [commandArgument(arg) for arg in cmd.get('arguements', [])]
+    def __init__(self, data={}):
+        self.name = data.get('name', '')
+        self.commandText = data.get('command', '')
+        self.description = data.get('description', '')
+        self.arguements = [commandArgument(i) for i in data.get('arguements', [])]
         self.edited = False
+
+    def encode(self):
+        return {
+            'name':self.name,
+            'commandText':self.commandText,
+            'description':self.description,
+            'arguements':[i.encode() for i in self.arguements],
+        }
+
 
 
 class commandSequence():
 
-    def __init__(self):
-        self.content = []
-        self.name = ''
+    def __init__(self, data={}):
+        self.name = data.get('name', '')
+        self.content = [command(i) for i in data.get('content', [])]
         self.edited = False
 
 
@@ -51,3 +75,30 @@ class commandSequence():
             self.content.pop(cmd)
         else:
             self.content.remove(cmd)
+
+
+    def encode(self):
+        return {
+            'name':self.name,
+            'content':[i.encode() for i in self.content],
+        }
+
+
+SAVE_FILE = os.path.join(os.path.expanduser('~'), 'Documents', 'CosmicKSP', 'save.json')
+if not os.path.isdir(os.path.dirname(SAVE_FILE)):
+    os.makedirs(os.path.dirname(SAVE_FILE))
+
+def save_cs(command_sequences):
+    data = [i.encode() for i in command_sequences]
+    with open(SAVE_FILE, 'w') as outfile:
+        json.dump(data, outfile)
+
+def load_cs():
+    try:
+        with open(SAVE_FILE, 'r') as outfile:
+            data = json.load(outfile)
+        return [commandSequence(i) for i in data]
+    except Exception as e:
+        print('ERROR while loading saved Command Sequences')
+        print(e)
+    return []
