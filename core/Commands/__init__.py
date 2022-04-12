@@ -9,8 +9,22 @@ COMMANDS = [
     {
         'name':'Stage',
         'description':'space bar goes to space.',
-        'command':'stage',
+        'commandText':'stage',
         'arguements':[],
+    },
+    {
+        'name':'Set SAS',
+        'description':'Set the state of SAS',
+        'commandText':'sas {state}',
+        'arguements':[
+            {
+                'name':'State',
+                'key':'state',
+                'type':ENUM,
+                'options':['on', 'off'],
+                'value':'on'
+            }
+        ],
     }
 ]
 
@@ -19,27 +33,26 @@ class commandArgument():
 
     def __init__(self, data={}):
         self.name = data.get('name', '')
+        self.key = data.get('key', '')
         self.type = data.get('type', STRING)
-        self.value = None
+        self.value = data.get('value', None)
+        self.options = data.get('options', [])
 
     def encode(self):
         return {
             'name':self.name,
+            'key':self.key,
             'type':self.type,
             'value':self.value,
+            'options':self.options,
         }
-
-    @classmethod
-    def decode(cls, data):
-        obj = cls(data)
-        return obj
 
 
 class command():
 
     def __init__(self, data={}):
         self.name = data.get('name', '')
-        self.commandText = data.get('command', '')
+        self.commandText = data.get('commandText', '')
         self.description = data.get('description', '')
         self.arguements = [commandArgument(i) for i in data.get('arguements', [])]
         self.edited = False
@@ -51,6 +64,13 @@ class command():
             'description':self.description,
             'arguements':[i.encode() for i in self.arguements],
         }
+
+    def kosString(self):
+        if len(self.arguements):
+            print(self.commandText, {i.key:i.value for i in self.arguements})
+            return self.commandText.format(**{i.key:i.value for i in self.arguements})
+        else:
+            return self.commandText
 
 
 

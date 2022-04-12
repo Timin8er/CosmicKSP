@@ -53,6 +53,7 @@ class missionPlannerMainWindow(QtWidgets.QMainWindow, Ui_MissionPlannerWindow):
         self.btnAddCommand.clicked.connect(self.commands_view_model.newCommand)
         self.btnRemoveCommand.clicked.connect(self.removeSelectedCommands)
         self.commandsView.setModel(self.commands_view_model)
+        self.commandsView.selectionModel().selectionChanged.connect(self.populateArguements)
 
 
     def sendCommand(self):
@@ -112,6 +113,12 @@ class missionPlannerMainWindow(QtWidgets.QMainWindow, Ui_MissionPlannerWindow):
             cs = self.command_sequences_view_model.cs_list[index.row()]
             self.commands_view_model.load(cs.commands)
 
+
+    def populateArguements(self):
+        index = self.commandsView.selectionModel().currentIndex()
+        if index.isValid():
+            cs = self.commands_view_model.cmd_list[index.row()]
+            self.commandEdit.setText(cs.kosString())
 
 
 
@@ -176,7 +183,7 @@ class commandListViewModel(QAbstractListModel):
         self.endResetModel()
 
     def newCommand(self):
-        new_cmd = command(COMMANDS[0])
+        new_cmd = command(COMMANDS[1])
         self.cmd_list.append(new_cmd)
         self.insertRows(len(self.cmd_list)-1, 1)
 

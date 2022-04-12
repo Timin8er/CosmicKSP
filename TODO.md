@@ -1,9 +1,8 @@
 **Game States**
 
 **Command Sequences**
-- create form for command inputs
+- create form for command arguments
 - drag and drop command rearrangement
-- populate kos string from selected command
 
 **Relay**
 - Add relay toggle such that the app does not need to connect at launch

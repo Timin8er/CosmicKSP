@@ -61,23 +61,23 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_3">
            <item>
-            <widget class="QToolButton" name="btnRemoveCommandSequence">
-             <property name="text">
-              <string>-</string>
-             </property>
-             <property name="icon">
-              <iconset theme="list-remove">
-               <normaloff>.</normaloff>.</iconset>
-             </property>
-            </widget>
-           </item>
-           <item>
             <widget class="QToolButton" name="btnAddCommandSequence">
              <property name="text">
               <string>+</string>
              </property>
              <property name="icon">
               <iconset theme="list-add">
+               <normaloff>.</normaloff>.</iconset>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="btnRemoveCommandSequence">
+             <property name="text">
+              <string>-</string>
+             </property>
+             <property name="icon">
+              <iconset theme="list-remove">
                <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
@@ -112,23 +112,23 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_4">
            <item>
-            <widget class="QToolButton" name="btnRemoveCommand">
-             <property name="text">
-              <string>-</string>
-             </property>
-             <property name="icon">
-              <iconset theme="list-remove">
-               <normaloff>.</normaloff>.</iconset>
-             </property>
-            </widget>
-           </item>
-           <item>
             <widget class="QToolButton" name="btnAddCommand">
              <property name="text">
               <string>+</string>
              </property>
              <property name="icon">
               <iconset theme="list-add">
+               <normaloff>.</normaloff>.</iconset>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="btnRemoveCommand">
+             <property name="text">
+              <string>-</string>
+             </property>
+             <property name="icon">
+              <iconset theme="list-remove">
                <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
