@@ -192,12 +192,5 @@ class treeModel(QAbstractItemModel):
             return True
 
 
-    # def headerData(self, section, orientation, role=Qt.DisplayRole):
-    #     if orientation == Qt.Horizontal and role == Qt.DisplayRole:
-    #         return ''
-    #
-    #     return QAbstractItemModel.headerData(self, section, orientation, role)
-
-
     def genObjs(self):
         yield from self._root.genObjs()

@@ -11,6 +11,7 @@ from CosmicKSP.core.Commands import *
 
 from .MPDesigner import Ui_MissionPlannerWindow
 from .commandSequencesTreeModel import treeModel, folderItem
+from .commandsList import commandslistView
 
 
 class missionPlannerMainWindow(QtWidgets.QMainWindow, Ui_MissionPlannerWindow):
@@ -49,18 +50,17 @@ class missionPlannerMainWindow(QtWidgets.QMainWindow, Ui_MissionPlannerWindow):
         self.btnRemoveCommandSequence.clicked.connect(self.removeSelectedCommandSequence)
 
         self.commandSequencesView.setModel(self.command_sequences_view_model)
+        self.commandSequencesView.setModel(self.command_sequences_view_model)
         self.commandSequencesView.setHeaderHidden(True)
         self.commandSequencesView.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
         self.commandSequencesView.selectionModel().selectionChanged.connect(self.populateCommands)
 
-        self.commands_view_model = commandListViewModel()
-        self.commands_view_model.editable = False
-        self.btnAddCommand.clicked.connect(self.newCommand)
-        self.btnRemoveCommand.clicked.connect(self.removeSelectedCommands)
 
-        self.commandsView.setModel(self.commands_view_model)
-        self.commandsView.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
-        self.commandsView.selectionModel().selectionChanged.connect(self.populateArguements)
+        self.commands_view = commandslistView(self)
+        self.commandToolsLayout.addWidget(self.commands_view)
+        self.btnAddCommand.clicked.connect(self.commands_view.newCommand)
+        self.btnRemoveCommand.clicked.connect(self.commands_view.removeSelectedCommands)
+        self.commands_view.selectionModel().selectionChanged.connect(self.populateArguements)
 
 
     def sendCommand(self):
@@ -132,89 +132,24 @@ class missionPlannerMainWindow(QtWidgets.QMainWindow, Ui_MissionPlannerWindow):
         self.command_sequences_view_model.addObj(new_folder, index)
 
 
-    def newCommand(self):
-        options = [i['name'] for i in COMMANDS]
-        option, yes = QtWidgets.QInputDialog.getItem(self, 'Select Command', '', options)
-
-        if yes:
-            for cmd in COMMANDS:
-                if cmd['name'] == option:
-                    self.commands_view_model.appendCommand(cmd)
-                    break
-
-
-    def removeSelectedCommands(self):
-        # TODO: delete all selected
-        index = self.commandsView.selectionModel().currentIndex()
-        if index.isValid():
-            self.commands_view_model.cmd_list.pop(index.row())
-            self.commands_view_model.removeRows(index.row(), 1)
-
-
     def populateCommands(self):
         index = self.commandSequencesView.selectionModel().currentIndex()
         if index.isValid():
             cs = index.internalPointer().obj
             if isinstance(cs, commandSequence):
-                self.commands_view_model.load(cs.commands)
-                self.commands_view_model.editable = True
+                self.commands_view.model().load(cs.commands)
+                self.commands_view.model().editable = True
                 return
 
-        self.commands_view_model.clear()
-        self.commands_view_model.editable = False
+        self.commands_view.model().clear()
+        self.commands_view.model().editable = False
 
 
     def populateArguements(self):
-        index = self.commandsView.selectionModel().currentIndex()
+        index = self.commands_view.selectionModel().currentIndex()
+
         if index.isValid():
-            cs = self.commands_view_model.cmd_list[index.row()]
+            cs = self.commands_view.model().cmd_list[index.row()]
             self.commandEdit.setText(cs.kosString())
-
-
-
-class commandListViewModel(QAbstractListModel):
-
-    def __init__(self):
-        super().__init__()
-        self.cmd_list = []
-        self.editable = True
-
-    def clear(self):
-        self.beginResetModel()
-        self.cmd_list = []
-        self.endResetModel()
-
-    def load(self, lst):
-        self.beginResetModel()
-        self.cmd_list = lst
-        self.endResetModel()
-
-    def appendCommand(self, cmd):
-        self.cmd_list.append(command(cmd))
-        self.insertRows(len(self.cmd_list)-1, 1)
-
-    def rowCount(self, parent=QModelIndex()):
-        return len(self.cmd_list)
-
-    def data(self, index, role=Qt.DisplayRole):
-        if role == Qt.DisplayRole or role == Qt.EditRole:
-            return self.cmd_list[index.row()].name
-
-    def setData(self, index, value, role=Qt.EditRole):
-        if role == Qt.EditRole:
-            self.cmd_list[index.row()].name = value
-            return True
-
-    def flags(self, index):
-        if self.editable:
-            return Qt.ItemIsEditable | Qt.ItemIsEnabled
         else:
-            return Qt.ItemIsEnabled
-
-    def insertRows(self, row, count, parent=QModelIndex()):
-        self.beginInsertRows(parent, row, row)
-        self.endInsertRows()
-
-    def removeRows(self, row, count, parent=QModelIndex()):
-        self.beginRemoveRows(parent, row, row)
-        self.endRemoveRows()
+            self.commandEdit.setText('')
