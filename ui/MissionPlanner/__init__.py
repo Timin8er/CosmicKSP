@@ -10,8 +10,8 @@ from CosmicKSP.ui import icons
 from CosmicKSP.core.Commands import *
 
 from .MPDesigner import Ui_MissionPlannerWindow
-from .commandSequencesTreeModel import treeModel, folderItem
 from .commandsList import commandslistView
+from .commandSequencesTree import commandSequenceTreeView
 
 
 class missionPlannerMainWindow(QtWidgets.QMainWindow, Ui_MissionPlannerWindow):
@@ -43,18 +43,14 @@ class missionPlannerMainWindow(QtWidgets.QMainWindow, Ui_MissionPlannerWindow):
         self.btnAddCommand.setIcon(QIcon(icons.NEW))
         self.btnRemoveCommand.setIcon(QIcon(icons.DELETE))
 
-        self.command_sequences_view_model = treeModel(commandSequence)
-        self.command_sequences_view_model.load(load_cs())
-        self.btnAddCommandSequence.clicked.connect(self.newCommandSequence)
-        self.btnAddCSFolder.clicked.connect(self.newCommandSequenceFolder)
-        self.btnRemoveCommandSequence.clicked.connect(self.removeSelectedCommandSequence)
+        self.commands_sequences_view = commandSequenceTreeView(self)
+        self.commands_sequences_view.model().load(load_cs())
+        self.verticalLayout_3.addWidget(self.commands_sequences_view)
 
-        self.commandSequencesView.setModel(self.command_sequences_view_model)
-        self.commandSequencesView.setModel(self.command_sequences_view_model)
-        self.commandSequencesView.setHeaderHidden(True)
-        self.commandSequencesView.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
-        self.commandSequencesView.selectionModel().selectionChanged.connect(self.populateCommands)
-
+        self.btnAddCommandSequence.clicked.connect(self.commands_sequences_view.newCommandSequence)
+        self.btnAddCSFolder.clicked.connect(self.commands_sequences_view.newCommandSequenceFolder)
+        self.btnRemoveCommandSequence.clicked.connect(self.commands_sequences_view.removeSelectedCommandSequence)
+        self.commands_sequences_view.selectionModel().selectionChanged.connect(self.populateCommands)
 
         self.commands_view = commandslistView(self)
         self.commandToolsLayout.addWidget(self.commands_view)
@@ -97,43 +93,12 @@ class missionPlannerMainWindow(QtWidgets.QMainWindow, Ui_MissionPlannerWindow):
 
 
     def saveCommandSequences(self):
-        save_cs([i for i in self.command_sequences_view_model.genObjs()])
+        save_cs([i for i in self.commands_sequences_view.model().genObjs()])
         QtWidgets.QMessageBox.information(self, 'Saved', 'Command Sequences Saved')
 
 
-    def newCommandSequence(self):
-        index = self.commandSequencesView.selectionModel().currentIndex()
-
-        if index.isValid() and isinstance(index.internalPointer().obj, commandSequence):
-            index = index.parent()
-            if index.internalPointer().obj is None:
-                index = QModelIndex()
-
-        cs = commandSequence()
-        cs.name= 'New Sequence'
-        self.command_sequences_view_model.addObj(cs, index)
-
-
-    def removeSelectedCommandSequence(self):
-        index = self.commandSequencesView.selectionModel().currentIndex()
-        self.command_sequences_view_model.removeObj(index)
-        self.populateCommands()
-
-
-    def newCommandSequenceFolder(self):
-        index = self.commandSequencesView.selectionModel().currentIndex()
-
-        if index.isValid() and isinstance(index.internalPointer().obj, commandSequence):
-            index = index.parent()
-            if index.internalPointer().obj is None:
-                index = QModelIndex()
-
-        new_folder = folderItem('New Folder')
-        self.command_sequences_view_model.addObj(new_folder, index)
-
-
     def populateCommands(self):
-        index = self.commandSequencesView.selectionModel().currentIndex()
+        index = self.commands_sequences_view.selectionModel().currentIndex()
         if index.isValid():
             cs = index.internalPointer().obj
             if isinstance(cs, commandSequence):

@@ -2,7 +2,6 @@
 
 **Command Sequences**
 - create form for command arguments
-- drag and drop command rearrangement
 
 **Relay**
 - Add relay toggle such that the app does not need to connect at launch

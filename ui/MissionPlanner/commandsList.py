@@ -12,7 +12,6 @@ class commandslistView(QtWidgets.QListView):
         self.setAcceptDrops(True)
         self.setDragEnabled(True)
         self.setDragDropMode(QtWidgets.QAbstractItemView.InternalMove)
-        # self.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
 
         self.commands_view_model = commandListViewModel()
         self.commands_view_model.editable = False

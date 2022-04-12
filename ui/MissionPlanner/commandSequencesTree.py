@@ -1,7 +1,63 @@
-from PyQt5.QtCore import QAbstractItemModel, Qt, QModelIndex
+from PyQt5.QtWidgets import QTreeView, QAbstractItemView
+from PyQt5.QtCore import QAbstractItemModel, Qt, QModelIndex, QItemSelectionModel
 from PyQt5.QtGui import QIcon
 import os
+
 from CosmicKSP.ui import icons
+from CosmicKSP.core.Commands import *
+
+
+class commandSequenceTreeView(QTreeView):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.view_model = treeModel(commandSequence)
+
+        self.setModel(self.view_model)
+        self.setHeaderHidden(True)
+        self.setSelectionMode(QAbstractItemView.ExtendedSelection)
+
+
+    def newCommandSequence(self):
+        index = self.selectionModel().currentIndex()
+
+        if index.isValid() and isinstance(index.internalPointer().obj, commandSequence):
+            index = index.parent()
+            if index.internalPointer().obj is None:
+                index = QModelIndex()
+
+        cs = commandSequence()
+        cs.name= 'New Sequence'
+        self.view_model.addObj(cs, index)
+
+
+    def removeSelectedCommandSequence(self):
+        index = self.selectionModel().currentIndex()
+        self.view_model.removeObj(index)
+
+
+    def newCommandSequenceFolder(self):
+        index = self.selectionModel().currentIndex()
+
+        if index.isValid() and isinstance(index.internalPointer().obj, commandSequence):
+            index = index.parent()
+            if index.internalPointer().obj is None:
+                index = QModelIndex()
+
+        new_folder = folderItem('New Folder')
+        self.view_model.addObj(new_folder, index)
+
+
+    def  mousePressEvent(self, event):
+        index = self.indexAt(event.pos())
+        if not index.isValid():
+            self.selectionModel().setCurrentIndex(QModelIndex(), QItemSelectionModel.Select)
+            self.clearSelection()
+
+        super().mousePressEvent(event)
+
+
 
 class folderItem():
 
