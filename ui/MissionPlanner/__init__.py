@@ -50,7 +50,7 @@ class missionPlannerMainWindow(QtWidgets.QMainWindow, Ui_MissionPlannerWindow):
         self.commandSequencesView.selectionModel().selectionChanged.connect(self.populateCommands)
 
         self.commands_view_model = commandListViewModel()
-        self.btnAddCommand.clicked.connect(self.commands_view_model.newCommand)
+        self.btnAddCommand.clicked.connect(self.newCommand)
         self.btnRemoveCommand.clicked.connect(self.removeSelectedCommands)
         self.commandsView.setModel(self.commands_view_model)
         self.commandsView.selectionModel().selectionChanged.connect(self.populateArguements)
@@ -122,6 +122,17 @@ class missionPlannerMainWindow(QtWidgets.QMainWindow, Ui_MissionPlannerWindow):
             self.commandEdit.setText(cs.kosString())
 
 
+    def newCommand(self):
+        options = [i['name'] for i in COMMANDS]
+        option, yes = QtWidgets.QInputDialog.getItem(self, 'Select Command', '', options)
+
+        if yes:
+            for cmd in COMMANDS:
+                if cmd['name'] == option:
+                    self.commands_view_model.appendCommand(cmd)
+                    break
+
+
 
 class commandSequenceViewModel(QAbstractListModel):
 
@@ -157,7 +168,6 @@ class commandSequenceViewModel(QAbstractListModel):
 
     def insertRows(self, row, count, parent=QModelIndex()):
         self.beginInsertRows(parent, row, row)
-
         self.endInsertRows()
 
     def removeRows(self, row, count, parent=QModelIndex()):
@@ -183,9 +193,8 @@ class commandListViewModel(QAbstractListModel):
         self.cmd_list = lst
         self.endResetModel()
 
-    def newCommand(self):
-        new_cmd = command(COMMANDS[1])
-        self.cmd_list.append(new_cmd)
+    def appendCommand(self, cmd):
+        self.cmd_list.append(command(cmd))
         self.insertRows(len(self.cmd_list)-1, 1)
 
     def rowCount(self, parent=QModelIndex()):
@@ -208,7 +217,6 @@ class commandListViewModel(QAbstractListModel):
 
     def insertRows(self, row, count, parent=QModelIndex()):
         self.beginInsertRows(parent, row, row)
-
         self.endInsertRows()
 
     def removeRows(self, row, count, parent=QModelIndex()):

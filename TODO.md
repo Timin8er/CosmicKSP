@@ -2,7 +2,6 @@
 
 **Command Sequences**
 - create form for command arguments
-- dialog for choosing command to add
 - drag and drop command rearrangement
 - Sort sequences into folders
 
