@@ -58,29 +58,29 @@ class commandSequence():
 
     def __init__(self, data={}):
         self.name = data.get('name', '')
-        self.content = [command(i) for i in data.get('content', [])]
+        self.commands = [command(i) for i in data.get('commands', [])]
         self.edited = False
 
 
     def append(self, cmd):
-        self.content.append(cmd)
+        self.commands.append(cmd)
 
 
     def insert(self, index, cmd):
-        self.content.insert(index, cmd)
+        self.commands.insert(index, cmd)
 
 
     def remove(self, cmd):
         if isinstance(cmd, int):
-            self.content.pop(cmd)
+            self.commands.pop(cmd)
         else:
-            self.content.remove(cmd)
+            self.commands.remove(cmd)
 
 
     def encode(self):
         return {
             'name':self.name,
-            'content':[i.encode() for i in self.content],
+            'commands':[i.encode() for i in self.commands],
         }
 
 

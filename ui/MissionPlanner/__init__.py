@@ -39,13 +39,15 @@ class missionPlannerMainWindow(QtWidgets.QMainWindow, Ui_MissionPlannerWindow):
         # self.btnAddCommand.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_MediaPlay))
         self.btnRemoveCommand.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_DialogDiscardButton))
 
-        self.commandSequencesView.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection);
-        self.commandsView.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection);
+        self.commandSequencesView.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
+
+        self.commandsView.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
 
         self.command_sequences_view_model = commandSequenceViewModel()
         self.btnAddCommandSequence.clicked.connect(self.command_sequences_view_model.newCommandSequence)
         self.btnRemoveCommandSequence.clicked.connect(self.removeSelectedCommandSequence)
         self.commandSequencesView.setModel(self.command_sequences_view_model)
+        self.commandSequencesView.selectionModel().selectionChanged.connect(self.populateCommands)
 
         self.commands_view_model = commandListViewModel()
         self.btnAddCommand.clicked.connect(self.commands_view_model.newCommand)
@@ -104,6 +106,13 @@ class missionPlannerMainWindow(QtWidgets.QMainWindow, Ui_MissionPlannerWindow):
             self.commands_view_model.removeRows(index.row(), 1)
 
 
+    def populateCommands(self):
+        index = self.commandSequencesView.selectionModel().currentIndex()
+        if index.isValid():
+            cs = self.command_sequences_view_model.cs_list[index.row()]
+            self.commands_view_model.load(cs.commands)
+
+
 
 
 class commandSequenceViewModel(QAbstractListModel):
@@ -123,7 +132,7 @@ class commandSequenceViewModel(QAbstractListModel):
         return len(self.cs_list)
 
     def data(self, index, role=Qt.DisplayRole):
-        if role == Qt.DisplayRole:
+        if role == Qt.DisplayRole or role == Qt.EditRole:
             return self.cs_list[index.row()].name
 
     def setData(self, index, value, role=Qt.EditRole):
@@ -157,12 +166,14 @@ class commandListViewModel(QAbstractListModel):
         self.editable = True
 
     def clear(self):
+        self.beginResetModel()
         self.cmd_list = []
+        self.endResetModel()
 
     def load(self, lst):
-        self.clear()
+        self.beginResetModel()
         self.cmd_list = lst
-        self.insertRows(0, len(lst))
+        self.endResetModel()
 
     def newCommand(self):
         new_cmd = command(COMMANDS[0])
@@ -173,7 +184,7 @@ class commandListViewModel(QAbstractListModel):
         return len(self.cmd_list)
 
     def data(self, index, role=Qt.DisplayRole):
-        if role == Qt.DisplayRole:
+        if role == Qt.DisplayRole or role == Qt.EditRole:
             return self.cmd_list[index.row()].name
 
     def setData(self, index, value, role=Qt.EditRole):

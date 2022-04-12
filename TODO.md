@@ -1,11 +1,9 @@
 **Game States**
-- Move "copy Game State" function to menu
-- add ability to copy any save (persistent, quicksave, named)
 
 **Command Sequences**
-- fix old command sequence name not populating edit widget
-- populate commands view model when selected command sequence
 - create form for command inputs
+- drag and drop command rearrangement
+- populate kos string from selected command
 
 **Relay**
 - Add relay toggle such that the app does not need to connect at launch
