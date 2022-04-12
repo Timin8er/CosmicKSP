@@ -78,6 +78,7 @@ class commandSequence():
     def __init__(self, data={}):
         self.name = data.get('name', '')
         self.commands = [command(i) for i in data.get('commands', [])]
+        self.folder = data.get('folder', '')
         self.edited = False
 
 
@@ -99,6 +100,7 @@ class commandSequence():
     def encode(self):
         return {
             'name':self.name,
+            'folder':self.folder,
             'commands':[i.encode() for i in self.commands],
         }
 
@@ -110,7 +112,7 @@ if not os.path.isdir(os.path.dirname(SAVE_FILE)):
 def save_cs(command_sequences):
     data = [i.encode() for i in command_sequences]
     with open(SAVE_FILE, 'w') as outfile:
-        json.dump(data, outfile)
+        json.dump(data, outfile, indent=4)
 
 def load_cs():
     try:

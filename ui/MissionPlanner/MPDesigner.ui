@@ -72,6 +72,13 @@
             </widget>
            </item>
            <item>
+            <widget class="QToolButton" name="btnAddCSFolder">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QToolButton" name="btnRemoveCommandSequence">
              <property name="text">
               <string>-</string>
@@ -98,7 +105,7 @@
           </layout>
          </item>
          <item>
-          <widget class="QListView" name="commandSequencesView"/>
+          <widget class="QTreeView" name="commandSequencesView"/>
          </item>
         </layout>
        </widget>

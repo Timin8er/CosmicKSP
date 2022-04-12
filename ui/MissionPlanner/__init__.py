@@ -10,6 +10,7 @@ from CosmicKSP.ui import icons
 from CosmicKSP.core.Commands import *
 
 from .MPDesigner import Ui_MissionPlannerWindow
+from .commandSequencesTreeModel import treeModel, folderItem
 
 
 class missionPlannerMainWindow(QtWidgets.QMainWindow, Ui_MissionPlannerWindow):
@@ -29,30 +30,36 @@ class missionPlannerMainWindow(QtWidgets.QMainWindow, Ui_MissionPlannerWindow):
         self.actionCopy_QuickSave.triggered.connect(self.copyQuickSave)
         self.actionOther.triggered.connect(self.copyOtherState)
         self.actionSave.triggered.connect(self.saveCommandSequences)
+        self.actionSave.setIcon(QIcon(icons.SAVE))
 
         self.btnSend.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_MediaPlay))
         self.btnStop.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_MediaStop))
 
-        # self.btnAddCommandSequence.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_MediaPlay))
-        self.btnRemoveCommandSequence.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_DialogDiscardButton))
+        self.btnAddCommandSequence.setIcon(QIcon(icons.NEW))
+        self.btnAddCSFolder.setIcon(QIcon(icons.FOLDER))
+        self.btnRemoveCommandSequence.setIcon(QIcon(icons.DELETE))
 
-        # self.btnAddCommand.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_MediaPlay))
-        self.btnRemoveCommand.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_DialogDiscardButton))
+        self.btnAddCommand.setIcon(QIcon(icons.NEW))
+        self.btnRemoveCommand.setIcon(QIcon(icons.DELETE))
 
-        self.commandSequencesView.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
-
-        self.commandsView.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
-
-        self.command_sequences_view_model = commandSequenceViewModel()
-        self.btnAddCommandSequence.clicked.connect(self.command_sequences_view_model.newCommandSequence)
+        self.command_sequences_view_model = treeModel(commandSequence)
+        self.command_sequences_view_model.load(load_cs())
+        self.btnAddCommandSequence.clicked.connect(self.newCommandSequence)
+        self.btnAddCSFolder.clicked.connect(self.newCommandSequenceFolder)
         self.btnRemoveCommandSequence.clicked.connect(self.removeSelectedCommandSequence)
+
         self.commandSequencesView.setModel(self.command_sequences_view_model)
+        self.commandSequencesView.setHeaderHidden(True)
+        self.commandSequencesView.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
         self.commandSequencesView.selectionModel().selectionChanged.connect(self.populateCommands)
 
         self.commands_view_model = commandListViewModel()
+        self.commands_view_model.editable = False
         self.btnAddCommand.clicked.connect(self.newCommand)
         self.btnRemoveCommand.clicked.connect(self.removeSelectedCommands)
+
         self.commandsView.setModel(self.commands_view_model)
+        self.commandsView.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
         self.commandsView.selectionModel().selectionChanged.connect(self.populateArguements)
 
 
@@ -90,36 +97,39 @@ class missionPlannerMainWindow(QtWidgets.QMainWindow, Ui_MissionPlannerWindow):
 
 
     def saveCommandSequences(self):
-        save_cs(self.command_sequences_view_model.cs_list)
+        save_cs([i for i in self.command_sequences_view_model.genObjs()])
         QtWidgets.QMessageBox.information(self, 'Saved', 'Command Sequences Saved')
+
+
+    def newCommandSequence(self):
+        index = self.commandSequencesView.selectionModel().currentIndex()
+
+        if index.isValid() and isinstance(index.internalPointer().obj, commandSequence):
+            index = index.parent()
+            if index.internalPointer().obj is None:
+                index = QModelIndex()
+
+        cs = commandSequence()
+        cs.name= 'New Sequence'
+        self.command_sequences_view_model.addObj(cs, index)
 
 
     def removeSelectedCommandSequence(self):
         index = self.commandSequencesView.selectionModel().currentIndex()
-        if index.isValid():
-            self.command_sequences_view_model.cs_list.pop(index.row())
-            self.command_sequences_view_model.removeRows(index.row(), 1)
+        self.command_sequences_view_model.removeObj(index)
+        self.populateCommands()
 
 
-    def removeSelectedCommands(self):
-        index = self.commandsView.selectionModel().currentIndex()
-        if index.isValid():
-            self.commands_view_model.cmd_list.pop(index.row())
-            self.commands_view_model.removeRows(index.row(), 1)
-
-
-    def populateCommands(self):
+    def newCommandSequenceFolder(self):
         index = self.commandSequencesView.selectionModel().currentIndex()
-        if index.isValid():
-            cs = self.command_sequences_view_model.cs_list[index.row()]
-            self.commands_view_model.load(cs.commands)
 
+        if index.isValid() and isinstance(index.internalPointer().obj, commandSequence):
+            index = index.parent()
+            if index.internalPointer().obj is None:
+                index = QModelIndex()
 
-    def populateArguements(self):
-        index = self.commandsView.selectionModel().currentIndex()
-        if index.isValid():
-            cs = self.commands_view_model.cmd_list[index.row()]
-            self.commandEdit.setText(cs.kosString())
+        new_folder = folderItem('New Folder')
+        self.command_sequences_view_model.addObj(new_folder, index)
 
 
     def newCommand(self):
@@ -133,46 +143,32 @@ class missionPlannerMainWindow(QtWidgets.QMainWindow, Ui_MissionPlannerWindow):
                     break
 
 
+    def removeSelectedCommands(self):
+        # TODO: delete all selected
+        index = self.commandsView.selectionModel().currentIndex()
+        if index.isValid():
+            self.commands_view_model.cmd_list.pop(index.row())
+            self.commands_view_model.removeRows(index.row(), 1)
 
-class commandSequenceViewModel(QAbstractListModel):
 
-    def __init__(self):
-        super().__init__()
-        self.cs_list = load_cs()
-        self.editable = True
+    def populateCommands(self):
+        index = self.commandSequencesView.selectionModel().currentIndex()
+        if index.isValid():
+            cs = index.internalPointer().obj
+            if isinstance(cs, commandSequence):
+                self.commands_view_model.load(cs.commands)
+                self.commands_view_model.editable = True
+                return
 
-    def newCommandSequence(self):
-        new_cl = commandSequence()
-        new_cl.name = "new sequence"
-        self.cs_list.append(new_cl)
-        self.insertRows(len(self.cs_list)-1, 1)
+        self.commands_view_model.clear()
+        self.commands_view_model.editable = False
 
-    def rowCount(self, parent=QModelIndex()):
-        return len(self.cs_list)
 
-    def data(self, index, role=Qt.DisplayRole):
-        if role == Qt.DisplayRole or role == Qt.EditRole:
-            return self.cs_list[index.row()].name
-
-    def setData(self, index, value, role=Qt.EditRole):
-
-        if role == Qt.EditRole:
-            self.cs_list[index.row()].name = value
-            return True
-
-    def flags(self, index):
-        if self.editable:
-            return Qt.ItemIsEditable | Qt.ItemIsEnabled
-        else:
-            return Qt.ItemIsEnabled
-
-    def insertRows(self, row, count, parent=QModelIndex()):
-        self.beginInsertRows(parent, row, row)
-        self.endInsertRows()
-
-    def removeRows(self, row, count, parent=QModelIndex()):
-        self.beginRemoveRows(parent, row, row)
-        self.endRemoveRows()
+    def populateArguements(self):
+        index = self.commandsView.selectionModel().currentIndex()
+        if index.isValid():
+            cs = self.commands_view_model.cmd_list[index.row()]
+            self.commandEdit.setText(cs.kosString())
 
 
 
