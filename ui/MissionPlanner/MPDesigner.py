@@ -144,5 +144,6 @@ class Ui_MissionPlannerWindow(object):
         self.menuFile.setTitle(_translate("MissionPlannerWindow", "File"))
         self.menuSim_State.setTitle(_translate("MissionPlannerWindow", "Sim State"))
         self.actionSave.setText(_translate("MissionPlannerWindow", "Save"))
+        self.actionSave.setShortcut(_translate("MissionPlannerWindow", "Ctrl+S"))
         self.actionCopy_QuickSave.setText(_translate("MissionPlannerWindow", "Copy QuickSave"))
         self.actionOther.setText(_translate("MissionPlannerWindow", "Other"))

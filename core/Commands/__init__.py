@@ -9,20 +9,20 @@ COMMANDS = [
     {
         'name':'Stage',
         'description':'space bar goes to space.',
-        'commandText':'stage',
+        'commandText':'STAGE',
         'arguements':[],
     },
     {
         'name':'Set SAS',
         'description':'Set the state of SAS',
-        'commandText':'sas {state}',
+        'commandText':'SAS {state}',
         'arguements':[
             {
                 'name':'State',
                 'key':'state',
                 'type':ENUM,
-                'options':['on', 'off'],
-                'value':'on'
+                'options':['ON', 'OFF'],
+                'value':'ON'
             }
         ],
     }
@@ -67,7 +67,6 @@ class command():
 
     def kosString(self):
         if len(self.arguements):
-            print(self.commandText, {i.key:i.value for i in self.arguements})
             return self.commandText.format(**{i.key:i.value for i in self.arguements})
         else:
             return self.commandText

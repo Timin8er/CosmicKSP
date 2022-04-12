@@ -91,6 +91,7 @@ class missionPlannerMainWindow(QtWidgets.QMainWindow, Ui_MissionPlannerWindow):
 
     def saveCommandSequences(self):
         save_cs(self.command_sequences_view_model.cs_list)
+        QtWidgets.QMessageBox.information(self, 'Saved', 'Command Sequences Saved')
 
 
     def removeSelectedCommandSequence(self):
