@@ -10,8 +10,9 @@ from CosmicKSP.ui import icons
 from CosmicKSP.core.Commands import *
 
 from .MPDesigner import Ui_MissionPlannerWindow
-from .commandsList import commandslistView
-from .commandSequencesTree import commandSequenceTreeView
+from .CommandsList import commandslistView
+from .CommandSequencesTree import commandSequenceTreeView
+from .ArguementsForm import generateForm
 
 
 class missionPlannerMainWindow(QtWidgets.QMainWindow, Ui_MissionPlannerWindow):
@@ -57,6 +58,9 @@ class missionPlannerMainWindow(QtWidgets.QMainWindow, Ui_MissionPlannerWindow):
         self.btnAddCommand.clicked.connect(self.commands_view.newCommand)
         self.btnRemoveCommand.clicked.connect(self.commands_view.removeSelectedCommands)
         self.commands_view.selectionModel().selectionChanged.connect(self.populateArguements)
+
+        self.arguements_form = None
+        self.descriptionLabel.setText('')
 
 
     def sendCommand(self):
@@ -113,8 +117,18 @@ class missionPlannerMainWindow(QtWidgets.QMainWindow, Ui_MissionPlannerWindow):
     def populateArguements(self):
         index = self.commands_view.selectionModel().currentIndex()
 
+        if self.arguements_form is not None:
+            self.verticalLayout_2.removeWidget(self.arguements_form)
+            self.arguements_form.deleteLater()
+            self.arguements_form = None
+
         if index.isValid():
-            cs = self.commands_view.model().cmd_list[index.row()]
-            self.commandEdit.setText(cs.kosString())
+            command = self.commands_view.model().cmd_list[index.row()]
+            self.descriptionLabel.setText(command.description)
+            self.commandEdit.setText(command.kosString())
+            self.arguements_form = generateForm(command)
+            self.verticalLayout_2.insertWidget(0, self.arguements_form)
+
         else:
             self.commandEdit.setText('')
+            self.descriptionLabel.setText('')

@@ -153,9 +153,7 @@ class treeModel(QAbstractItemModel):
             par_node = index.internalPointer()
 
         row = par_node.childCount()
-
         self.beginInsertRows(index, row, row)
-
         par_node.addChild(obj)
 
         self.endInsertRows()

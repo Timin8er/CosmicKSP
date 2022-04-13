@@ -7,6 +7,32 @@ ENUM = 2
 
 COMMANDS = [
     {
+        'name':'Test',
+        'description':'Test command',
+        'commandText':'set LOL to list("{str}", {flt}, "{state}")',
+        'arguements':[
+            {
+                'name':'Str',
+                'key':'str',
+                'type':STRING,
+                'value':'LOL'
+            },
+            {
+                'name':'Flt',
+                'key':'flt',
+                'type':FLOAT,
+                'value':3.1459
+            },
+            {
+                'name':'State',
+                'key':'state',
+                'type':ENUM,
+                'options':['ON', 'OFF'],
+                'value':'ON'
+            }
+        ],
+    },
+    {
         'name':'Stage',
         'description':'space bar goes to space.',
         'commandText':'STAGE',
