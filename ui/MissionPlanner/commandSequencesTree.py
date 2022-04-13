@@ -18,6 +18,10 @@ class commandSequenceTreeView(QTreeView):
         self.setHeaderHidden(True)
         self.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
+        self.setAcceptDrops(True)
+        self.setDragEnabled(True)
+        self.setDragDropMode(QAbstractItemView.InternalMove)
+
 
     def newCommandSequence(self):
         index = self.selectionModel().currentIndex()
@@ -56,6 +60,25 @@ class commandSequenceTreeView(QTreeView):
             self.clearSelection()
 
         super().mousePressEvent(event)
+
+
+    def dragEnterEvent(self, event):
+        if event.source() is self and self.view_model.editable:
+            self.drag_index = self.currentIndex()
+            event.accept()
+
+        else:
+            self.parent().dragEnterEvent(event)
+
+
+    def dropEvent(self, event):
+        if event.source() is self:
+            dest_index = self.indexAt(event.pos())
+
+            if dest_index.isValid():
+                self.model()._moveRow(self.drag_index, dest_index)
+            else:
+                self.model()._moveRow(self.drag_index, self.rootIndex())
 
 
 
@@ -207,7 +230,7 @@ class treeModel(QAbstractItemModel):
 
     def flags(self, index):
         if self.editable:
-            return Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable
+            return Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled | Qt.ItemIsSelectable
         else:
             return Qt.ItemIsEnabled | Qt.ItemIsSelectable
 
@@ -252,3 +275,22 @@ class treeModel(QAbstractItemModel):
 
     def genObjs(self):
         yield from self._root.genObjs()
+
+
+    def _moveRow(self, from_index, to_index):
+
+        while to_index.internalPointer().obj is not None and not isinstance(to_index.internalPointer().obj, folderItem):
+            to_index = to_index.parent()
+
+        if from_index.parent() is to_index:
+            return
+
+        source_node = from_index.internalPointer()
+        to_node = to_index.internalPointer()
+
+        self.beginMoveRows(from_index.parent(), from_index.row(), from_index.row(), to_index, to_node.childCount())
+
+        source_node._parent.removeChild(source_node)
+        to_node.addChild(source_node)
+
+        self.endMoveRows()
