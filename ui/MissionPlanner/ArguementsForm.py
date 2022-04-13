@@ -5,7 +5,7 @@ from PyQt5.QtGui import QIcon
 
 from CosmicKSP.core.Commands import FLOAT, STRING, ENUM
 
-def generateForm(command):
+def generateForm(command, editable):
 
     form_widget = QtWidgets.QWidget()
     form = QtWidgets.QFormLayout()
@@ -14,12 +14,15 @@ def generateForm(command):
     for arg in command.arguements:
         if arg.type == FLOAT:
             widget = getFloatWidget(arg)
+            widget.setEnabled(editable)
 
         elif arg.type == STRING:
             widget = getStringWidget(arg)
+            widget.setEnabled(editable)
 
         elif arg.type == ENUM:
             widget = getEnumWidget(arg)
+            widget.setEnabled(editable)
 
         form.addRow(arg.name, widget)
 

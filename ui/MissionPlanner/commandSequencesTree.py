@@ -107,7 +107,7 @@ class treeNode():
 
 
     def genObjs(self, path = None):
-        if self.obj is not None and not isinstance(self.obj, treeNode):
+        if self.obj is not None and not isinstance(self.obj, folderItem):
             self.obj.folder = path
             yield self.obj
 
@@ -125,6 +125,7 @@ class treeModel(QAbstractItemModel):
 
         self._root = treeNode(None)
         self.obj_class = obj_class
+        self.editable = True
 
 
     def clear(self):
@@ -205,7 +206,10 @@ class treeModel(QAbstractItemModel):
 
 
     def flags(self, index):
-        return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsEditable
+        if self.editable:
+            return Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable
+        else:
+            return Qt.ItemIsEnabled | Qt.ItemIsSelectable
 
 
     def parent(self, index):

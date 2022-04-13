@@ -13,9 +13,8 @@ class commandslistView(QtWidgets.QListView):
         self.setDragEnabled(True)
         self.setDragDropMode(QtWidgets.QAbstractItemView.InternalMove)
 
-        self.commands_view_model = commandListViewModel()
-        self.commands_view_model.editable = False
-        self.setModel(self.commands_view_model)
+        self.view_model = commandListViewModel()
+        self.setModel(self.view_model)
 
 
     def newCommand(self):
@@ -25,7 +24,7 @@ class commandslistView(QtWidgets.QListView):
         if yes:
             for cmd in COMMANDS:
                 if cmd['name'] == option:
-                    self.commands_view_model.appendCommand(cmd)
+                    self.view_model.appendCommand(cmd)
                     break
 
 
@@ -33,8 +32,8 @@ class commandslistView(QtWidgets.QListView):
         # TODO: delete all selected
         index = self.selectionModel().currentIndex()
         if index.isValid():
-            self.commands_view_model.cmd_list.pop(index.row())
-            self.commands_view_model.removeRows(index.row(), 1)
+            self.view_model.cmd_list.pop(index.row())
+            self.view_model.removeRows(index.row(), 1)
 
 
     def  mousePressEvent(self, event):
@@ -47,7 +46,7 @@ class commandslistView(QtWidgets.QListView):
 
 
     def dragEnterEvent(self, event):
-        if event.source() is self:
+        if event.source() is self and self.view_model._editable:
             self.drag_index = self.currentIndex()
             event.accept()
 
@@ -71,7 +70,7 @@ class commandListViewModel(QAbstractListModel):
     def __init__(self):
         super().__init__()
         self.cmd_list = []
-        self.editable = True
+        self._editable = True
 
 
     def clear(self):
@@ -107,7 +106,7 @@ class commandListViewModel(QAbstractListModel):
 
 
     def flags(self, index):
-        if self.editable:
+        if self._editable:
             return Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled | Qt.ItemIsSelectable
         else:
             return Qt.ItemIsEnabled | Qt.ItemIsSelectable

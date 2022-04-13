@@ -1,7 +1,7 @@
 **Game States**
 
 **Command Sequences**
-- have the Sim Manager inherit the Mission Planner as uneditable
+- add drag & drop to sequence tree
 
 **Relay**
 

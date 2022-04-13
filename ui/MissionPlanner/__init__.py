@@ -108,11 +108,9 @@ class missionPlannerMainWindow(QtWidgets.QMainWindow, Ui_MissionPlannerWindow):
             cs = index.internalPointer().obj
             if isinstance(cs, commandSequence):
                 self.commands_view.model().load(cs.commands)
-                self.commands_view.model().editable = True
                 return
 
         self.commands_view.model().clear()
-        self.commands_view.model().editable = False
 
 
     def populateArguements(self):
@@ -127,7 +125,7 @@ class missionPlannerMainWindow(QtWidgets.QMainWindow, Ui_MissionPlannerWindow):
             command = self.commands_view.model().cmd_list[index.row()]
             self.descriptionLabel.setText(command.description)
             self.commandEdit.setText(command.kosString())
-            self.arguements_form = generateForm(command)
+            self.arguements_form = generateForm(command, self.commands_view.model()._editable)
             self.verticalLayout_2.insertWidget(0, self.arguements_form)
 
         else:
