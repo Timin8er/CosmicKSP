@@ -33,6 +33,7 @@ class missionPlannerMainWindow(QtWidgets.QMainWindow, Ui_MissionPlannerWindow):
         self.actionOther.triggered.connect(self.copyOtherState)
         self.actionSave.triggered.connect(self.saveCommandSequences)
         self.actionSave.setIcon(QIcon(icons.SAVE))
+        self.actionReconnect.triggered.connect(self.relay_widget.reconnect)
 
         self.btnSend.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_MediaPlay))
         self.btnStop.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_MediaStop))

@@ -13,7 +13,11 @@ class kosConnection(QObject):
         self._connection = None
         self._time_deadline = 0
 
-        self.open()
+        try:
+            self.open()
+        except Exception as e:
+            print('Error while connecting to KOS')
+            print(e)
 
 
     def open(self):

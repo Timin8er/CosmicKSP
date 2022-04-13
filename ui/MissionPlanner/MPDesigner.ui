@@ -221,6 +221,8 @@
      <string>File</string>
     </property>
     <addaction name="actionSave"/>
+    <addaction name="separator"/>
+    <addaction name="actionReconnect"/>
    </widget>
    <widget class="QMenu" name="menuSim_State">
     <property name="title">
@@ -249,6 +251,11 @@
   <action name="actionOther">
    <property name="text">
     <string>Other</string>
+   </property>
+  </action>
+  <action name="actionReconnect">
+   <property name="text">
+    <string>Reconnect</string>
    </property>
   </action>
  </widget>

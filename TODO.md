@@ -1,13 +1,15 @@
 **Game States**
 
 **Command Sequences**
-- create form for command arguments
+- have the Sim Manager inherit the Mission Planner as uneditable
 
 **Relay**
-- Add relay toggle such that the app does not need to connect at launch
 
 **Telemetry**
 - send telemetry to cosmos
 
 **Commands**
 - forward commands from cosmos
+
+**Misc**
+- Add themeing

@@ -109,6 +109,14 @@ class relayWidget(QtWidgets.QWidget):
         self.cmdLog(f'{cmd}')
 
 
+    def reconnect(self):
+        try:
+            self.commands_uplink.open()
+        except Exception as e:
+            print('Ronnect Failed')
+            print(e)
+
+
     def __del__(self):
         self.telemetry_listener_thread.exit()
 
