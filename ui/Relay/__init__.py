@@ -3,7 +3,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 
-from CosmicKSP.ui.icons import GPS_SIGNAL, GPS_DISCONNECTED
+from CosmicKSP.ui.icons import GPS_SIGNAL, GPS_DISCONNECTED, ROCKET
 from CosmicKSP.core.TelemetryDownlink import telemetryRelayThread
 from CosmicKSP.core.CommandsUplink import kosConnection
 from CosmicKSP import settings
@@ -127,7 +127,7 @@ class relayUIMainWindow(QtWidgets.QMainWindow, Ui_RelayMainWindow):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-        self.setWindowIcon(QIcon(icons.ROCKET))
+        self.setWindowIcon(QIcon(ROCKET))
 
         self.relay_widget = relayWidget(settings.REAL_GAME_INSTANCE)
         self.centralwidget.layout().addWidget(self.relay_widget)

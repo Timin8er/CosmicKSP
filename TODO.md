@@ -1,7 +1,7 @@
 **Game States**
+- copy over ships
 
 **Command Sequences**
-- add drag & drop to sequence tree
 
 **Relay**
 
@@ -12,4 +12,4 @@
 - forward commands from cosmos
 
 **Misc**
-- Add themeing
+- Add Theming

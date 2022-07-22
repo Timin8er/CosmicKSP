@@ -1,0 +1,2 @@
+COMMAND KSP ABORT BIG_ENDIAN "Aborts a collect on the KSP instrument"
+  PARAMETER DATA 0 32 INT MIN MAX 0 "Data value"

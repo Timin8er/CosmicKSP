@@ -10,6 +10,10 @@ REAL_GAME_INSTANCE = {
         'HOST':'127.0.0.1',
         'PORT':5410,
         'TIMEOUT':10,
+    },
+    'COSMOS': {
+        'HOST': 'cosmos.timin8er.com',
+        'PORT': 1248,
     }
 }
 
@@ -25,8 +29,9 @@ SIM_GAME_INSTANCE = {
         'HOST':'127.0.0.1',
         'PORT':5411,
         'TIMEOUT':10,
+    },
+    'COSMOS': {
+        'HOST': 'cosmos.timin8er.com',
+        'PORT': 1248,
     }
 }
-
-COSMOS_IP = '127.0.0.1'
-COSMOS_PORT = 1248

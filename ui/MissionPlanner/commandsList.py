@@ -1,17 +1,17 @@
-from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import QListView, QAbstractItemView, QInputDialog
 from PyQt5.QtCore import Qt, QAbstractListModel, QModelIndex, QItemSelectionModel
 from PyQt5.QtGui import QIcon
 
 from CosmicKSP.core.Commands import *
 
 
-class commandslistView(QtWidgets.QListView):
+class commandslistView(QListView):
 
     def __init__(self, parent):
         super().__init__(parent)
         self.setAcceptDrops(True)
         self.setDragEnabled(True)
-        self.setDragDropMode(QtWidgets.QAbstractItemView.InternalMove)
+        self.setDragDropMode(QAbstractItemView.InternalMove)
 
         self.view_model = commandListViewModel()
         self.setModel(self.view_model)
@@ -19,7 +19,7 @@ class commandslistView(QtWidgets.QListView):
 
     def newCommand(self):
         options = [i['name'] for i in COMMANDS]
-        option, yes = QtWidgets.QInputDialog.getItem(self, 'Select Command', '', options)
+        option, yes = QInputDialog.getItem(self, 'Select Command', '', options)
 
         if yes:
             for cmd in COMMANDS:
