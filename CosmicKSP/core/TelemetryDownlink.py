@@ -4,6 +4,8 @@ import json
 import time
 import datetime
 from PyQt5.QtCore import QThread, pyqtSignal
+import logging
+logger = logging.getLogger('CosmicKSP')
 
 
 TELEMETRY_SUBSCIPTIONS = [
@@ -47,7 +49,8 @@ class telemachusDownlink(object):
     def reconnect(self):
         try:
             self.ws = websocket.create_connection(self.uri)
-        except socket.error:
+        except socket.error as e:
+            logger.critical(str(e))
             # Failed to connect; enter 'link down' state
             self.ws = None
             self.data = {}
@@ -192,10 +195,12 @@ class telemetryRelayThread(QThread):
         last_recieved = datetime.datetime.now()
         timeout_interval = (self.telemachus_instance['FREQUENCY'] * 2) / 1000
 
-        dl = telemachusDownlink(self.telemachus_instance)
+        data_link = telemachusDownlink(self.telemachus_instance)
 
         while True:
-            data = dl.update() # get telem data
+            data = data_link.update() # get telem data
+            if data_link.ws is None:
+                return
 
             if signal_state >= 0 and (datetime.datetime.now() -last_recieved).total_seconds() > timeout_interval:
                 signal_state = -1
@@ -210,3 +215,13 @@ class telemetryRelayThread(QThread):
                 last_recieved = datetime.datetime.now()
                 if signal_state != 5: # not construction
                     self.telemReport.emit(data)
+
+
+if __name__ == '__main__':
+    dl = telemachusDownlink(settings.REAL_GAME_INSTANCE['TELEMACHUS'])
+
+    while True:
+        data = dl.update()
+        if data:
+            mission_time = datetime.timedelta(seconds=data['v.missionTime'])
+            print(f'[{mission_time}] : ', data)

@@ -3,6 +3,10 @@ import telnetlib
 import os
 from PyQt5.QtCore import QObject, pyqtSignal
 
+import logging
+logger = logging.getLogger('CosmicKSP')
+
+
 class kosConnection(QObject):
 
     commandSent = pyqtSignal(str)
@@ -16,8 +20,7 @@ class kosConnection(QObject):
         try:
             self.open()
         except Exception as e:
-            print('Error while connecting to KOS')
-            print(e)
+            logger.critical(str(e))
 
 
     def open(self):

@@ -2,9 +2,12 @@
 
 from PyQt5.QtWidgets import QApplication
 import sys
-from . import relayUIMainWindow
+from .ui import relayUIMainWindow
 
 app = QApplication(sys.argv)
+app.setStyle('Fusion')
+
 window = relayUIMainWindow()
 window.show()
+
 sys.exit(app.exec_())

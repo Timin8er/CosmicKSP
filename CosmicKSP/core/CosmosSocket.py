@@ -90,3 +90,13 @@ class CosmosRelayThread(QThread):
             if data:
                 last_recieved = datetime.datetime.now()
                 self.telemSignal.emit(data)
+
+
+
+if __name__ == '__main__':
+    dl = CosmosDownlink(settings.REAL_GAME_INSTANCE)
+
+    while True:
+        data = dl.listen()
+        if data:
+            print(data)

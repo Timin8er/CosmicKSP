@@ -146,6 +146,5 @@ def load_cs():
             data = json.load(outfile)
         return [commandSequence(i) for i in data]
     except Exception as e:
-        print('ERROR while loading saved Command Sequences')
-        print(e)
+        logger.error(str(e))
     return []

@@ -113,8 +113,7 @@ class relayWidget(QtWidgets.QWidget):
         try:
             self.commands_uplink.open()
         except Exception as e:
-            print('Ronnect Failed')
-            print(e)
+            logger.warning(f'Reconnect Failed: {e}')
 
 
     def __del__(self):

@@ -1,3 +1,7 @@
+import logging
+
+LOGGING_LEVEL = logging.DEBUG
+
 REAL_GAME_INSTANCE = {
     'DIR':r'C:\KSP\CosmicKSP',
     'GAME_NAME': 'default',
