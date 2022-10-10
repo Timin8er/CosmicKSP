@@ -1,5 +1,7 @@
 import os
 import json
+import logging
+logger = logging.getLogger('CosmicKSP')
 
 FLOAT = 0
 STRING = 1

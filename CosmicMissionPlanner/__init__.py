@@ -1,10 +1,10 @@
 from CosmicKSP.core import logger
 from PyQt5.QtWidgets import QApplication
 import sys
-from .ui import simManagerMainWindow
+from .ui import missionPlannerMainWindow
 
 def main():
     app = QApplication(sys.argv)
-    window = simManagerMainWindow()
+    window = missionPlannerMainWindow()
     window.show()
     sys.exit(app.exec_())
