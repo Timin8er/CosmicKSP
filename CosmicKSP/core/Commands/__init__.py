@@ -1,7 +1,13 @@
 import os
 import json
+from PyQtDataFramework
 import logging
-logger = logging.getLogger('CosmicKSP')
+logger = logging.getLogger('PyQtDataFramework')
+
+
+PyQtDataFramework.Core.Models.BaseModel
+
+
 
 FLOAT = 0
 STRING = 1

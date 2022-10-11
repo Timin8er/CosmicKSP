@@ -4,7 +4,7 @@ import os
 from PyQt5.QtCore import QObject, pyqtSignal
 
 import logging
-logger = logging.getLogger('CosmicKSP')
+logger = logging.getLogger('PyQtDataFramework')
 
 
 class kosConnection(QObject):

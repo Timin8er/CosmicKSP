@@ -1,4 +1,4 @@
-from CosmicKSP.core import logger
+from PyQtDataFramework.Core import Logger
 from PyQt5.QtWidgets import QApplication
 import sys
 from .ui import relayUIMainWindow

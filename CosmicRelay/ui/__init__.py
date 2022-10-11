@@ -10,6 +10,9 @@ from CosmicKSP import settings
 
 from .RelayUIDesigner import Ui_RelayMainWindow
 
+import logging
+logger = logging.getLogger('PyQtDataFramework')
+
 
 class relayWidget(QtWidgets.QWidget):
 

@@ -5,7 +5,7 @@ import time
 import datetime
 from PyQt5.QtCore import QThread, pyqtSignal
 import logging
-logger = logging.getLogger('CosmicKSP')
+logger = logging.getLogger('PyQtDataFramework')
 
 
 TELEMETRY_SUBSCIPTIONS = [
