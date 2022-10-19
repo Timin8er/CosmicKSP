@@ -4,8 +4,7 @@ import json
 import time
 import datetime
 from PyQt5.QtCore import QThread, pyqtSignal
-import logging
-logger = logging.getLogger('PyQtDataFramework')
+from PyQtDataFramework.Core.Logging import logger
 
 
 TELEMETRY_SUBSCIPTIONS = [
@@ -20,6 +19,7 @@ TELEMETRY_SUBSCIPTIONS = [
     's.sensor.temp',
     'f.abort',
     'f.throttle',
+    'b.number',
 ]
 
 FLIGHT = 0
@@ -32,148 +32,127 @@ NOT_FOUND = 4
 class telemachusDownlink(object):
     """initially coppied from https://github.com/ec429/konrad/blob/master/downlink.py"""
 
-    def __init__(self, telemachus_instance, logf=None):
-        self.uri = "ws://%s:%d/datalink"%(telemachus_instance['HOST'], telemachus_instance['PORT'])
-        self.rate = telemachus_instance['FREQUENCY']
-        self.subscriptions = {}
-        self.data = {}
-        self.logf = logf
-        self.reconnect()
-        self.body_ids = {} # name => ID
-        self.bodies_subscribed = False
+    def __init__(self, settings):
+        logger.debug(f'Telemachus Settings: {settings}')
+        self.web_socket = None
+        self.uri = "ws://%s:%d/datalink"%(settings['HOST'], settings['PORT'])
+        self.rate = settings['FREQUENCY']
 
-        for key in TELEMETRY_SUBSCIPTIONS:
-            self.subscribe(key)
+        self.subscriptions = TELEMETRY_SUBSCIPTIONS
+        self.data = {}
+
+        self.body_ids = {} # name => ID
+
+        self.reconnect()
 
 
     def reconnect(self):
+        """reconnect to the telemachus socket"""
         try:
-            self.ws = websocket.create_connection(self.uri)
+            self.web_socket = websocket.create_connection(self.uri)
+
         except socket.error as e:
-            logger.critical(str(e))
             # Failed to connect; enter 'link down' state
-            self.ws = None
-            self.data = {}
-            return
-        self.set_rate()
-        self.resubscribe()
+            logger.exception('Failed to connect to Telemachus')
+            self.web_socket = None
+
+        else:
+            self.set_rate()
+            self.resubscribe()
 
 
     def disconnect(self):
-        if self.ws is not None:
-            self.ws.close()
-        self.ws = None
-        self.data = {}
+        """disconnect from the telemachus socket"""
+        if self.web_socket is not None:
+            self.web_socket.close()
+
+        self.web_socket = None
 
 
-    def log(self, s):
-        if not self.logf: return
-        if 'v.missionTime' in self.data:
-            now = self.data['v.missionTime']
-            nowstr = 'T%.3f'%(now,)
+    def send_msg(self, data):
+        """send a message to telemachus, data is a dict"""
+        if self.web_socket is not None:
+            message_str = json.dumps(data)
+            logger.debug('Sending Message: ' % message_str)
+
+            self.web_socket.send(message_str)
+
         else:
-            now = time.time()
-            nowstr = 'U%.3f'%(now,)
-        self.logf.write('%s%s\n'%(nowstr, s))
-
-
-    def send_msg(self, d):
-        s = json.dumps(d)
-        self.log('> ' + s)
-        if self.ws is not None:
-            self.ws.send(s)
+            logger.error(f'Telemachus Message Not Sent: {data}')
 
 
     def set_rate(self):
+        """set the data rate"""
         self.send_msg({'rate': self.rate})
-        if self.ws is not None:
-            self.ws.settimeout(self.rate / 500.0)
+
+        if self.web_socket is not None:
+            self.web_socket.settimeout(self.rate / 500.0)
 
 
     def resubscribe(self):
+        """resubscribe all"""
         for key in self.subscriptions:
-            self._subscribe(key)
+            self.send_msg({'+':[key]})
 
 
     def listen(self):
-        msg = '{}'
-        for i in range(3):
-            try:
-                if self.ws is None:
-                    self.reconnect()
-                else:
-                    msg = self.ws.recv()
-                    break
-            except websocket.WebSocketTimeoutException:
-                break
-            except websocket.WebSocketConnectionClosedException:
-                time.sleep(self.rate / 2000.0)
-                continue
-            except KeyboardInterrupt:
-                self.disconnect()
-                raise
-        self.log('< ' + msg)
+        """wait for and return the next data"""
+        msg = self.web_socket.recv()
+
         try:
             return json.loads(msg)
+
         except ValueError: # unparseable JSON, did the link break?
+            logger.exception('unparseable JSON')
             return {}
 
 
     def update(self):
+        """get and store the latest data"""
         d = self.listen()
         if not d: # Loss of Signal
             self.data = {}
-        self.data.update(d)
-        self.update_bodies()
+
+        else:
+            self.data.update(d)
+            self.update_bodies()
+
         return self.data
 
 
     def update_bodies(self):
-        # Assumes self.data has been updated already
-        self.body_ids = {} # name => ID
-        nbodies = self.get('b.number')
-        if nbodies is None:
+        """update and subscribe to bodies as they change during mission time"""
+        nbodies = self.data.get('b.number', 0)
+
+        if not nbodies:
             return # can't do anything
-        if not self.bodies_subscribed:
-            for i in range(nbodies):
-                self.subscribe('b.name[%d]'%(i,))
-            self.bodies_subscribed = True
-            return # have to wait till next time
+
         for i in range(nbodies):
-            n = self.get('b.name[%d]'%(i,))
-            if n is not None:
+            n = self.data.get(f'b.name[{i}]', None)
+
+            if n is None:
+                self.subscribe(f'b.name[{i}]')
+            else:
                 self.body_ids[n] = i
 
 
-    def get(self, key, default=None):
-        return self.data.get(key, default)
-
-
-    def put(self, key, value):
-        # Used for recording derived / calculated values
-        self.data[key] = value
-
 
     def subscribe(self, key):
-        self.subscriptions[key] = self.subscriptions.get(key, 0) + 1
-        self._subscribe(key)
-
-
-    def _subscribe(self, key):
+        """subscribe to the telemachus key"""
+        if key not in self.subscriptions:
+            self.subscriptions.append(key)
         self.send_msg({'+':[key]})
 
 
     def unsubscribe(self, key):
-        if self.subscriptions.get(key, 0) > 1:
-            self.subscriptions[key] -= 1
-        else:
-            self.subscriptions.pop(key, None)
-            self.data.pop(key, None)
-            self.send_msg({'-':[key]})
+        """unsubscribe from the telemachus key"""
+        if key in self.subscriptions:
+            self.subscriptions.remove(key)
+        self.send_msg({'-':[key]})
 
 
     def __del__(self):
-        # Make sure we disconnect cleanly, or telemachus gets unhappy
+        """ Make sure we disconnect cleanly, or telemachus gets unhappy """
         if getattr(self, 'ws', None) is not None:
             self.disconnect()
 
@@ -185,24 +164,25 @@ class telemetryRelayThread(QThread):
     signalStatus = pyqtSignal(int)
 
 
-    def __init__(self, game_instance):
+    def __init__(self, settings):
         super().__init__()
-        self.telemachus_instance = game_instance['TELEMACHUS']
+        self.settings = settings
+        timeout_interval = (self.settings['FREQUENCY'] * 2) / 1000
 
 
     def run(self):
         signal_state = -1
         last_recieved = datetime.datetime.now()
-        timeout_interval = (self.telemachus_instance['FREQUENCY'] * 2) / 1000
 
-        data_link = telemachusDownlink(self.telemachus_instance)
+        data_link = telemachusDownlink(self.settings)
 
         while True:
-            data = data_link.update() # get telem data
-            if data_link.ws is None:
+            if data_link.web_socket is None:
                 return
 
-            if signal_state >= 0 and (datetime.datetime.now() -last_recieved).total_seconds() > timeout_interval:
+            data = data_link.update() # get telem data
+
+            if signal_state >= 0 and (datetime.datetime.now() - last_recieved).total_seconds() > self.timeout_interval:
                 signal_state = -1
                 self.signalStatus.emit(-1)
 
@@ -224,4 +204,4 @@ if __name__ == '__main__':
         data = dl.update()
         if data:
             mission_time = datetime.timedelta(seconds=data['v.missionTime'])
-            print(f'[{mission_time}] : ', data)
+            logger.info(f'[{mission_time}] : {data}')

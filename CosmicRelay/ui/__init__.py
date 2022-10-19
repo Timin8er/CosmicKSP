@@ -3,15 +3,15 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 
+from PyQtDataFramework.Core.Logging import logger
+
 from CosmicKSP.ui.icons import GPS_SIGNAL, GPS_DISCONNECTED, ROCKET
 from CosmicKSP.core.TelemetryDownlink import telemetryRelayThread
-from CosmicKSP.core.CommandsUplink import kosConnection
+from CosmicKSP.core.CommandsUplink import KosConnection
 from CosmicKSP import settings
 
 from .RelayUIDesigner import Ui_RelayMainWindow
 
-import logging
-logger = logging.getLogger('PyQtDataFramework')
 
 
 class relayWidget(QtWidgets.QWidget):
@@ -43,12 +43,12 @@ class relayWidget(QtWidgets.QWidget):
         self.tlm_log_text = '' # complete log for telemetry
         self.cmd_log_text = '' # complete log for telemetry
 
-        self.telemetry_listener_thread = telemetryRelayThread(self.settings)
+        self.telemetry_listener_thread = telemetryRelayThread(self.settings['TELEMACHUS'])
         self.telemetry_listener_thread.telemReport.connect(self.logTelemetry)
         self.telemetry_listener_thread.signalStatus.connect(self.logTelemetryStatus)
         self.telemetry_listener_thread.start()
 
-        self.commands_uplink = kosConnection(self.settings)
+        self.commands_uplink = KosConnection(self.settings['KOS'])
         self.commands_uplink.commandSent.connect(self.logCommand)
 
 

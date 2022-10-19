@@ -1,40 +1,33 @@
-import websocket
-import socket
-import json
-import time
+from PyQtDataFramework.Core.Logging import logger
 import datetime
+import socket
+import time
+import websocket
 from PyQt5.QtCore import QThread, pyqtSignal
+
 
 
 class CosmosDownlink(object):
     """initially coppied from https://github.com/ec429/konrad/blob/master/downlink.py"""
 
-    def __init__(self, settings, logf=None):
-        self.logf = logf
-        self.uri = "ws://%s:%d"%(settings['COSMOS']['HOST'], settings['COSMOS']['PORT'])
+    def __init__(self, settings):
+        self.websockeet = None
+        self.uri = "ws://%s:%d"%(settings['HOST'], settings['PORT'])
         self.reconnect()
 
 
     def reconnect(self):
         try:
-            self.ws = websocket.create_connection(self.uri)
+            self.websockeet = websocket.create_connection(self.uri)
+
         except socket.error:
-            self.ws = None
+            self.websockeet = None
 
 
     def disconnect(self):
-        if self.ws is not None:
-            self.ws.close()
-        self.ws = None
-
-
-    def log(self, s):
-        now = time.time()
-        nowstr = 'U%.3f'%(now,)
-        msg = '%s%s\n'%(nowstr, s)
-        print(msg)
-        if self.logf:
-            self.logf.write(msg)
+        if self.websockeet is not None:
+            self.websockeet.close()
+        self.websockeet = None
 
 
     def listen(self):
@@ -42,23 +35,27 @@ class CosmosDownlink(object):
         status = 'Waiting'
         for i in range(3):
             try:
-                if self.ws is None:
+                if self.websockeet is None:
                     self.reconnect()
                 else:
-                    msg = self.ws.recv()
+                    msg = self.websockeet.recv()
                     break
+
             except websocket.WebSocketTimeoutException:
                 status = 'WebSocketTimeoutException'
                 break
+
             except websocket.WebSocketConnectionClosedException:
                 status = 'WebSocketConnectionClosedException'
                 time.sleep(self.rate / 2000.0)
                 continue
+
             except KeyboardInterrupt:
                 status = 'KeyboardInterrupt'
                 self.disconnect()
                 raise
-        self.log('< ' + status)
+
+        logger.info(status)
         return msg
 
 
@@ -75,20 +72,20 @@ class CosmosRelayThread(QThread):
     cmdSignal = pyqtSignal(str)
 
     def run(self):
-        last_recieved = datetime.datetime.now()
-        timeout_interval = (self.telemachus_instance['FREQUENCY'] * 2) / 1000
+        # last_recieved = datetime.datetime.now()
+        # timeout_interval = (self.telemachus_instance['FREQUENCY'] * 2) / 1000
 
         dl = CosmosDownlink(self.telemachus_instance)
 
         while True:
             data = dl.listen() # get data
 
-            if (datetime.datetime.now() -last_recieved).total_seconds() > timeout_interval:
-                self.cmdSignal.emit('hi')
+            # if (datetime.datetime.now() - last_recieved).total_seconds() > timeout_interval:
+            #     self.cmdSignal.emit('hi')
 
             # if found data
             if data:
-                last_recieved = datetime.datetime.now()
+                # last_recieved = datetime.datetime.now()
                 self.telemSignal.emit(data)
 
 
@@ -99,4 +96,4 @@ if __name__ == '__main__':
     while True:
         data = dl.listen()
         if data:
-            print(data)
+            logger.info(data)

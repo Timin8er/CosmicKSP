@@ -1,142 +1,43 @@
 import os
 import json
-from PyQtDataFramework
-import logging
-logger = logging.getLogger('PyQtDataFramework')
+from PyQtDataFramework.Core.Logging import logger
+from PyQtDataFramework.Core.Models import BaseModel
+from PyQtDataFramework.Core import Fields
 
 
-PyQtDataFramework.Core.Models.BaseModel
+class KosCommand(BaseModel):
+
+    __cmd_name__ = None
+
+    def __str__(self):
+        inputs = [getattr(self, f.key) for f in self.fields()]
+        return f'{self.__cmd_name__}({",".join(inputs)}).'
 
 
+class CmdSetSAS(KosCommand):
 
-FLOAT = 0
-STRING = 1
-ENUM = 2
+    __cmd_name__ = 'SAS'
 
-COMMANDS = [
-    {
-        'name':'Test',
-        'description':'Test command',
-        'commandText':'set LOL to list("{str}", {flt}, "{state}")',
-        'arguements':[
-            {
-                'name':'Str',
-                'key':'str',
-                'type':STRING,
-                'value':'LOL'
-            },
-            {
-                'name':'Flt',
-                'key':'flt',
-                'type':FLOAT,
-                'value':3.1459
-            },
-            {
-                'name':'State',
-                'key':'state',
-                'type':ENUM,
-                'options':['ON', 'OFF'],
-                'value':'ON'
-            }
-        ],
-    },
-    {
-        'name':'Stage',
-        'description':'space bar goes to space.',
-        'commandText':'STAGE',
-        'arguements':[],
-    },
-    {
-        'name':'Set SAS',
-        'description':'Set the state of SAS',
-        'commandText':'SAS {state}',
-        'arguements':[
-            {
-                'name':'State',
-                'key':'state',
-                'type':ENUM,
-                'options':['ON', 'OFF'],
-                'value':'ON'
-            }
-        ],
-    }
-]
+    state = Fields.enumField(['ON', 'OFF'], default='ON', display_name='ON/OFF')
+
+    def __str__(self):
+        return f'SAS {self.state}.'
 
 
-class commandArgument():
+class CmdStage(KosCommand):
 
-    def __init__(self, data={}):
-        self.name = data.get('name', '')
-        self.key = data.get('key', '')
-        self.type = data.get('type', STRING)
-        self.value = data.get('value', None)
-        self.options = data.get('options', [])
+    __cmd_name__ = 'Stage':
 
-    def encode(self):
-        return {
-            'name':self.name,
-            'key':self.key,
-            'type':self.type,
-            'value':self.value,
-            'options':self.options,
-        }
-
-
-class command():
-
-    def __init__(self, data={}):
-        self.name = data.get('name', '')
-        self.commandText = data.get('commandText', '')
-        self.description = data.get('description', '')
-        self.arguements = [commandArgument(i) for i in data.get('arguements', [])]
-        self.edited = False
-
-    def encode(self):
-        return {
-            'name':self.name,
-            'commandText':self.commandText,
-            'description':self.description,
-            'arguements':[i.encode() for i in self.arguements],
-        }
-
-    def kosString(self):
-        if len(self.arguements):
-            return self.commandText.format(**{i.key:i.value for i in self.arguements})
-        else:
-            return self.commandText
+    def __str__(self):
+        return 'stage.'
 
 
 
-class commandSequence():
 
-    def __init__(self, data={}):
-        self.name = data.get('name', '')
-        self.commands = [command(i) for i in data.get('commands', [])]
-        self.folder = data.get('folder', '')
-        self.edited = False
+class commandSequence(BaseModel):
 
-
-    def append(self, cmd):
-        self.commands.append(cmd)
-
-
-    def insert(self, index, cmd):
-        self.commands.insert(index, cmd)
-
-
-    def remove(self, cmd):
-        if isinstance(cmd, int):
-            self.commands.pop(cmd)
-        else:
-            self.commands.remove(cmd)
-
-
-    def encode(self):
-        return {
-            'name':self.name,
-            'folder':self.folder,
-            'commands':[i.encode() for i in self.commands],
-        }
+    name = Fields.charfield()
+    commands = Fields.listField(KosCommand)
 
 
 SAVE_FILE = os.path.join(os.path.expanduser('~'), 'Documents', 'CosmicKSP', 'save.json')
@@ -153,6 +54,7 @@ def load_cs():
         with open(SAVE_FILE, 'r') as outfile:
             data = json.load(outfile)
         return [commandSequence(i) for i in data]
+
     except Exception as e:
         logger.error(str(e))
     return []
