@@ -3,7 +3,8 @@ from PyQtDataFramework.Core.Logging import logger
 from time import sleep, time
 import telnetlib
 import os
-from PyQt5.QtCore import QObject, pyqtSignal
+import datetime
+from PyQt5.QtCore import QObject, pyqtSignal, QThread
 
 COMMAND_TIMEOUT = 15
 
@@ -85,3 +86,24 @@ class KosConnection(QObject):
 
         # upload the file
         self.sendCommandStr(f'COPYPATH("1:/temp_upload.ks", "0:/{script_instance.name}.ks").')
+
+
+class CommandsRelayThread(QThread):
+
+    commandSent = pyqtSignal(dict)
+    signalStatus = pyqtSignal(int)
+
+
+    def __init__(self, settings):
+        super().__init__()
+        self.settings = settings
+
+
+    def run(self):
+        logger.info('Thread Starting')
+        signal_state = -1
+        last_recieved = datetime.datetime.now()
+
+        data_link = KosConnection(self.settings)
+
+        logger.info('Thread Stopped')

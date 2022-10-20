@@ -22,11 +22,13 @@ TELEMETRY_SUBSCIPTIONS = [
     'b.number',
 ]
 
-FLIGHT = 0
-PAUSED = 1
-NO_POWER = 2
-OFF = 3
-NOT_FOUND = 4
+STATE_SIGNAL_LOST = -1
+STATE_FLIGHT = 0
+STATE_PAUSED = 1
+STATE_NO_POWER = 2
+STATE_OFF = 3
+STATE_NOT_FOUND = 4
+STATE_CONSTRUCTION = 5
 
 
 class telemachusDownlink(object):
@@ -171,6 +173,7 @@ class telemetryRelayThread(QThread):
 
 
     def run(self):
+        logger.info('Thread Starting')
         signal_state = -1
         last_recieved = datetime.datetime.now()
 
@@ -178,7 +181,7 @@ class telemetryRelayThread(QThread):
 
         while True:
             if data_link.web_socket is None:
-                return
+                break
 
             data = data_link.update() # get telem data
 
@@ -195,6 +198,69 @@ class telemetryRelayThread(QThread):
                 last_recieved = datetime.datetime.now()
                 if signal_state != 5: # not construction
                     self.telemReport.emit(data)
+
+        logger.info('Loop Stopped')
+
+
+def run(settings):
+    timeout_interval = (settings['FREQUENCY'] * 2) / 1000
+    logger.info('Thread Starting')
+    signal_state = -1
+    last_recieved = datetime.datetime.now()
+
+    data_link = telemachusDownlink(settings)
+
+    while True:
+        if data_link.web_socket is None:
+            # TODO: keep trying to connect when unable
+            break
+
+        data = data_link.update() # get telem data
+
+        if signal_state >= 0 and (datetime.datetime.now() - last_recieved).total_seconds() > timeout_interval:
+            signal_state = -1
+            forwardState(signal_state)
+
+        # if found data
+        if data:
+            if signal_state != data['p.paused']: # reset connection status
+                signal_state = data['p.paused']
+                forwardState(signal_state)
+
+            last_recieved = datetime.datetime.now()
+            if signal_state != 5: # not construction
+                forwardReport(data)
+
+    logger.info('Thread Stopped')
+
+
+def forwardState(state):
+    if state == STATE_SIGNAL_LOST:
+        logger.info(f'Status: Signal Lost')
+
+    elif state == STATE_FLIGHT:
+        logger.info(f'Status: Flight')
+
+    elif state == STATE_PAUSED:
+        logger.info(f'Status: Paused')
+
+    elif state == STATE_NO_POWER:
+        logger.info(f'Status: No Power')
+
+    elif state == STATE_OFF:
+        logger.info(f'Status: Off')
+
+    elif state == STATE_NOT_FOUND:
+        logger.info(f'Status: not found')
+
+    elif state == STATE_CONSTRUCTION:
+        logger.info(f'Status: Construction')
+
+
+def forwardReport(data):
+    mission_time = datetime.timedelta(seconds=data.get('v.missionTime', 0))
+    logger.info(f'Telem Recieved T+{mission_time}')
+
 
 
 if __name__ == '__main__':
