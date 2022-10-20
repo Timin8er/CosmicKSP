@@ -75,7 +75,7 @@ class telemachusDownlink(object):
         """send a message to telemachus, data is a dict"""
         if self.web_socket is not None:
             message_str = json.dumps(data)
-            logger.debug('Sending Message: ' % message_str)
+            logger.debug(f'Sending Message: {message_str}')
 
             self.web_socket.send(message_str)
 
@@ -98,14 +98,29 @@ class telemachusDownlink(object):
 
 
     def listen(self):
-        """wait for and return the next data"""
-        msg = self.web_socket.recv()
+        msg = '{}'
+        for i in range(3):
+            try:
+                if self.web_socket is None:
+                    self.reconnect()
+                else:
+                    msg = self.web_socket.recv()
+                    break
+
+            except websocket.WebSocketTimeoutException:
+                break
+
+            except websocket.WebSocketConnectionClosedException:
+                time.sleep(self.rate / 2000.0)
+                continue
+
+            except KeyboardInterrupt:
+                self.disconnect()
+                raise
 
         try:
             return json.loads(msg)
-
         except ValueError: # unparseable JSON, did the link break?
-            logger.exception('unparseable JSON')
             return {}
 
 

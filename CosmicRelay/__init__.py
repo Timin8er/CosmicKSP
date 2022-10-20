@@ -1,7 +1,6 @@
-import os
-from CosmicKSP import settings
 from PyQtDataFramework.Core.Logging import logger
-logger.setLevel(settings.LOGGING_LEVEL)
+from CosmicKSP.Config import config, game_instance
+logger.setLevel(config['LOGGING_LEVEL'])
 
 from PyQt5.QtWidgets import QApplication
 import sys
@@ -12,31 +11,21 @@ import time
 
 
 def main():
-    try:
-        logger.info('Starting Cosmic Relay')
+    """opens two new terminals and ruuns the uplink and downlink in each"""
+    if sys.platform == "win32":
+        os.system('start cmd.exe /K CosmicRelayDownlink"')
+        os.system('start cmd.exe /K CosmicRelayUplink"')
 
-        app = QApplication(sys.argv)
-        app.setStyle('Fusion')
-        window = relayUIMainWindow()
-
-        window.show()
-
-        sys.exit(app.exec_())
-
-    except Exception as e:
-        logger.exception('Main Failed')
+    else:
+        os.system('gnome-terminal --tab --title=TelemachusRelayDownlink -- CosmicRelayDownlink')
+        os.system('gnome-terminal --tab --title=TelemachusRelayUplink -- CosmicRelayUplink')
 
 
 def up_main():
+    """run the commands uplink"""
+    logger.info('Starting Commands Uplink')
     try:
-        logger.info('Starting Commands Uplink')
-        app = QApplication(sys.argv)
-
-        thread = CommandsUplink.CommandsRelayThread(settings.REAL_GAME_INSTANCE['KOS'])
-        thread.start()
-
-        sys.exit(app.exec_())
-
+        CommandsUplink.run(game_instance['KOS'])
 
     except Exception as e:
         logger.exception('Main Failed')
@@ -44,14 +33,11 @@ def up_main():
     logger.info('Commands Uplink Closed')
 
 
-
 def down_main():
+    """run the telemetry downlink"""
+    logger.info('Starting Telemetry Downlink Thread')
     try:
-        app = QApplication(sys.argv)
-        logger.info('Starting Telemetry Downlink Thread')
-
-        TelemetryDownlink.run(settings.REAL_GAME_INSTANCE['TELEMACHUS'])
-        # sys.exit(app.exec_())
+        TelemetryDownlink.run(game_instance['TELEMACHUS'])
 
     except Exception as e:
         logger.exception('Main Failed')

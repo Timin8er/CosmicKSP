@@ -1,4 +1,3 @@
-from CosmicKSP.core import logger
 from PyQt5.QtWidgets import QApplication
 import sys
 from .ui import missionPlannerMainWindow

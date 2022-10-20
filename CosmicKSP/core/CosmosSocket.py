@@ -65,35 +65,14 @@ class CosmosDownlink(object):
             self.disconnect()
 
 
+def run(settings):
 
-class CosmosRelayThread(QThread):
-
-    telemSignal = pyqtSignal(str)
-    cmdSignal = pyqtSignal(str)
-
-    def run(self):
-        # last_recieved = datetime.datetime.now()
-        # timeout_interval = (self.telemachus_instance['FREQUENCY'] * 2) / 1000
-
-        dl = CosmosDownlink(self.telemachus_instance)
-
-        while True:
-            data = dl.listen() # get data
-
-            # if (datetime.datetime.now() - last_recieved).total_seconds() > timeout_interval:
-            #     self.cmdSignal.emit('hi')
-
-            # if found data
-            if data:
-                # last_recieved = datetime.datetime.now()
-                self.telemSignal.emit(data)
-
-
-
-if __name__ == '__main__':
-    dl = CosmosDownlink(settings.REAL_GAME_INSTANCE)
+    dl = CosmosDownlink(settings)
 
     while True:
-        data = dl.listen()
+        if dl.websockeet in None:
+            return
+
+        data = dl.listen() # get data
         if data:
-            logger.info(data)
+            Logging.info('recieved data')

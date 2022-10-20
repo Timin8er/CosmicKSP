@@ -1,4 +1,3 @@
-from CosmicKSP.core import logger
 from PyQt5.QtWidgets import QApplication
 import sys
 from .ui import simManagerMainWindow
@@ -8,3 +7,7 @@ def main():
     window = simManagerMainWindow()
     window.show()
     sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    run()

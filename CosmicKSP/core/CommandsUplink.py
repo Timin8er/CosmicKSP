@@ -6,8 +6,6 @@ import os
 import datetime
 from PyQt5.QtCore import QObject, pyqtSignal, QThread
 
-COMMAND_TIMEOUT = 15
-
 
 class KosConnection(QObject):
 
@@ -46,7 +44,7 @@ class KosConnection(QObject):
         if not command_str.endswith('.'):
             command_str += '.'
 
-        self._time_deadline = time() + COMMAND_TIMEOUT
+        self._time_deadline = time() + self.settings['TIMEOUT']
         self._connection.write(f'{command_str}\n'.encode())
         self._connection.read_until(b'')
         self.commandSent.emit(command_str)
@@ -88,22 +86,14 @@ class KosConnection(QObject):
         self.sendCommandStr(f'COPYPATH("1:/temp_upload.ks", "0:/{script_instance.name}.ks").')
 
 
-class CommandsRelayThread(QThread):
 
-    commandSent = pyqtSignal(dict)
-    signalStatus = pyqtSignal(int)
+def run(settings):
+    logger.info('Thread Starting')
+    last_recieved = datetime.datetime.now()
 
+    data_link = KosConnection(settings)
 
-    def __init__(self, settings):
-        super().__init__()
-        self.settings = settings
+    while True:
+        break
 
-
-    def run(self):
-        logger.info('Thread Starting')
-        signal_state = -1
-        last_recieved = datetime.datetime.now()
-
-        data_link = KosConnection(self.settings)
-
-        logger.info('Thread Stopped')
+    logger.info('Thread Stopped')

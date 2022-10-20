@@ -10,6 +10,10 @@ setup(
     url='https://github.com/Timin8er/CosmicKSP',
     packages=find_packages(),
     zip_safe=False,
+    install_requires=[
+        'PyQt5',
+        'websocket-client',
+        ],
     entry_points={
             'console_scripts': [
                 'CosmicRelay = CosmicRelay:main',
