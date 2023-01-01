@@ -3,7 +3,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 
-from PyQtDataFramework.Core.Logging import logger
+from PyQtDataFramework.core.logging import logger
 
 from CosmicKSP.ui.icons import GPS_SIGNAL, GPS_DISCONNECTED, ROCKET
 from CosmicKSP.core.TelemetryDownlink import telemetryRelayThread

@@ -1,5 +1,5 @@
 """"""
-from PyQtDataFramework.Core.Logging import logger
+from PyQtDataFramework.core.logging import logger
 from time import sleep, time
 import telnetlib
 import os

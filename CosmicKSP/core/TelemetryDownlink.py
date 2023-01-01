@@ -3,9 +3,10 @@ import socket
 import json
 import time
 import datetime
+import struct
 from PyQt5.QtCore import QThread, pyqtSignal
-from PyQtDataFramework.Core.Logging import logger
-
+from PyQtDataFramework.core.logging import logger
+from CosmicKSP.config import config
 
 TELEMETRY_SUBSCIPTIONS = [
     'v.missionTime',
@@ -34,11 +35,11 @@ STATE_CONSTRUCTION = 5
 class telemachusDownlink(object):
     """initially coppied from https://github.com/ec429/konrad/blob/master/downlink.py"""
 
-    def __init__(self, settings):
-        logger.debug(f'Telemachus Settings: {settings}')
+    def __init__(self):
+        logger.debug(f'Telemachus Settings: {config["TELEMACHUS"]}')
         self.web_socket = None
-        self.uri = "ws://%s:%d/datalink"%(settings['HOST'], settings['PORT'])
-        self.rate = settings['FREQUENCY']
+        self.uri = "ws://%s:%d/datalink" % (config['TELEMACHUS']['HOST'], config['TELEMACHUS']['PORT'])
+        self.rate = config["TELEMACHUS"]['FREQUENCY']
 
         self.subscriptions = TELEMETRY_SUBSCIPTIONS
         self.data = {}
@@ -174,56 +175,71 @@ class telemachusDownlink(object):
             self.disconnect()
 
 
+class CosmosDownlink(object):
+
+    def __init__(self):
+        logger.debug(f'Cosmos Settings: {config["COSMOS"]}')
+        self.web_socket = None
+        self.uri = "ws://%s:%d/datalink"%(config["COSMOS"]['HOST'], config["COSMOS"]['TELEMETRY_PORT'])
+
+        self.reconnect()
+
+
+    def reconnect(self):
+        """reconnect to the telemachus socket"""
+        try:
+            self.web_socket = websocket.create_connection(self.uri)
+
+        except socket.error as e:
+            # Failed to connect; enter 'link down' state
+            logger.exception('Failed to connect to Cosmos')
+            self.web_socket = None
+
+
+    def disconnect(self):
+        """disconnect from the telemachus socket"""
+        if self.web_socket is not None:
+            self.web_socket.close()
+
+        self.web_socket = None
+
+
+    def send_telem(self, data):
+        """send a message to cosmos, data is a byte string"""
+        if self.web_socket is not None:
+            message_str = struct.pack('hf?', 1, 5.2, True)
+            logger.debug(f'Sending Cosmos Message: {message_str}')
+
+            self.web_socket.send(message_str)
+
+        else:
+            logger.error(f'Cosmos Message Not Sent: {data}')
+
+
+    def __del__(self):
+        """ Make sure we disconnect cleanly, or telemachus gets unhappy """
+        if getattr(self, 'ws', None) is not None:
+            self.disconnect()
+
+
 
 class telemetryRelayThread(QThread):
 
     telemReport = pyqtSignal(dict)
     signalStatus = pyqtSignal(int)
 
-
-    def __init__(self, settings):
-        super().__init__()
-        self.settings = settings
-        timeout_interval = (self.settings['FREQUENCY'] * 2) / 1000
-
-
     def run(self):
-        logger.info('Thread Starting')
-        signal_state = -1
-        last_recieved = datetime.datetime.now()
-
-        data_link = telemachusDownlink(self.settings)
-
-        while True:
-            if data_link.web_socket is None:
-                break
-
-            data = data_link.update() # get telem data
-
-            if signal_state >= 0 and (datetime.datetime.now() - last_recieved).total_seconds() > self.timeout_interval:
-                signal_state = -1
-                self.signalStatus.emit(-1)
-
-            # if found data
-            if data:
-                if signal_state != data['p.paused']: # reset connection status
-                    signal_state = data['p.paused']
-                    self.signalStatus.emit(signal_state)
-
-                last_recieved = datetime.datetime.now()
-                if signal_state != 5: # not construction
-                    self.telemReport.emit(data)
-
-        logger.info('Loop Stopped')
+        telemetry_loop()
 
 
-def run(settings):
-    timeout_interval = (settings['FREQUENCY'] * 2) / 1000
+
+def telemetry_loop():
+    timeout_interval = (config["TELEMACHUS"]['FREQUENCY'] * 2) / 1000
     logger.info('Thread Starting')
     signal_state = -1
     last_recieved = datetime.datetime.now()
 
-    data_link = telemachusDownlink(settings)
+    data_link = telemachusDownlink()
 
     while True:
         if data_link.web_socket is None:
@@ -247,6 +263,22 @@ def run(settings):
                 forwardReport(data)
 
     logger.info('Thread Stopped')
+
+
+def telemetry_insertion_loop():
+    """send periodic telemetry to cosmos"""
+    logger.info('Thread Starting')
+    data_link = CosmosDownlink()
+
+    while True:
+        if data_link.web_socket is None:
+            break
+
+        time.sleep(1)
+
+        data_link.send_telem({})
+
+    logger.info('Loop Stopped')
 
 
 def forwardState(state):
@@ -279,7 +311,7 @@ def forwardReport(data):
 
 
 if __name__ == '__main__':
-    dl = telemachusDownlink(settings.REAL_GAME_INSTANCE['TELEMACHUS'])
+    dl = telemachusDownlink()
 
     while True:
         data = dl.update()

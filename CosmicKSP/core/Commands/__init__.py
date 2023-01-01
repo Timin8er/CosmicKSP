@@ -26,7 +26,7 @@ class CmdSetSAS(KosCommand):
 
 class CmdStage(KosCommand):
 
-    __cmd_name__ = 'Stage':
+    __cmd_name__ = 'Stage'
 
     def __str__(self):
         return 'stage.'
