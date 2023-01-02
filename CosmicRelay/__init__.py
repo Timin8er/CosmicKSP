@@ -1,4 +1,4 @@
-from PyQtDataFramework.core.logging import logger
+from CosmicKSP.logging import logger
 from CosmicKSP.config import config
 logger.setLevel(config['LOGGING_LEVEL'])
 

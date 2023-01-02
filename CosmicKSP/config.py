@@ -1,6 +1,7 @@
 import os
-from PyQtDataFramework.core.logging import logger, INFO, DEBUG
-from PyQtDataFramework.core import config_manager
+from logging import INFO, DEBUG
+from pyqt_data_framework.core import config_manager
+from CosmicKSP.logging import logger
 
 config_path = os.path.expanduser(os.path.join('~', 'Documents', 'CosmicKSP.config'))
 

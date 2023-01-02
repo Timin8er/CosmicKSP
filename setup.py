@@ -19,7 +19,7 @@ setup(
                 'CosmicRelay = CosmicRelay:main',
                 'CosmicRelayDownlink = CosmicRelay:down_main',
                 'CosmicRelayUplink = CosmicRelay:up_main',
-                'CosmicConfig = CosmicKSP:main',
+                # 'CosmicConfig = CosmicKSP:main',
                 'CosmicGameManager = CosmicGameManager:main',
             ]
         }

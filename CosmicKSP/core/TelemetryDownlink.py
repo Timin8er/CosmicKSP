@@ -5,7 +5,7 @@ import time
 import datetime
 import struct
 from PyQt5.QtCore import QThread, pyqtSignal
-from PyQtDataFramework.core.logging import logger
+from CosmicKSP.logging import logger
 from CosmicKSP.config import config
 
 TELEMETRY_SUBSCIPTIONS = [
@@ -175,53 +175,6 @@ class telemachusDownlink(object):
             self.disconnect()
 
 
-class CosmosDownlink(object):
-
-    def __init__(self):
-        logger.debug(f'Cosmos Settings: {config["COSMOS"]}')
-        self.web_socket = None
-        self.uri = "ws://%s:%d/datalink"%(config["COSMOS"]['HOST'], config["COSMOS"]['TELEMETRY_PORT'])
-
-        self.reconnect()
-
-
-    def reconnect(self):
-        """reconnect to the telemachus socket"""
-        try:
-            self.web_socket = websocket.create_connection(self.uri)
-
-        except socket.error as e:
-            # Failed to connect; enter 'link down' state
-            logger.exception('Failed to connect to Cosmos')
-            self.web_socket = None
-
-
-    def disconnect(self):
-        """disconnect from the telemachus socket"""
-        if self.web_socket is not None:
-            self.web_socket.close()
-
-        self.web_socket = None
-
-
-    def send_telem(self, data):
-        """send a message to cosmos, data is a byte string"""
-        if self.web_socket is not None:
-            message_str = struct.pack('hf?', 1, 5.2, True)
-            logger.debug(f'Sending Cosmos Message: {message_str}')
-
-            self.web_socket.send(message_str)
-
-        else:
-            logger.error(f'Cosmos Message Not Sent: {data}')
-
-
-    def __del__(self):
-        """ Make sure we disconnect cleanly, or telemachus gets unhappy """
-        if getattr(self, 'ws', None) is not None:
-            self.disconnect()
-
-
 
 class telemetryRelayThread(QThread):
 
@@ -263,22 +216,6 @@ def telemetry_loop():
                 forwardReport(data)
 
     logger.info('Thread Stopped')
-
-
-def telemetry_insertion_loop():
-    """send periodic telemetry to cosmos"""
-    logger.info('Thread Starting')
-    data_link = CosmosDownlink()
-
-    while True:
-        if data_link.web_socket is None:
-            break
-
-        time.sleep(1)
-
-        data_link.send_telem({})
-
-    logger.info('Loop Stopped')
 
 
 def forwardState(state):
