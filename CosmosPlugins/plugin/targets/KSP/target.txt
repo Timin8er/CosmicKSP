@@ -1,9 +1,0 @@
-# Requires for limits responses and custom conversion classes
-REQUIRE example_limits_response.rb
-REQUIRE sim_inst.rb
-
-# Explicitly define command and telemetry files
-# If not given then all the files in cmd/tlm will be processed in
-# alphabetical order
-COMMANDS inst_cmds.txt
-TELEMETRY inst_tlm.txt

@@ -1,2 +1,0 @@
-TELEMETRY KSP BASIC_TELEM BIG_ENDIAN "Basic KSP Telemetry"
-  ITEM DATA 0 8 INT "Derived data"
