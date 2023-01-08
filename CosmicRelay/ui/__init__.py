@@ -6,8 +6,8 @@ from PyQt5.QtGui import QIcon
 from PyQtDataFramework.core.logging import logger
 
 from CosmicKSP.ui.icons import GPS_SIGNAL, GPS_DISCONNECTED, ROCKET
-from CosmicKSP.core.TelemetryDownlink import telemetryRelayThread
-from CosmicKSP.core.CommandsUplink import KosConnection
+from CosmicKSP.TelemetryDownlink import telemetryRelayThread
+from CosmicKSP.CommandsUplink import KosConnection
 from CosmicKSP import settings
 
 from .RelayUIDesigner import Ui_RelayMainWindow

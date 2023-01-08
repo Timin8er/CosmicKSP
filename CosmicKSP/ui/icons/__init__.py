@@ -1,3 +1,4 @@
+"""contains the file paths to the icons"""
 import os
 
 ICONS_DIR = os.path.dirname(__file__)

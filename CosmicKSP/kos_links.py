@@ -1,13 +1,13 @@
-""""""
-from CosmicKSP.logging import logger
+"""connection manager for kos"""
 from time import sleep, time
 import telnetlib
 import os
-import datetime
-from PyQt5.QtCore import QObject, pyqtSignal, QThread
+from PyQt5.QtCore import QObject, pyqtSignal
+from CosmicKSP.logging import logger
 
 
 class KosConnection(QObject):
+    """manager for the telnet connection to KOS"""
 
     commandSent = pyqtSignal(str)
 
@@ -23,7 +23,10 @@ class KosConnection(QObject):
     def open(self):
         """open the connection to the KOS telnet port"""
         try:
-            self._connection = telnetlib.Telnet(self.settings['HOST'], self.settings['PORT'], self.settings['TIMEOUT'])
+            self._connection = telnetlib.Telnet(
+                    self.settings['HOST'],
+                    self.settings['PORT'],
+                    self.settings['TIMEOUT'])
 
             self._connection.read_eager()
             self._connection.write(b'1\n')
@@ -32,11 +35,11 @@ class KosConnection(QObject):
             sleep(.2)
             self._connection.read_until(b'')
 
-        except Exception as ex:
+        except Exception:
             logger.exception('Failed to connect to KOS')
 
 
-    def sendCommandStr(self, command_str):
+    def send_command_str(self, command_str):
         """ execute a single kos command """
         if self._time_deadline < time():
             self.open()
@@ -48,7 +51,7 @@ class KosConnection(QObject):
         self._connection.write(f'{command_str}\n'.encode())
         self._connection.read_until(b'')
         self.commandSent.emit(command_str)
-        logger.info('Command Sent: {}' % command_str)
+        logger.info('Command Sent: %s', command_str)
         sleep(.2)
 
 
@@ -56,44 +59,31 @@ class KosConnection(QObject):
         """ hault the kos terminal """
         if self._time_deadline < time():
             self.open()
-        _ = self._connection.write(telnetlib.IP)
+        self._connection.write(telnetlib.IP)
         self.commandSent.emit(str(telnetlib.IP))
 
 
-    def kosRunScript(self, script_instance, *args, volume=1, timeout=0):
+    def run_script(self, script_instance, *args, volume=1, timeout=0):
         """sent the command to run the given script instance"""
         args = [f'{volume}:/{script_instance.name}.ks'] + [str(i) for i in list(args)]
         com = '", "'.join(args)
         command_str = f'runpath("{com}").\n'
 
-        self.sendCommandStr(command_str)
+        self.send_command_str(command_str)
 
         if timeout:
             sleep(timeout)
             self.stop()
 
 
-    def kosUpload(self, script_instance):
+    def kos_upload(self, script_instance):
         """ upload the given script object to the kos ship """
 
         # write script to temp file
-        temp_file = os.path.join(self.settings['DIR'], 'Ships', 'Script', 'temp_upload.ks')
+        temp_file_path = os.path.join(self.settings['DIR'], 'Ships', 'Script', 'temp_upload.ks')
 
-        with open(temp_file, 'w') as f:
-            f.write(script_instance.text)
+        with open(temp_file_path, 'w', encoding="utf-8") as file:
+            file.write(script_instance.text)
 
         # upload the file
-        self.sendCommandStr(f'COPYPATH("1:/temp_upload.ks", "0:/{script_instance.name}.ks").')
-
-
-
-def run(settings):
-    logger.info('Thread Starting')
-    last_recieved = datetime.datetime.now()
-
-    data_link = KosConnection(settings)
-
-    while True:
-        break
-
-    logger.info('Thread Stopped')
+        self.send_command_str(f'COPYPATH("1:/temp_upload.ks", "0:/{script_instance.name}.ks").')

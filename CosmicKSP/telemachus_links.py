@@ -1,9 +1,10 @@
+"""mange the socket connection to telemechus"""
 import websocket
 import socket
 import json
 import time
 import datetime
-import struct
+from typing import Dict
 from PyQt5.QtCore import QThread, pyqtSignal
 from CosmicKSP.logging import logger
 from CosmicKSP.config import config
@@ -32,19 +33,21 @@ STATE_NOT_FOUND = 4
 STATE_CONSTRUCTION = 5
 
 
-class telemachusDownlink(object):
+class TelemachusSocket():
     """initially coppied from https://github.com/ec429/konrad/blob/master/downlink.py"""
 
     def __init__(self):
-        logger.debug(f'Telemachus Settings: {config["TELEMACHUS"]}')
+        logger.debug('Telemachus Settings: %s', config["TELEMACHUS"])
         self.web_socket = None
-        self.uri = "ws://%s:%d/datalink" % (config['TELEMACHUS']['HOST'], config['TELEMACHUS']['PORT'])
+        self.uri = f"ws://{config['TELEMACHUS']['HOST']}:{config['TELEMACHUS']['PORT']}/datalink"
         self.rate = config["TELEMACHUS"]['FREQUENCY']
+        self.timeout_interval = 5
 
         self.subscriptions = TELEMETRY_SUBSCIPTIONS
-        self.data = {}
-
-        self.body_ids = {} # name => ID
+        self.body_ids: Dict[str, int] = {} # name => ID
+        self.latest_telemetry: Dict = {}
+        self.game_state: int = -1
+        self.last_recieved_time = None
 
         self.reconnect()
 
@@ -54,12 +57,13 @@ class telemachusDownlink(object):
         try:
             self.web_socket = websocket.create_connection(self.uri)
 
-        except socket.error as e:
+        except socket.error:
             # Failed to connect; enter 'link down' state
             logger.exception('Failed to connect to Telemachus')
             self.web_socket = None
 
         else:
+            logger.info('Telemachus Connected: %s', self.uri)
             self.set_rate()
             self.resubscribe()
 
@@ -72,16 +76,16 @@ class telemachusDownlink(object):
         self.web_socket = None
 
 
-    def send_msg(self, data):
+    def send_msg(self, data: Dict):
         """send a message to telemachus, data is a dict"""
         if self.web_socket is not None:
             message_str = json.dumps(data)
-            logger.debug(f'Sending Message: {message_str}')
+            logger.debug('Sending Message: %s', message_str)
 
             self.web_socket.send(message_str)
 
         else:
-            logger.error(f'Telemachus Message Not Sent: {data}')
+            logger.error('Telemachus Message Not Sent: %s', data)
 
 
     def set_rate(self):
@@ -98,9 +102,10 @@ class telemachusDownlink(object):
             self.send_msg({'+':[key]})
 
 
-    def listen(self):
+    def listen(self) -> Dict:
+        """wait for a new telemetry packet and return it"""
         msg = '{}'
-        for i in range(3):
+        for _ in range(3):
             try:
                 if self.web_socket is None:
                     self.reconnect()
@@ -121,38 +126,44 @@ class telemachusDownlink(object):
 
         try:
             return json.loads(msg)
-        except ValueError: # unparseable JSON, did the link break?
+
+        except ValueError: # unparseable JSON
+            logger.exception('Failure to parse telemetry message: %s', msg)
             return {}
 
 
     def update(self):
         """get and store the latest data"""
-        d = self.listen()
-        if not d: # Loss of Signal
-            self.data = {}
+        new_telemetry = self.listen()
+        if not new_telemetry: # Loss of Signal
+            return self.latest_telemetry
 
-        else:
-            self.data.update(d)
-            self.update_bodies()
+        # set the p.paused (game state) to -1 if the game is paused
+        if new_telemetry['p.paused'] >= 0 and \
+                (datetime.datetime.now() - self.last_recieved_time).total_seconds() > self.timeout_interval:
+            new_telemetry['p.paused'] = -1
+            
+        self.latest_telemetry.update(new_telemetry)
+        self.game_state = self.latest_telemetry.get('p.paused', 4)
+        self.update_bodies()
 
-        return self.data
+        return self.latest_telemetry
 
 
     def update_bodies(self):
         """update and subscribe to bodies as they change during mission time"""
-        nbodies = self.data.get('b.number', 0)
+        nbodies = self.latest_telemetry.get('b.number', 0)
 
         if not nbodies:
             return # can't do anything
 
         for i in range(nbodies):
-            n = self.data.get(f'b.name[{i}]', None)
+            body_name = self.latest_telemetry.get(f'b.name[{i}]', None)
 
-            if n is None:
+            if body_name is None:
                 self.subscribe(f'b.name[{i}]')
             else:
-                self.body_ids[n] = i
-
+                self.body_ids[body_name] = i
 
 
     def subscribe(self, key):
@@ -176,82 +187,4 @@ class telemachusDownlink(object):
 
 
 
-class telemetryRelayThread(QThread):
 
-    telemReport = pyqtSignal(dict)
-    signalStatus = pyqtSignal(int)
-
-    def run(self):
-        telemetry_loop()
-
-
-
-def telemetry_loop():
-    timeout_interval = (config["TELEMACHUS"]['FREQUENCY'] * 2) / 1000
-    logger.info('Thread Starting')
-    signal_state = -1
-    last_recieved = datetime.datetime.now()
-
-    data_link = telemachusDownlink()
-
-    while True:
-        if data_link.web_socket is None:
-            # TODO: keep trying to connect when unable
-            break
-
-        data = data_link.update() # get telem data
-
-        if signal_state >= 0 and (datetime.datetime.now() - last_recieved).total_seconds() > timeout_interval:
-            signal_state = -1
-            forwardState(signal_state)
-
-        # if found data
-        if data:
-            if signal_state != data['p.paused']: # reset connection status
-                signal_state = data['p.paused']
-                forwardState(signal_state)
-
-            last_recieved = datetime.datetime.now()
-            if signal_state != 5: # not construction
-                forwardReport(data)
-
-    logger.info('Thread Stopped')
-
-
-def forwardState(state):
-    if state == STATE_SIGNAL_LOST:
-        logger.info(f'Status: Signal Lost')
-
-    elif state == STATE_FLIGHT:
-        logger.info(f'Status: Flight')
-
-    elif state == STATE_PAUSED:
-        logger.info(f'Status: Paused')
-
-    elif state == STATE_NO_POWER:
-        logger.info(f'Status: No Power')
-
-    elif state == STATE_OFF:
-        logger.info(f'Status: Off')
-
-    elif state == STATE_NOT_FOUND:
-        logger.info(f'Status: not found')
-
-    elif state == STATE_CONSTRUCTION:
-        logger.info(f'Status: Construction')
-
-
-def forwardReport(data):
-    mission_time = datetime.timedelta(seconds=data.get('v.missionTime', 0))
-    logger.info(f'Telem Recieved T+{mission_time}')
-
-
-
-if __name__ == '__main__':
-    dl = telemachusDownlink()
-
-    while True:
-        data = dl.update()
-        if data:
-            mission_time = datetime.timedelta(seconds=data['v.missionTime'])
-            logger.info(f'[{mission_time}] : {data}')

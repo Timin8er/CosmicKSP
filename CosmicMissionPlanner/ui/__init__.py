@@ -7,7 +7,7 @@ from PyQt5.QtGui import QIcon
 from CosmicKSP import settings
 from CosmicKSP.ui import icons
 from CosmicKSP.core.Commands import *
-from CosmicRelay.ui import relayWidget
+from relay.ui import relayWidget
 
 from .MPDesigner import Ui_MissionPlannerWindow
 from .CommandsList import commandslistView

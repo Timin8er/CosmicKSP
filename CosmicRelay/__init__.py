@@ -4,7 +4,8 @@ logger.setLevel(config['LOGGING_LEVEL'])
 
 import sys
 import os
-from CosmicKSP.core import CommandsUplink, TelemetryDownlink
+from CosmicRelay.telemetry_down import telemetry_loop
+from CosmicRelay.commands_up import commands_loop
 
 
 def main():
@@ -19,27 +20,21 @@ def main():
 
 
 def up_main():
-    """run the commands uplink"""
-    logger.info('Starting Commands Uplink')
+    """run the commands uplink relay"""
     try:
-        CommandsUplink.run()
+        commands_loop()
 
     except Exception as e:
         logger.exception('Main Failed')
-
-    logger.info('Commands Uplink Closed')
 
 
 def down_main():
-    """run the telemetry downlink"""
-    logger.info('Starting Telemetry Downlink Thread')
+    """run the telemetry downlink relay"""
     try:
-        TelemetryDownlink.telemetry_loop()
+        telemetry_loop()
 
     except Exception as e:
         logger.exception('Main Failed')
-
-    logger.info('Relay Downlink Closed')
 
 
 if __name__ == '__main__':

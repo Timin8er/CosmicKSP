@@ -5,7 +5,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 
 from CosmicKSP import settings
-from CosmicRelay.ui import relayWidget
+from relay.ui import relayWidget
 
 from .SMDesigner import Ui_SimMainWindow
 from CosmicMissionPlanner.ui import missionPlannerMainWindow
