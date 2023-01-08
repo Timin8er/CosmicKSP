@@ -1,3 +1,4 @@
+"""openc3 commands test"""
 from CosmicKSP.logging import logger
 from CosmicKSP.openc3_links import OpenC3CommandsLink
 
@@ -21,7 +22,6 @@ def main():
         logger.info('Loop Stopped: Keyboard Interupt')
 
     except Exception:
-        """log the traceback"""
         logger.exception('Main Failed')
 
     else:

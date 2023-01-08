@@ -1,10 +1,10 @@
 """mange the socket connection to telemechus"""
-import websocket
-import socket
+from typing import Dict
+import datetime
 import json
 import time
-import datetime
-from typing import Dict
+import socket
+import websocket
 from CosmicKSP.logging import logger
 from CosmicKSP.config import config
 from CosmicKSP.telemetry import *
@@ -23,7 +23,6 @@ class TelemachusSocket():
         self.subscriptions = TELEMETRY_SUBSCIPTIONS
         self.body_ids: Dict[str, int] = {} # name => ID
         self.latest_telemetry: Dict = {}
-        self.game_state: int = -1
         self.last_recieved_time = None
 
         self.reconnect()
@@ -34,11 +33,10 @@ class TelemachusSocket():
         try:
             self.web_socket = websocket.create_connection(self.uri)
 
-        except socket.error:
+        except ConnectionRefusedError:
             # Failed to connect; enter 'link down' state
-            logger.exception('Failed to connect to Telemachus')
+            logger.error('Failed to connect to Telemachus')
             self.web_socket = None
-            raise
 
         else:
             logger.info('Telemachus Connected: %s', self.uri)
@@ -80,60 +78,37 @@ class TelemachusSocket():
             self.send_msg({'+':[key]})
 
 
-    # def listen(self) -> Dict:
-    #     """wait for a new telemetry packet and return it"""
-    #     msg = '{}'
-    #     for _ in range(3):
-    #         try:
-    #             if self.web_socket is None:
-    #                 self.reconnect()
-    #             else:
-    #                 msg = self.web_socket.recv()
-    #                 break
-
-    #         except websocket.WebSocketTimeoutException:
-    #             break
-
-    #         except websocket.WebSocketConnectionClosedException:
-    #             time.sleep(self.rate / 2000.0)
-    #             continue
-
-    #         except KeyboardInterrupt:
-    #             self.disconnect()
-    #             raise
-
-    #     try:
-    #         return json.loads(msg)
-
-    #     except ValueError: # unparseable JSON
-    #         logger.exception('Failure to parse telemetry message: %s', msg)
-    #         return {}
-
-    def listen(self) -> Dict:
+    def get_telemetry(self) -> Dict:
         """wait for a new telemetry packet and return it"""
-        msg = self.web_socket.recv()
+        if self.web_socket is None:
+            return {"p.paused": STATE_SIGNAL_LOST}
 
         try:
+            msg = self.web_socket.recv()
             return json.loads(msg)
+
+        except ConnectionRefusedError:
+            return {"p.paused": STATE_SIGNAL_LOST}
+
+        except websocket.WebSocketConnectionClosedException:
+            return {"p.paused": STATE_SIGNAL_LOST}
+
+        except websocket.WebSocketTimeoutException:
+            return {"p.paused": STATE_PAUSED}
 
         except ValueError: # unparseable JSON
             logger.exception('Failure to parse telemetry message: %s', msg)
-            return {}
+            raise
 
 
-    def update(self):
+    def listen(self):
         """get and store the latest data"""
-        new_telemetry = self.listen()
-        if not new_telemetry: # Loss of Signal
+        new_telemetry = self.get_telemetry()
+        if not new_telemetry: # no new data
             return self.latest_telemetry
-
-        # set the p.paused (game state) to -1 if the game is paused
-        if new_telemetry['p.paused'] >= 0 and \
-                (datetime.datetime.now() - self.last_recieved_time).total_seconds() > self.timeout_interval:
-            new_telemetry['p.paused'] = -1
-            
+    
         self.latest_telemetry.update(new_telemetry)
-        self.game_state = self.latest_telemetry.get('p.paused', 4)
+        self.last_recieved_time = datetime.datetime.now()
         self.update_bodies()
 
         return self.latest_telemetry
@@ -173,7 +148,3 @@ class TelemachusSocket():
         """ Make sure we disconnect cleanly, or telemachus gets unhappy """
         if getattr(self, 'ws', None) is not None:
             self.disconnect()
-
-
-
-
