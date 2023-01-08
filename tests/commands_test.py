@@ -1,5 +1,5 @@
 from CosmicKSP.logging import logger
-from CosmicKSP.cosmos_links import OpenC3CommandsLink
+from CosmicKSP.openc3_links import OpenC3CommandsLink
 
 
 def main():
@@ -15,13 +15,17 @@ def main():
                 continue
                 
             logger.info('Command recieved: %s', data)
+    
 
-    except Exception as e:
+    except KeyboardInterrupt:
+        logger.info('Loop Stopped: Keyboard Interupt')
+
+    except Exception:
         """log the traceback"""
         logger.exception('Main Failed')
 
     else:
-        logger.info('Cosmos Commands Listener Stopped')
+        logger.info('OpenC3 Commands Listener Stopped')
 
 
 if __name__ == "__main__":

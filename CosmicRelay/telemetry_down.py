@@ -3,8 +3,8 @@ import datetime
 from typing import Dict
 from PyQt5.QtCore import QThread, pyqtSignal
 from CosmicKSP.logging import logger
-from CosmicKSP.config import config
 from CosmicKSP.telemachus_links import TelemachusSocket
+from CosmicKSP.telemetry import *
 
 
 class TelemetryRelayThread(QThread):
@@ -17,10 +17,9 @@ class TelemetryRelayThread(QThread):
         telemetry_loop()
 
 
-
 def telemetry_loop():
     """loop of recieving telemetry"""
-    logger.info('Telemetry Loop Starting')
+    logger.info('Telemetry Relay Starting')
     game_state = -1
 
     data_link = TelemachusSocket()
@@ -39,9 +38,8 @@ def telemetry_loop():
                 log_telemetry(telemetry_data)
 
         except KeyboardInterrupt:
+            logger.info('Telemetry Relay Stopped: Keyboard Interupt')
             break
-
-    logger.info('Thread Stopped')
 
 
 def log_state(state):
@@ -72,7 +70,6 @@ def log_telemetry(data):
     """log the telemetry data"""
     mission_time = datetime.timedelta(seconds=data.get('v.missionTime', 0))
     logger.info('Telem Recieved T+%s', mission_time)
-
 
 
 if __name__ == '__main__':

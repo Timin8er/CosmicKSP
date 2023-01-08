@@ -10,8 +10,8 @@ class OpenC3TelemetryLink():
     """manages the socket connection to the OpenC3 telemetry"""
 
     def __init__(self):
-        logger.debug("Cosmos Telemetry Port: %s:%s",
-            config['COSMOS']['HOST'], config['COSMOS']['TELEMETRY_PORT'])
+        logger.debug("OpenC3 Telemetry Port: %s:%s",
+            config['OPENC3']['HOST'], config['OPENC3']['TELEMETRY_PORT'])
         self.socket = None
         self.reconnect()
 
@@ -20,11 +20,11 @@ class OpenC3TelemetryLink():
         """reconnect to the telemachus socket"""
         try:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            server_address = (config['COSMOS']['HOST'], config['COSMOS']['TELEMETRY_PORT'])
+            server_address = (config['OPENC3']['HOST'], config['OPENC3']['TELEMETRY_PORT'])
             self.socket.connect(server_address)
 
         except socket.error:
-            logger.exception('Failed to connect to Cosmos')
+            logger.exception('Failed to connect to OpenC3')
             self.socket = None
 
 
@@ -42,12 +42,12 @@ class OpenC3TelemetryLink():
             message_str = struct.pack('>hf', 1, 5.2)
             # message_str = struct.pack('>hf?', 1, 5.2, True)
             # message_str = bytes.fromhex('0100001')
-            logger.debug('Sending Cosmos Message: %s', message_str)
+            logger.debug('Sending OpenC3 Message: %s', message_str)
 
             self.socket.sendall(message_str)
 
         else:
-            logger.error('Cosmos Message Not Sent: %s', data)
+            logger.error('OpenC3 Message Not Sent: %s', data)
 
 
     def __del__(self):
@@ -60,8 +60,8 @@ class OpenC3CommandsLink():
     """manages the socket link to the OpenC3 commands"""
 
     def __init__(self):
-        logger.debug("Cosmos Commands Port Settings: %s:%s",
-            config['COSMOS']['HOST'], config['COSMOS']['COMMANDS_PORT'])
+        logger.debug("OpenC3 Commands Port Settings: %s:%s",
+            config['OPENC3']['HOST'], config['OPENC3']['COMMANDS_PORT'])
         self.socket = None
         self.reconnect()
 
@@ -70,12 +70,12 @@ class OpenC3CommandsLink():
         """reconnect to the telemachus socket"""
         try:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            server_address = (config['COSMOS']['HOST'], config['COSMOS']['COMMANDS_PORT'])
+            server_address = (config['OPENC3']['HOST'], config['OPENC3']['COMMANDS_PORT'])
             self.socket.connect(server_address)
 
         except socket.error:
             # Failed to connect
-            logger.exception('Failed to connect to Cosmos')
+            logger.exception('Failed to connect to OpenC3')
             self.socket = None
 
 

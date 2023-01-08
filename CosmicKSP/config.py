@@ -7,7 +7,7 @@ config_path = os.path.expanduser(os.path.join('~', 'Documents', 'CosmicKSP', 'Co
 
 default_config = {
     'LOGGING_LEVEL': INFO,
-    'COSMOS': {
+    'OPENC3': {
         'HOST': 'localhost',
         'TELEMETRY_PORT': 8082,
         'COMMANDS_PORT': 8081,

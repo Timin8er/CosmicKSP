@@ -4,6 +4,7 @@ import telnetlib
 import os
 from PyQt5.QtCore import QObject, pyqtSignal
 from CosmicKSP.logging import logger
+from CosmicKSP.config import config
 
 
 class KosConnection(QObject):
@@ -11,11 +12,10 @@ class KosConnection(QObject):
 
     commandSent = pyqtSignal(str)
 
-    def __init__(self, settings):
+    def __init__(self):
         super().__init__()
-        self.settings = settings
-        self._connection = None
-        self._time_deadline = 0
+        self.telnet_connection = None
+        self.timeout_deadline = 0
 
         self.open()
 
@@ -23,33 +23,34 @@ class KosConnection(QObject):
     def open(self):
         """open the connection to the KOS telnet port"""
         try:
-            self._connection = telnetlib.Telnet(
-                    self.settings['HOST'],
-                    self.settings['PORT'],
-                    self.settings['TIMEOUT'])
+            self.telnet_connection = telnetlib.Telnet(
+                    config['KOS']['HOST'],
+                    config['KOS']['PORT'],
+                    config['KOS']['TIMEOUT'])
 
-            self._connection.read_eager()
-            self._connection.write(b'1\n')
+            self.telnet_connection.read_eager()
+            self.telnet_connection.write(b'1\n')
             sleep(.2)
-            self._connection.write(b'1\n')
+            self.telnet_connection.write(b'1\n')
             sleep(.2)
-            self._connection.read_until(b'')
+            self.telnet_connection.read_until(b'')
 
         except Exception:
             logger.exception('Failed to connect to KOS')
+            raise
 
 
     def send_command_str(self, command_str):
         """ execute a single kos command """
-        if self._time_deadline < time():
+        if self.timeout_deadline < time():
             self.open()
 
         if not command_str.endswith('.'):
             command_str += '.'
 
-        self._time_deadline = time() + self.settings['TIMEOUT']
-        self._connection.write(f'{command_str}\n'.encode())
-        self._connection.read_until(b'')
+        self.timeout_deadline = time() + config['KOS']['TIMEOUT']
+        self.telnet_connection.write(f'{command_str}\n'.encode())
+        self.telnet_connection.read_until(b'')
         self.commandSent.emit(command_str)
         logger.info('Command Sent: %s', command_str)
         sleep(.2)
@@ -57,9 +58,9 @@ class KosConnection(QObject):
 
     def stop(self):
         """ hault the kos terminal """
-        if self._time_deadline < time():
+        if self.timeout_deadline < time():
             self.open()
-        self._connection.write(telnetlib.IP)
+        self.telnet_connection.write(telnetlib.IP)
         self.commandSent.emit(str(telnetlib.IP))
 
 
@@ -80,7 +81,7 @@ class KosConnection(QObject):
         """ upload the given script object to the kos ship """
 
         # write script to temp file
-        temp_file_path = os.path.join(self.settings['DIR'], 'Ships', 'Script', 'temp_upload.ks')
+        temp_file_path = os.path.join(config['KOS']['DIR'], 'Ships', 'Script', 'temp_upload.ks')
 
         with open(temp_file_path, 'w', encoding="utf-8") as file:
             file.write(script_instance.text)

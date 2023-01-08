@@ -5,32 +5,9 @@ import json
 import time
 import datetime
 from typing import Dict
-from PyQt5.QtCore import QThread, pyqtSignal
 from CosmicKSP.logging import logger
 from CosmicKSP.config import config
-
-TELEMETRY_SUBSCIPTIONS = [
-    'v.missionTime',
-    't.universalTime',
-    'p.paused',
-    'v.altitude',
-    'v.lat',
-    'v.long',
-    'r.resource[electricity]',
-    's.sensor.acc',
-    's.sensor.temp',
-    'f.abort',
-    'f.throttle',
-    'b.number',
-]
-
-STATE_SIGNAL_LOST = -1
-STATE_FLIGHT = 0
-STATE_PAUSED = 1
-STATE_NO_POWER = 2
-STATE_OFF = 3
-STATE_NOT_FOUND = 4
-STATE_CONSTRUCTION = 5
+from CosmicKSP.telemetry import *
 
 
 class TelemachusSocket():
@@ -61,6 +38,7 @@ class TelemachusSocket():
             # Failed to connect; enter 'link down' state
             logger.exception('Failed to connect to Telemachus')
             self.web_socket = None
+            raise
 
         else:
             logger.info('Telemachus Connected: %s', self.uri)
@@ -102,27 +80,38 @@ class TelemachusSocket():
             self.send_msg({'+':[key]})
 
 
+    # def listen(self) -> Dict:
+    #     """wait for a new telemetry packet and return it"""
+    #     msg = '{}'
+    #     for _ in range(3):
+    #         try:
+    #             if self.web_socket is None:
+    #                 self.reconnect()
+    #             else:
+    #                 msg = self.web_socket.recv()
+    #                 break
+
+    #         except websocket.WebSocketTimeoutException:
+    #             break
+
+    #         except websocket.WebSocketConnectionClosedException:
+    #             time.sleep(self.rate / 2000.0)
+    #             continue
+
+    #         except KeyboardInterrupt:
+    #             self.disconnect()
+    #             raise
+
+    #     try:
+    #         return json.loads(msg)
+
+    #     except ValueError: # unparseable JSON
+    #         logger.exception('Failure to parse telemetry message: %s', msg)
+    #         return {}
+
     def listen(self) -> Dict:
         """wait for a new telemetry packet and return it"""
-        msg = '{}'
-        for _ in range(3):
-            try:
-                if self.web_socket is None:
-                    self.reconnect()
-                else:
-                    msg = self.web_socket.recv()
-                    break
-
-            except websocket.WebSocketTimeoutException:
-                break
-
-            except websocket.WebSocketConnectionClosedException:
-                time.sleep(self.rate / 2000.0)
-                continue
-
-            except KeyboardInterrupt:
-                self.disconnect()
-                raise
+        msg = self.web_socket.recv()
 
         try:
             return json.loads(msg)

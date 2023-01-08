@@ -1,5 +1,5 @@
 from CosmicKSP.logging import logger
-from CosmicKSP.cosmos_links import OpenC3TelemetryLink
+from CosmicKSP.openc3_links import OpenC3TelemetryLink
 import time
 
 
@@ -18,12 +18,15 @@ def main():
 
             data_link.send_telem({})
 
-    except Exception as e:
+    except KeyboardInterrupt:
+        logger.info('Test Stopped: Keyboard Interupt')
+
+    except Exception:
         """log the traceback"""
         logger.exception('Main Failed')
     
     else:
-        logger.info('Cosmos Telemetry Loop Stopped')
+        logger.info('Cosmos Telemetry Loop Finished')
 
 
 if __name__ == "__main__":
