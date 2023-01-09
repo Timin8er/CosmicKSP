@@ -39,10 +39,8 @@ class OpenC3TelemetryLink():
     def send_telem(self, data):
         """send a message to cosmos, data is a byte string"""
         if self.socket is not None:
-            message_str = struct.pack('>hf', 1, 5.2)
-            # message_str = struct.pack('>hf?', 1, 5.2, True)
-            # message_str = bytes.fromhex('0100001')
-            logger.debug('Sending OpenC3 Message: %s', message_str)
+            message_str = struct.pack('>hf?', 1, 5.2, True) + b'Hello World'
+            logger.debug('Sending OpenC3 Message: %s', message_str.hex())
 
             self.socket.sendall(message_str)
 
@@ -60,8 +58,6 @@ class OpenC3CommandsLink():
     """manages the socket link to the OpenC3 commands"""
 
     def __init__(self):
-        logger.debug("OpenC3 Commands Port Settings: %s:%s",
-            config['OPENC3']['HOST'], config['OPENC3']['COMMANDS_PORT'])
         self.socket = None
         self.reconnect()
 
@@ -77,6 +73,10 @@ class OpenC3CommandsLink():
             # Failed to connect
             logger.exception('Failed to connect to OpenC3')
             self.socket = None
+            raise
+        
+        else:
+            logger.info("OpenC3 Connection: %s:%s", *server_address)
 
 
     def disconnect(self):
