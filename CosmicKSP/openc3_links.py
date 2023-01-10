@@ -36,12 +36,10 @@ class OpenC3TelemetryLink():
         self.socket = None
 
 
-    def send_telem(self, data):
+    def send_telem(self, message_str):
         """send a message to cosmos, data is a byte string"""
         if self.socket is not None:
-            message_str = struct.pack('>hf?', 1, 5.2, True) + b'Hello World'
             logger.debug('Sending OpenC3 Message: %s', message_str.hex())
-
             self.socket.sendall(message_str)
 
         else:
