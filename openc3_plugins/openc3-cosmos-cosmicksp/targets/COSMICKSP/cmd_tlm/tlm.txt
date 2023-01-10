@@ -1,8 +1,43 @@
-TELEMETRY COSMICKSP STATUS BIG_ENDIAN "Telemetry description"
-  # Keyword      Name  BitSize Type   ID Description
-  APPEND_ID_ITEM ID    16      INT    1  "Identifier"
-  APPEND_ITEM    VALUE 32      FLOAT     "Value"
-  APPEND_ITEM    BOOL  8       UINT      "Boolean"
-    STATE FALSE 0
-    STATE TRUE 1
-  APPEND_ITEM    LABEL 0       STRING    "The label to apply"
+#TELEMETRY COSMICKSP STATUS BIG_ENDIAN "Telemetry description"
+#  # Keyword      Name  BitSize Type   ID Description
+#  APPEND_ID_ITEM ID    16      INT    1  "Identifier"
+#  APPEND_ITEM    VALUE 32      FLOAT     "Value"
+#  APPEND_ITEM    BOOL  8       UINT      "Boolean"
+#    STATE FALSE 0
+#    STATE TRUE 1
+#  APPEND_ITEM    LABEL 0       STRING    "The label to apply"
+
+
+TELEMETRY COSMICKSP VEHICLE_STATUS BIG_ENDIAN "Telemetry for the active vehicle"
+  # Keyword      Name         BitSize Type  ID  Description
+  APPEND_ID_ITEM ID           16      INT   1   "Identifier"
+  APPEND_ITEM    MISSONTIME   64      FLOAT     "Mision Time in seconds since launch"
+  APPEND_ITEM    ALTITUDE     64      FLOAT     "Altitude abobe the current body, in km"
+  APPEND_ITEM    LATITUDE     32      FLOAT     "Latitude"
+  APPEND_ITEM    LONGITUDE    32      FLOAT     "Longitude"
+  APPEND_ITEM    ELETRICITY   32      FLOAT     "Electric Charge"
+  APPEND_ITEM    ACCELERATION 32      FLOAT     "Acceleration"
+  APPEND_ITEM    TEMPERATURE  32      FLOAT     "Vehicle Temperature"
+  APPEND_ITEM    THROTTLE     32      FLOAT     "Throttle Positon"
+
+
+TELEMETRY COSMICKSP GAME_STATE BIG_ENDIAN "Telemetry for the game instance"
+  # Keyword      Name       BitSize Type  ID  Description
+  APPEND_ID_ITEM ID         16      INT   2   "Identifier"
+  APPEND_ITEM    GAME_STATE 16      INT       "The Sagte of the ksp game instance"
+    STATE SIGNAL_LOST -1
+    STATE FLIGHT 0
+    STATE PAUSED 1
+    STATE NO_POWER 2
+    STATE OFF 3
+    STATE NOT_FOUND 4
+    STATE CONSTRUCTION 5
+
+
+TELEMETRY COSMICKSP SCRIPT_STATE BIG_ENDIAN "status from the KOS console"
+  # Keyword      Name       BitSize Type  ID  Description
+  APPEND_ID_ITEM ID         16      INT   3   "Identifier"
+  APPEND_ITEM    STATUS     16      UINT      "The state of the console"
+    STATE WAITING_FOR_INPUT 0
+    STATE BUISY 1
+  APPEND_ITEM    MESSAGE    0       STRING    "The status message from the KOS console"

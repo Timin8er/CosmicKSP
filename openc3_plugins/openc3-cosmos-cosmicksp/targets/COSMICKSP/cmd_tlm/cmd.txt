@@ -1,8 +1,119 @@
-COMMAND COSMICKSP EXAMPLE BIG_ENDIAN "Packet description"
+#COMMAND COSMICKSP EXAMPLE BIG_ENDIAN "Packet description"
+#  # Keyword           Name  BitSize Type   Min Max  Default  Description
+#  APPEND_ID_PARAMETER ID    16      INT    2   2    2        "Identifier"
+#  APPEND_PARAMETER    VALUE 32      FLOAT  0   10.5 2.5      "Value"
+#  APPEND_PARAMETER    BOOL  8       UINT   MIN MAX  0        "Boolean"
+#    STATE FALSE 0
+#    STATE TRUE 1
+#  APPEND_PARAMETER    LABEL 0       STRING          "OpenC3" "The label to apply"
+
+
+COMMAND COSMICKSP STAGE BIG_ENDIAN "Activate the next stage"
   # Keyword           Name  BitSize Type   Min Max  Default  Description
-  APPEND_ID_PARAMETER ID    16      INT    1   1    1        "Identifier"
-  APPEND_PARAMETER    VALUE 32      FLOAT  0   10.5 2.5      "Value"
+  APPEND_ID_PARAMETER ID    16      INT    2   2    2        "Identifier"
+
+
+COMMAND COSMICKSP SET_SAS BIG_ENDIAN "Set SAS to On or Off"
+  # Keyword           Name  BitSize Type   Min Max  Default  Description
+  APPEND_ID_PARAMETER ID    16      INT    3   3    3        "Identifier"
   APPEND_PARAMETER    BOOL  8       UINT   MIN MAX  0        "Boolean"
-    STATE FALSE 0
-    STATE TRUE 1
-  APPEND_PARAMETER    LABEL 0       STRING          "OpenC3" "The label to apply"
+    STATE OFF 0
+    STATE ON 1
+
+
+COMMAND COSMICKSP DIRECT_SAS BIG_ENDIAN "Direct SAS to a direction"
+  # Keyword           Name       BitSize Type   Min Max  Default  Description
+  APPEND_ID_PARAMETER ID         16      INT    4   4    4        "Identifier"
+  APPEND_PARAMETER    DIRECTION  8       UINT   0   10   9        "The Directon"
+    STATE PROGRADE 0
+    STATE RETROGRADE 1
+    STATE NORMAL 2
+    STATE ANTINORMAL 3
+    STATE RADIALOUT 4
+    STATE RADIALIN 5
+    STATE TARGET 6
+    STATE ANTITARGET 7
+    STATE MANEUVER 8
+    STATE STABILITYASSIST 9
+    STATE STABILITY 10
+
+
+COMMAND COSMICKSP SET_RCS BIG_ENDIAN "Set RCS to On or Off"
+  # Keyword           Name  BitSize Type   Min Max  Default  Description
+  APPEND_ID_PARAMETER ID    16      INT    5   5    5        "Identifier"
+  APPEND_PARAMETER    BOOL  8       UINT   MIN MAX  0        "Boolean"
+    STATE OFF 0
+    STATE ON 1
+
+
+COMMAND COSMICKSP SET_LIGHTS BIG_ENDIAN "Set LIGHTS to On or Off"
+  # Keyword           Name  BitSize Type   Min Max  Default  Description
+  APPEND_ID_PARAMETER ID    16      INT    6   6    6        "Identifier"
+  APPEND_PARAMETER    BOOL  8       UINT   MIN MAX  0        "Boolean"
+    STATE OFF 0
+    STATE ON 1
+
+
+COMMAND COSMICKSP SET_BREAKS BIG_ENDIAN "Set BREAKS to On or Off"
+  # Keyword           Name  BitSize Type   Min Max  Default  Description
+  APPEND_ID_PARAMETER ID    16      INT    7   7    7        "Identifier"
+  APPEND_PARAMETER    BOOL  8       UINT   MIN MAX  0        "Boolean"
+    STATE OFF 0
+    STATE ON 1
+
+
+COMMAND COSMICKSP SET_GEAR BIG_ENDIAN "Set GEAR to On or Off"
+  # Keyword           Name  BitSize Type   Min Max  Default  Description
+  APPEND_ID_PARAMETER ID    16      INT    8   8    8        "Identifier"
+  APPEND_PARAMETER    BOOL  8       UINT   MIN MAX  0        "Boolean"
+    STATE OFF 0
+    STATE ON 1
+
+
+COMMAND COSMICKSP SET_ACTION_GROUP BIG_ENDIAN "Set an action group to On or Off"
+  # Keyword           Name  BitSize Type   Min Max  Default  Description
+  APPEND_ID_PARAMETER ID    16      INT    9   9    9        "Identifier"
+  APPEND_PARAMETER    INDEX 8       UINT   0   10   0        "the action group index"
+  APPEND_PARAMETER    BOOL  8       UINT   MIN MAX  0        "Boolean"
+    STATE OFF 0
+    STATE ON 1
+
+
+COMMAND COSMICKSP SET_LEGS BIG_ENDIAN "Set LEGS to On or Off"
+  # Keyword           Name  BitSize Type   Min Max  Default  Description
+  APPEND_ID_PARAMETER ID    16      INT    10   10    10        "Identifier"
+  APPEND_PARAMETER    BOOL  8       UINT   MIN MAX  0        "Boolean"
+    STATE OFF 0
+    STATE ON 1
+
+
+COMMAND COSMICKSP SET_CHUTES BIG_ENDIAN "Set CHUTES to On or Off"
+  # Keyword           Name  BitSize Type   Min Max  Default  Description
+  APPEND_ID_PARAMETER ID    16      INT    11   11    11        "Identifier"
+  APPEND_PARAMETER    BOOL  8       UINT   MIN MAX  0        "Boolean"
+    STATE OFF 0
+    STATE ON 1
+
+
+COMMAND COSMICKSP SET_RADIATORS BIG_ENDIAN "Set RADIATORS to On or Off"
+  # Keyword           Name  BitSize Type   Min Max  Default  Description
+  APPEND_ID_PARAMETER ID    16      INT    12   12    12        "Identifier"
+  APPEND_PARAMETER    BOOL  8       UINT   MIN MAX  0        "Boolean"
+    STATE OFF 0
+    STATE ON 1
+
+
+COMMAND COSMICKSP SET_LADDERS BIG_ENDIAN "Set LADDERS to On or Off"
+  # Keyword           Name  BitSize Type   Min Max  Default  Description
+  APPEND_ID_PARAMETER ID    16      INT    13   13    13        "Identifier"
+  APPEND_PARAMETER    BOOL  8       UINT   MIN MAX  0        "Boolean"
+    STATE OFF 0
+    STATE ON 1
+
+
+COMMAND COSMICKSP SET_BAYS BIG_ENDIAN "Set BAYS to On or Off"
+  # Keyword           Name  BitSize Type   Min Max  Default  Description
+  APPEND_ID_PARAMETER ID    16      INT    14   14    14        "Identifier"
+  APPEND_PARAMETER    BOOL  8       UINT   MIN MAX  0        "Boolean"
+    STATE OFF 0
+    STATE ON 1

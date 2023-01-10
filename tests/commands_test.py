@@ -1,6 +1,7 @@
 """openc3 commands test"""
 from CosmicKSP.logging import logger
 from CosmicKSP.openc3_links import OpenC3CommandsLink
+from CosmicKSP.commands import COMMANDS
 
 
 def main():
@@ -14,9 +15,17 @@ def main():
             data = data_link.listen()
             if not data:
                 continue
-                
-            logger.info('Command recieved: %s', data)
-    
+
+            for id, cmd in COMMANDS.items():
+                if data.startswith(id):
+                    try:
+                        result = cmd(data)
+                        logger.info(f'Command: {result}')
+                    except Exception:
+                        logger.exception('Error Processing Command: %s', data)
+                    break
+            else:
+                logger.error('Command recieved but not identified: %s', data)
 
     except KeyboardInterrupt:
         logger.info('Loop Stopped: Keyboard Interupt')

@@ -1,5 +1,6 @@
 """package for managing telemetry packets"""
 from typing import Dict, ByteString
+import struct
 
 TELEMETRY_SUBSCIPTIONS = [
     'v.missionTime',
@@ -24,6 +25,19 @@ STATE_OFF = 3
 STATE_NOT_FOUND = 4
 STATE_CONSTRUCTION = 5
 
+
 def telem_telemechus_to_openc3(d_telem: Dict) -> ByteString:
     """translate the Telemechus telemetry packet to the OpenC3 bytestring"""
     return b''
+
+
+def vehicle_telemetry_bstring(data: Dict):
+    return struct.pack('>hf?', 1, 5.2, True)
+
+
+def game_telemetry_bstring(data: Dict):
+    return struct.pack('>hf?', 1, 5.2, True)
+
+
+def kos_telemetry_bstring(data: Dict):
+    return struct.pack('>hf?', 1, 5.2, True)
