@@ -4,6 +4,7 @@ from PyQt5.QtCore import QThread, pyqtSignal
 from CosmicKSP.logging import logger
 from CosmicKSP.telemachus_links import TelemachusSocket
 from CosmicKSP.telemetry import *
+from CosmicKSP.openc3_links import OpenC3TelemetryLink
 
 
 STATE_STRINGS = {
@@ -17,40 +18,34 @@ STATE_STRINGS = {
 }
 
 
-class TelemetryRelayThread(QThread):
-    """QThread loops through telemetry"""
-
-    telemReport = pyqtSignal(dict)
-    signalStatus = pyqtSignal(int)
-
-    def run(self):
-        """run thread"""
-        telemetry_loop()
-
-
 def telemetry_loop():
     """loop of recieving telemetry"""
     logger.info('Telemetry Relay Starting')
     game_state = -1
 
-    data_link = TelemachusSocket()
+    telemachus_link = TelemachusSocket()
+    openc3 = OpenC3TelemetryLink()
 
     try:
         while True:
-            if data_link.web_socket is None:
-                data_link.reconnect()
+            if telemachus_link.web_socket is None:
+                telemachus_link.reconnect()
 
             else:
-                telemetry_data = data_link.listen() # get telem data
+                telemetry_data = telemachus_link.listen() # get telem data
                 if not telemetry_data:
                     continue
 
                 if telemetry_data.get('p.paused') != game_state:
                     game_state = telemetry_data.get('p.paused')
+                    telem = game_telemetry_bstring(telemetry_data)
+                    openc3.send_telem(telem)
                     log_state(telemetry_data)
 
                 # log telemetry if not construction or paused
                 if game_state == STATE_FLIGHT:
+                    telem = vehicle_telemetry_bstring(telemetry_data)
+                    openc3.send_telem(telem)
                     log_telemetry(telemetry_data)
 
     except KeyboardInterrupt:
@@ -68,7 +63,3 @@ def log_telemetry(data):
     """log the telemetry data"""
     mission_time = datetime.timedelta(seconds=data.get('v.missionTime', 0))
     logger.info('T+%s Altitude: %s', mission_time, data.get('v.altitude'))
-
-
-if __name__ == '__main__':
-    telemetry_loop()

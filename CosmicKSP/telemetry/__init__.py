@@ -32,12 +32,28 @@ def telem_telemechus_to_openc3(d_telem: Dict) -> ByteString:
 
 
 def vehicle_telemetry_bstring(data: Dict):
-    return struct.pack('>hf?', 1, 5.2, True)
+    return struct.pack('>hddffffff',
+        1,
+        data.get('v.missionTime'),
+        data.get('v.altitude'),
+        data.get('v.lat'),
+        data.get('v.long'),
+        data.get('r.resource[electricity]'),
+        data.get('s.sensor.acc'),
+        data.get('s.sensor.temp'),
+        data.get('f.throttle'),
+    )
 
 
 def game_telemetry_bstring(data: Dict):
-    return struct.pack('>hf?', 1, 5.2, True)
+    return struct.pack('>hh',
+        2,
+        data.get('p.paused'),
+    )
 
 
 def kos_telemetry_bstring(data: Dict):
-    return struct.pack('>hf?', 1, 5.2, True)
+    return struct.pack('>hH',
+        2,
+        data.get('state'),
+    ) + data.get('message')
