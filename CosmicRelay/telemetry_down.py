@@ -1,6 +1,5 @@
 """the telemetry traslation layer between Telemechus and OpenC3"""
 import datetime
-from PyQt5.QtCore import QThread, pyqtSignal
 from CosmicKSP.logging import logger
 from CosmicKSP.telemachus_links import TelemachusSocket
 from CosmicKSP.telemetry import *

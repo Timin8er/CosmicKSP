@@ -24,7 +24,7 @@ def up_main():
     try:
         commands_loop()
 
-    except Exception as e:
+    except Exception:
         logger.exception('Main Failed')
 
 
@@ -33,7 +33,7 @@ def down_main():
     try:
         telemetry_loop()
 
-    except Exception as e:
+    except Exception:
         logger.exception('Main Failed')
 
 

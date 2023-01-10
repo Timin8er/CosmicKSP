@@ -26,26 +26,23 @@ STATE_NOT_FOUND = 4
 STATE_CONSTRUCTION = 5
 
 
-def telem_telemechus_to_openc3(d_telem: Dict) -> ByteString:
-    """translate the Telemechus telemetry packet to the OpenC3 bytestring"""
-    return b''
-
-
 def vehicle_telemetry_bstring(data: Dict):
-    return struct.pack('>hddffffff',
+    """translate the given vehivcle telemachus data to openc3 string"""
+    return struct.pack('>hddfff',
         1,
-        data.get('v.missionTime'),
-        data.get('v.altitude'),
-        data.get('v.lat'),
-        data.get('v.long'),
-        data.get('r.resource[electricity]'),
-        data.get('s.sensor.acc'),
-        data.get('s.sensor.temp'),
-        data.get('f.throttle'),
+        data.get('v.missionTime', 0.0),
+        data.get('v.altitude', 0.0),
+        data.get('v.lat', 0.0),
+        data.get('v.long', 0.0),
+        # data.get('r.resource[electricity]'),
+        # data.get('s.sensor.acc'),
+        # data.get('s.sensor.temp'),
+        data.get('f.throttle', -1.0),
     )
 
 
 def game_telemetry_bstring(data: Dict):
+    """translate the given game state telemachus data to openc3 string"""
     return struct.pack('>hh',
         2,
         data.get('p.paused'),
@@ -53,7 +50,8 @@ def game_telemetry_bstring(data: Dict):
 
 
 def kos_telemetry_bstring(data: Dict):
+    """translate the given kos script data to openc3 string"""
     return struct.pack('>hH',
-        2,
+        3,
         data.get('state'),
     ) + data.get('message')

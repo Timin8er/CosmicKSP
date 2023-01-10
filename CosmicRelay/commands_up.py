@@ -8,6 +8,7 @@ from CosmicKSP.openc3_links import OpenC3CommandsLink
 
 
 def openc3_to_kos_command(b_command: ByteString) -> str:
+    """translate the given openc3 command into a kos command"""
     for id, cmd in COMMANDS.items():
         if b_command.startswith(id):
             try:

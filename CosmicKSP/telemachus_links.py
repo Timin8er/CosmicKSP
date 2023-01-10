@@ -106,7 +106,7 @@ class TelemachusSocket():
         new_telemetry = self.get_telemetry()
         if not new_telemetry: # no new data
             return self.latest_telemetry
-    
+
         self.latest_telemetry.update(new_telemetry)
         self.last_recieved_time = datetime.datetime.now()
         self.update_bodies()
