@@ -1,6 +1,6 @@
 """the configuration manager for the Cosmic KSP project"""
 import os
-from logging import INFO, DEBUG
+from logging import INFO
 from pyqt_data_framework.core import config_manager
 
 config_path = os.path.expanduser(os.path.join('~', 'Documents', 'CosmicKSP', 'CosmicKSP.config'))
@@ -9,13 +9,13 @@ default_config = {
     'LOGGING_LEVEL': INFO,
     'OPENC3': {
         'HOST': 'localhost',
-        'TELEMETRY_PORT': 8082,
-        'COMMANDS_PORT': 8081,
+        'TELEMETRY_PORT': 8092,
+        'COMMANDS_PORT': 8091,
     },
     'TELEMACHUS':{
         'HOST':'localhost',
         'PORT':8085,
-        'FREQUENCY':500,
+        'FREQUENCY':1000,
     },
     'KOS': {
         'HOST':'localhost',

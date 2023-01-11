@@ -29,23 +29,23 @@ def telemetry_loop():
         while True:
             if telemachus_link.web_socket is None:
                 telemachus_link.reconnect()
+                continue
 
-            else:
-                telemetry_data = telemachus_link.listen() # get telem data
-                if not telemetry_data:
-                    continue
+            telemetry_data = telemachus_link.listen() # get telem data
+            if not telemetry_data:
+                continue
 
-                if telemetry_data.get('p.paused') != game_state:
-                    game_state = telemetry_data.get('p.paused')
-                    telem = game_telemetry_bstring(telemetry_data)
-                    openc3.send_telem(telem)
-                    log_state(telemetry_data)
+            if telemetry_data.get('p.paused') != game_state:
+                game_state = telemetry_data.get('p.paused')
+                telem = game_telemetry_bstring(telemetry_data)
+                openc3.send_telem(telem)
+                log_state(telemetry_data)
 
-                # log telemetry if not construction or paused
-                if game_state == STATE_FLIGHT:
-                    telem = vehicle_telemetry_bstring(telemetry_data)
-                    openc3.send_telem(telem)
-                    log_telemetry(telemetry_data)
+            # log telemetry if not construction or paused
+            if game_state == STATE_FLIGHT:
+                telem = vehicle_telemetry_bstring(telemetry_data)
+                openc3.send_telem(telem)
+                log_telemetry(telemetry_data)
 
     except KeyboardInterrupt:
         logger.info('Telemetry Relay Stopped: Keyboard Interupt')

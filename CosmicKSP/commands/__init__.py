@@ -5,7 +5,7 @@ import struct
 # https://docs.python.org/3/library/struct.html
 
 
-def cmd_stage(bstr: ByteString) -> str:
+def cmd_stage(bstr: ByteString) -> str: # pylint: disable=unused-argument
     """returns the KOS command to stage the vehicle"""
     return "stage."
 

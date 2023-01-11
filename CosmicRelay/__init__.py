@@ -1,11 +1,13 @@
-from CosmicKSP.logging import logger
-from CosmicKSP.config import config
-logger.setLevel(config['LOGGING_LEVEL'])
-
+"""These are the processes for running the command and telemetrie relays from openc3 to KSP"""
 import sys
 import os
+from CosmicKSP.logging import logger
+from CosmicKSP.config import config
 from CosmicRelay.telemetry_down import telemetry_loop
 from CosmicRelay.commands_up import commands_loop
+
+logger.setLevel(config['LOGGING_LEVEL'])
+
 
 
 def main():
