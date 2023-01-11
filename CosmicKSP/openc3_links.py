@@ -38,12 +38,12 @@ class OpenC3TelemetryLink():
 
     def send_telem(self, message_str):
         """send a message to cosmos, data is a byte string"""
+        logger.debug('Sending OpenC3 Message: %s', message_str.hex())
         if self.socket is not None:
-            logger.debug('Sending OpenC3 Message: %s', message_str.hex())
             self.socket.sendall(message_str)
 
         else:
-            logger.error('OpenC3 Message Not Sent: %s', data)
+            logger.error('OpenC3 Telemetry Not Sent: Connection not available')
 
 
     def __del__(self):
