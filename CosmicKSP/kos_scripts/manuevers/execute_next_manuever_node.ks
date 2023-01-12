@@ -1,3 +1,8 @@
+// This script executes the next manuever node
+PARAMETER staging_timing.
+
+SAS OFF.
+
 LOCAL next_node to nextnode.
 
 print "Node in: " + round(next_node:eta) + ", DeltaV: " + round(next_node:deltav:mag).
@@ -63,7 +68,7 @@ UNLOCK throttle.
 wait 1.
 
 //we no longer need the maneuver node
-remove nd.
+remove next_node.
 
 //set throttle to 0 just in case.
 SET SHIP:CONTROL:PILOTMAINTHROTTLE TO 0.

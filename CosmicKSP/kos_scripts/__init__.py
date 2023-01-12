@@ -17,3 +17,10 @@ def copy_script_from_game(instance):
     dest = os.path.join(instance['DIR'], 'Ships', 'Script')
 
     shutil.copy(dest, MY_PATH)
+
+
+# runpath("0:/launch_target_ap.ks", 100000, 35, 40, 16, 10, 20, 0, list(0,0,0,0,2)).
+# copypath("0:/dual_stage_delay.ks", "1:/dual_stage_delay.ks").
+# runpath("0:/manuevers/create_node_circularise_at_apoapsis.ks").
+# runpath("0:/manuevers/execute_next_manuever_node.ks").
+# 

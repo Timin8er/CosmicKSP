@@ -109,6 +109,33 @@ def cmd_set_bays(bstr: ByteString) -> ByteString:
     return f'BAYS {onoff}.\n'.encode()
 
 
+def cmd_import_script(bstr: ByteString) -> ByteString: 
+    """return the kos command for to copy a script to the 'internal' kos volumn """
+    # args = struct.unpack('>h', bstr)
+    rest = bstr.removeprefix(struct.pack('>h', 101)).decode('utf-8')
+    return f'copypath("0:/{rest}.ks", "1:/{rest}.ks").\n'.encode()
+
+
+def cmd_launch_target_ap(bstr: ByteString) -> ByteString:
+    """return the kos command for the launch_target_ap.ks """
+    l = struct.calcsize('>hIffffff')
+    args = struct.unpack('>hIffffff', bstr[:l])
+    main_args = ', '.join([str(i) for i in args[1:]])
+    stage_args = bstr[l:].decode('utf-8')
+    return f'runpath("1:/launch_target_ap.ks", {main_args}, list({stage_args})).\n'.encode()
+
+
+
+def cmd_create_node_circularise_at_apoapsis(bstr: ByteString) -> ByteString: # pylint: disable=unused-argument
+    """return the kos command for to copy a script to the 'internal' kos volumn """
+    return b'runpath("0:/manuevers/create_node_circularise_at_apoapsis.ks").\n'
+
+
+def cmd_execute_next_manuever_node(bstr: ByteString) -> ByteString:
+    """return the kos command for to copy a script to the 'internal' kos volumn """
+    return 'runpath("0:/manuevers/execute_next_manuever_node.ks").\n'.encode()
+
+
 COMMANDS = {
     struct.pack('>h', 1): cmd_kos_stop,
     struct.pack('>h', 2): cmd_stage,
@@ -124,4 +151,9 @@ COMMANDS = {
     struct.pack('>h', 12): cmd_set_radiators,
     struct.pack('>h', 13): cmd_set_ladders,
     struct.pack('>h', 14): cmd_set_bays,
+
+    struct.pack('>h', 101): cmd_import_script,
+    struct.pack('>h', 102): cmd_launch_target_ap,
+    struct.pack('>h', 103): cmd_create_node_circularise_at_apoapsis,
+    struct.pack('>h', 104): cmd_execute_next_manuever_node,
 }

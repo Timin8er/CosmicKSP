@@ -1,5 +1,5 @@
 // Launches a vehicle
-PARAMETER target_ap, pitch_line_mod, pitch_pow_mod, pitch_sqrt_mod, pitch_min, speed_min, ship_roll, staging_timing
+PARAMETER target_ap, pitch_line_mod, pitch_pow_mod, pitch_sqrt_mod, pitch_min, speed_min, ship_roll, staging_timing.
 
 // target_ap : the target APOAPSIS, in meters
 // pitch_line_mod : liniar component of arch
@@ -11,7 +11,7 @@ PARAMETER target_ap, pitch_line_mod, pitch_pow_mod, pitch_sqrt_mod, pitch_min, s
 // staging_timing : list of delays for dual staging, 0 means single stage event 
 
 LOCAL staging_timing_index TO 1. // starts at 1 because 0 is hard coded
-LOCAL head TO HEADING(90,90,ship_roll).
+LOCAL head TO HEADING(90, 90, ship_roll).
 
 ////////// Launch //////////
 // Open the throttle, but save the mono
