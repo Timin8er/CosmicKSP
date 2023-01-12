@@ -7,6 +7,10 @@
 #    STATE TRUE 1
 #  APPEND_PARAMETER    LABEL 0       STRING          "OpenC3" "The label to apply"
 
+COMMAND COSMICKSP KOS_STOP BIG_ENDIAN "Activate the next stage"
+  # Keyword           Name  BitSize Type   Min Max  Default  Description
+  APPEND_ID_PARAMETER ID    16      INT    1   1    1        "Identifier"
+
 
 COMMAND COSMICKSP STAGE BIG_ENDIAN "Activate the next stage"
   # Keyword           Name  BitSize Type   Min Max  Default  Description
@@ -117,3 +121,5 @@ COMMAND COSMICKSP SET_BAYS BIG_ENDIAN "Set BAYS to On or Off"
   APPEND_PARAMETER    BOOL  8       UINT   MIN MAX  0        "Boolean"
     STATE OFF 0
     STATE ON 1
+
+

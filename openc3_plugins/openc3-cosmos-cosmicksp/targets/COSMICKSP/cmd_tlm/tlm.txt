@@ -15,9 +15,6 @@ TELEMETRY COSMICKSP VEHICLE_STATUS BIG_ENDIAN "Telemetry for the active vehicle"
   APPEND_ITEM    ALTITUDE     64      FLOAT     "Altitude abobe the current body, in km"
   APPEND_ITEM    LATITUDE     32      FLOAT     "Latitude"
   APPEND_ITEM    LONGITUDE    32      FLOAT     "Longitude"
-  #APPEND_ITEM    ELETRICITY   32      FLOAT     "Electric Charge"
-  #APPEND_ITEM    ACCELERATION 32      FLOAT     "Acceleration"
-  #APPEND_ITEM    TEMPERATURE  32      FLOAT     "Vehicle Temperature"
   APPEND_ITEM    THROTTLE     32      FLOAT     "Throttle Positon"
 
 

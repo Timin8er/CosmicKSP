@@ -5,5 +5,5 @@ VARIABLE cosmicksp_target_name COSMICKSP
 # Modify this according to your actual target connection
 # See https://openc3.com/docs/v5/interfaces for more information
 TARGET COSMICKSP <%= cosmicksp_target_name %>
-INTERFACE <%= cosmicksp_target_name %>_INT tcpip_server_interface.rb 8085 8086 10.0 nil BURST
+INTERFACE <%= cosmicksp_target_name %>_INT tcpip_server_interface.rb 8091 8092 10.0 nil BURST
   MAP_TARGET <%= cosmicksp_target_name %>
