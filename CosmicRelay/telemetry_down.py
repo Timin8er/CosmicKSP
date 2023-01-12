@@ -18,7 +18,7 @@ STATE_STRINGS = {
 
 
 def telemetry_loop():
-    """loop of recieving telemetry"""
+    """loop of recieving telemetry from Telemachus, translating it, and sending it to OpenC3"""
     logger.info('Telemetry Relay Starting')
     game_state = -1
 

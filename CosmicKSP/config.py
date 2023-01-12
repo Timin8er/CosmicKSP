@@ -5,12 +5,13 @@ from pyqt_data_framework.core import config_manager
 
 config_path = os.path.expanduser(os.path.join('~', 'Documents', 'CosmicKSP', 'CosmicKSP.config'))
 
+
 default_config = {
     'LOGGING_LEVEL': INFO,
     'OPENC3': {
         'HOST': 'localhost',
-        'TELEMETRY_PORT': 8092,
         'COMMANDS_PORT': 8091,
+        'TELEMETRY_PORT': 8092,
     },
     'TELEMACHUS':{
         'HOST':'localhost',

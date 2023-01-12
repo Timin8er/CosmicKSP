@@ -1,9 +1,7 @@
 """connection manager for kos"""
 from time import sleep, time
+from typing import ByteString
 import telnetlib
-import os
-import shutil
-from PyQt5.QtCore import QObject, pyqtSignal
 from CosmicKSP.logging import logger
 from CosmicKSP.config import config
 
@@ -38,26 +36,24 @@ class KosConnection():
             raise
 
 
-    def send(self, command_str):
+    def send(self, command_str: ByteString):
         """ execute a single kos command """
         if self.timeout_deadline < time():
             self.open()
-
-        if not command_str.endswith('.'):
-            command_str += '.'
-
         self.timeout_deadline = time() + config['KOS']['TIMEOUT']
-        self.telnet_connection.write(f'{command_str}\n'.encode())
+
+        self.telnet_connection.write(command_str)
         self.telnet_connection.read_until(b'')
+
         logger.info('Command Sent: %s', command_str)
         sleep(.2)
 
 
-    def stop(self):
-        """ hault the kos terminal """
-        if self.timeout_deadline < time():
-            self.open()
-        self.telnet_connection.write(telnetlib.IP)
+    # def stop(self):
+    #     """ hault the kos terminal """
+    #     if self.timeout_deadline < time():
+    #         self.open()
+    #     self.telnet_connection.write(telnetlib.IP)
 
 
     # def run_script(self, script_instance, *args, volume=1, timeout=0):

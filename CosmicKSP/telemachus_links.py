@@ -2,8 +2,6 @@
 from typing import Dict
 import datetime
 import json
-import time
-import socket
 import websocket
 from CosmicKSP.logging import logger
 from CosmicKSP.config import config

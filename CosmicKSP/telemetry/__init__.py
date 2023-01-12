@@ -1,5 +1,5 @@
 """package for managing telemetry packets"""
-from typing import Dict, ByteString
+from typing import Dict
 import struct
 
 TELEMETRY_SUBSCIPTIONS = [
@@ -9,9 +9,6 @@ TELEMETRY_SUBSCIPTIONS = [
     'v.altitude',
     'v.lat',
     'v.long',
-    'r.resource[electricity]',
-    's.sensor.acc',
-    's.sensor.temp',
     'f.abort',
     'f.throttle',
     'b.number',
@@ -34,9 +31,6 @@ def vehicle_telemetry_bstring(data: Dict):
         data.get('v.altitude', 0.0),
         data.get('v.lat', 0.0),
         data.get('v.long', 0.0),
-        # data.get('r.resource[electricity]'),
-        # data.get('s.sensor.acc'),
-        # data.get('s.sensor.temp'),
         data.get('f.throttle', -1.0),
     )
 

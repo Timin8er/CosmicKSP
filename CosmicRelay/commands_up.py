@@ -23,7 +23,7 @@ def openc3_to_kos_command(b_command: ByteString) -> str:
 
 
 def commands_loop():
-    """loop of recieving telemetry"""
+    """loop of recieving commands from OpenC3, translating it, and sending it to KOS"""
     logger.info('Commands Relay Starting')
 
     kos = KosConnection()

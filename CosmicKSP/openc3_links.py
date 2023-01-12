@@ -24,7 +24,9 @@ class OpenC3TelemetryLink():
             self.socket.connect(server_address)
 
         except socket.error:
-            logger.exception('Failed to connect to OpenC3')
+            logger.exception('Failed to connect to OpenC3 Telemetry: %s:%s', 
+                config['OPENC3']['HOST'],
+                config['OPENC3']['TELEMETRY_PORT'])
             self.socket = None
 
 
@@ -48,7 +50,7 @@ class OpenC3TelemetryLink():
 
     def __del__(self):
         """ Make sure we disconnect cleanly, or telemachus gets unhappy """
-        if getattr(self, 'ws', None) is not None:
+        if getattr(self, 'socket', None) is not None:
             self.disconnect()
 
 
@@ -69,10 +71,10 @@ class OpenC3CommandsLink():
 
         except socket.error:
             # Failed to connect
-            logger.exception('Failed to connect to OpenC3')
+            logger.exception('Failed to connect to OpenC3 Commanding')
             self.socket = None
             raise
-        
+
         else:
             logger.info("OpenC3 Connection: %s:%s", *server_address)
 
