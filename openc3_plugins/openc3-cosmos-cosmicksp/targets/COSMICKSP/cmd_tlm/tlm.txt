@@ -17,6 +17,7 @@ TELEMETRY COSMICKSP VEHICLE_STATUS BIG_ENDIAN "Telemetry for the active vehicle"
 TELEMETRY COSMICKSP VEHICLE_STATUS BIG_ENDIAN "Telemetry for the active vehicle"
   # Keyword      Name           BitSize Type  ID  Description
   APPEND_ID_ITEM ID             16      INT   2   "Identifier"
+  APPEND_ITEM    UNIVERSAL_TIME 64      FLOAT     "Universal Time"
   APPEND_ITEM    ALTITUDE       64      FLOAT     "Altitude abobe the current body, in km"
   APPEND_ITEM    LATITUDE       32      FLOAT     "Latitude"
   APPEND_ITEM    LONGITUDE      32      FLOAT     "Longitude"
@@ -39,7 +40,7 @@ TELEMETRY COSMICKSP VEHICLE_STATUS BIG_ENDIAN "Telemetry for the active vehicle"
 
 TELEMETRY COSMICKSP GAME_STATE BIG_ENDIAN "Telemetry for the game instance"
   # Keyword      Name       BitSize Type  ID  Description
-  APPEND_ID_ITEM ID         16      INT   2   "Identifier"
+  APPEND_ID_ITEM ID         16      INT   3   "Identifier"
   APPEND_ITEM    GAME_STATE 16      INT       "The Sagte of the ksp game instance"
     STATE SIGNAL_LOST -1
     STATE FLIGHT 0
@@ -52,7 +53,7 @@ TELEMETRY COSMICKSP GAME_STATE BIG_ENDIAN "Telemetry for the game instance"
 
 TELEMETRY COSMICKSP SCRIPT_STATUS BIG_ENDIAN "status from the KOS console"
   # Keyword      Name       BitSize Type  ID  Description
-  APPEND_ID_ITEM ID         16      INT   3   "Identifier"
+  APPEND_ID_ITEM ID         16      INT   4   "Identifier"
   APPEND_ITEM    STATUS     16      UINT      "The state of the console"
     STATE WAITING_FOR_INPUT 0
     STATE BUISY 1
