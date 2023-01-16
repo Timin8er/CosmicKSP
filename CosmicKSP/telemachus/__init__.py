@@ -1,9 +1,8 @@
 """mange the socket connection to telemechus"""
 from typing import Dict
-import datetime
 import json
 import websocket
-from CosmicKSP.config import config
+from .telemetry import STATE_SIGNAL_LOST, STATE_PAUSED
 
 
 class TelemachusConnector():
@@ -38,9 +37,27 @@ class TelemachusConnector():
         self.web_socket.send(message_str)
 
 
+    # def recieve(self) -> Dict:
+    #     """wait for a new telemetry packet and return it"""
+    #     return json.loads(self.web_socket.recv())
+
+
     def recieve(self) -> Dict:
         """wait for a new telemetry packet and return it"""
-        return json.loads(self.web_socket.recv())
+        if self.web_socket is None:
+            return {"p.paused": STATE_SIGNAL_LOST}
+
+        try:
+            return json.loads(self.web_socket.recv())
+
+        except ConnectionRefusedError:
+            return {"p.paused": STATE_SIGNAL_LOST}
+
+        except websocket.WebSocketConnectionClosedException:
+            return {"p.paused": STATE_SIGNAL_LOST}
+
+        except websocket.WebSocketTimeoutException:
+            return {"p.paused": STATE_PAUSED}
 
 
     def subscribe(self, key):

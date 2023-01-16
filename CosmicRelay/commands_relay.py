@@ -7,15 +7,6 @@ from CosmicKSP.kos.commands import COMMANDS
 from CosmicKSP.openc3 import OpenC3Connection
 
 
-openc3_connection = OpenC3Connection(
-    config['openc3']['host'],
-    config['openc3']['commands_port'])
-
-kos_connection = KosConnection(
-    config['kos']['host'],
-    config['kos']['port'],
-    config['kos']['timeout'])
-
 logger = get_logger(name='CosmicKSP_Commanding')
 logger.setLevel(config['logging_level'])
 
@@ -23,7 +14,6 @@ logger.setLevel(config['logging_level'])
 def openc3_to_kos_command(b_command: ByteString) -> str:
     """translate the given openc3 command into a kos command"""
     for id_str, cmd in COMMANDS.items():
-        print(id_str, cmd)
         if b_command.startswith(id_str):
             return cmd(b_command)
 
@@ -32,6 +22,15 @@ def openc3_to_kos_command(b_command: ByteString) -> str:
 
 def commands_loop():
     """loop of recieving commands from OpenC3, translating it, and sending it to KOS"""
+    openc3_connection = OpenC3Connection(
+        config['openc3']['host'],
+        config['openc3']['commands_port'])
+
+    kos_connection = KosConnection(
+        config['kos']['host'],
+        config['kos']['port'],
+        config['kos']['timeout'])
+
     logger.info('Commands Relay Starting')
 
     while True:

@@ -12,6 +12,7 @@ STATE_CONSTRUCTION = 5
 
 
 VEHICLE_TELEMETRY_SUBSCIPTIONS = [
+    'p.paused',
     'v.missionTime',
     'v.geeForce',
     'f.throttle',
@@ -27,6 +28,7 @@ VEHICLE_TELEMETRY_SUBSCIPTIONS = [
 
 
 ORBIT_TELEMETRY_SUBSCIPTIONS = [
+    'p.paused',
     't.universalTime',
     'v.altitude',
     'v.lat',
@@ -44,13 +46,13 @@ ORBIT_TELEMETRY_SUBSCIPTIONS = [
     'o.timeToTransition1'
     'o.lan',
     'o.maae',
-    'b.name',
+    'v.body',
 ]
 
 
 def vehicle_telemetry_bstring(data: Dict):
     """translate the given vehivcle telemachus data to openc3 string"""
-    return struct.pack('>hdffbbbbbffp',
+    return struct.pack('>hdffbbbbbff',
         1,
         data.get('v.missionTime', 0.0),
         data.get('v.geeForce', 0.0),
@@ -62,13 +64,12 @@ def vehicle_telemetry_bstring(data: Dict):
         data.get('v.gearValue', -1),
         data.get('v.atmosphericDensity', 0.0),
         data.get('v.dynamicPressure', 0.0),
-        data.get('v.name', 'None'),
-    )
+    ) + data.get('v.name', 'None').encode('utf-8')
 
 
 def orbit_telemetry_bstring(data: Dict) -> ByteString:
     """translate the telemetry pachet for orbit imformation"""
-    return struct.pack('>hddffdddddfffdfdffp',
+    return struct.pack('>hddffdddddfffdfdff',
         2,
         data.get('t.universalTime', 0.0),
         data.get('v.altitude', 0.0),
@@ -87,8 +88,7 @@ def orbit_telemetry_bstring(data: Dict) -> ByteString:
         data.get('o.timeToTransition1', 0.0),
         data.get('o.lan', 0.0),
         data.get('o.maae', 0.0),
-        data.get('b.name', 'None'),
-    )
+    ) + data.get('v.body', 'None').encode('utf-8')
 
 
 def game_telemetry_bstring(data: Dict):

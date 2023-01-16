@@ -120,7 +120,6 @@ def cmd_script(script_name: str, script_config: Dict):
         return id_str, _cmd_script
 
     short_struct = script_config['struct'][0:-1]
-    # print(script_name, short_struct)
     length = struct.calcsize(short_struct)
 
     def _cmd_script(bstr: ByteString) -> ByteString:
