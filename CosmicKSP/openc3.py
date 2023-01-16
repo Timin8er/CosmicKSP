@@ -14,13 +14,9 @@ class OpenC3Connection():
 
     def reconnect(self):
         """reconnect to the telemachus socket"""
-        try:
-            self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            server_address = (self.host, self.port)
-            self.socket.connect(server_address)
-
-        except socket.error:
-            self.socket = None
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server_address = (self.host, self.port)
+        self.socket.connect(server_address)
 
 
     def disconnect(self):

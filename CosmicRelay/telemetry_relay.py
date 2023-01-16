@@ -23,7 +23,7 @@ telemachus_link = TelemachusConnector(config['TELEMACHUS']['HOST'], config['TELE
 
 
 logger = get_logger(name='CosmicKSP_Telemetry')
-logger.setLevel(config['LOGGING_LEVEL'])
+logger.setLevel(config['logging_level'])
 
 
 def telemetry_loop():

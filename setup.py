@@ -21,8 +21,8 @@ setup(
     entry_points={
             'console_scripts': [
                 'CosmicRelay = CosmicRelay:main',
-                'CosmicTelemetry = CosmicRelay.telemetry_relay:main',
-                'CosmicCommanding = CosmicRelay.commands_relay:main',
+                'CosmicRelay_Telemetry = CosmicRelay.telemetry_relay:main',
+                'CosmicRelay_Commanding = CosmicRelay.commands_relay:main',
                 'CosmicGameManager = CosmicGameManager:main',
             ]
         }

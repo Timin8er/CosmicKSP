@@ -3,12 +3,10 @@ from typing import ByteString, Dict
 import struct
 from CosmicKSP.config import config
 
-# https://docs.python.org/3/library/struct.html
-
 
 def cmd_abort(*_) -> ByteString:
     """returns the stop command for kos"""
-    return b'SET ABORT TO TRUE.\n'
+    return b'ABORT ON.\n'
 
 
 def cmd_kos_stop(*_) -> ByteString:
@@ -63,14 +61,23 @@ def cmd_direct_sas(bstr: ByteString) -> ByteString:
         "MANEUVER",
         "STABILITYASSIST",
         "STABILITY"][args[1]]
-    return f'set SAS to {direction}.\n'.encode()
+    return f'set SASMODE to "{direction}".\n'.encode()
 
 
-def cmd_import_script(bstr: ByteString) -> ByteString: 
+def cmd_import_script(bstr: ByteString) -> ByteString:
     """return the kos command for to copy a script to the 'internal' kos volumn """
-    # args = struct.unpack('>h', bstr)
-    rest = bstr.removeprefix(struct.pack('>h', 101)).decode('utf-8')
-    return f'copypath("0:/{rest}.ks", "1:/{rest}.ks").\n'.encode()
+    script_name = bstr[2:].decode('utf-8')
+    
+    if script_name not in config['scripts']:
+        return _cmd_import(script_name)
+    
+    scripts = [script_name] + config['scripts'][script_name]['dependancies']
+
+    return (' '.join([_cmd_import(i) for i in scripts])).encode('utf-8')
+
+
+def _cmd_import(script_name: str) -> str:
+    return f'copypath("0:/{script_name}.ks", "1:/{script_name}.ks").\n'
 
 
 # def cmd_launch_target_ap(bstr: ByteString) -> ByteString:
@@ -92,10 +99,15 @@ def cmd_import_script(bstr: ByteString) -> ByteString:
 #     return 'runpath("0:/execute_next_manuever_node.ks").\n'.encode()
 
 
-def cmd_script(name: str, script_config: Dict):
+def cmd_script(script_name: str, script_config: Dict):
     """returns the translation function for a kos script crom the config file"""
     # the id that the translator will look up this function by
     id_str = struct.pack(script_config['struct'][0:2], script_config['id'])
+
+    if len(script_config['struct']) <= 2:
+        def _cmd_script(bstr: ByteString) -> ByteString:
+            return f'runpath("1:/{script_name}.ks").\n'.encode('utf-8')
+        return id_str, _cmd_script
 
     # simple version has no trailing string argument
     if not script_config['struct'].endswith('p'):
@@ -103,24 +115,25 @@ def cmd_script(name: str, script_config: Dict):
         def _cmd_script(bstr: ByteString) -> ByteString:
             args = struct.unpack(script_config['struct'], bstr)
             args_str = ', '.join([str(i) for i in args[1:]])
-            return f'runpath("1:/{name}.ks", {args_str}).\n'.encode('utf-8')
+            return f'runpath("1:/{script_name}.ks", {args_str}).\n'.encode('utf-8')
 
         return id_str, _cmd_script
 
-    short_struct = script_config['struct'][0:-2]
+    short_struct = script_config['struct'][0:-1]
+    # print(script_name, short_struct)
     length = struct.calcsize(short_struct)
 
     def _cmd_script(bstr: ByteString) -> ByteString:
         args = struct.unpack(short_struct, bstr[:length])
         string_arg = bstr[length:].decode('utf-8')
         args_str = ', '.join([str(i) for i in args[1:]] + [string_arg])
-        return f'runpath("1:/{name}.ks", {args_str}).\n'.encode()
+        return f'runpath("1:/{script_name}.ks", {args_str}).\n'.encode()
 
     return id_str, _cmd_script
 
 
 COMMANDS = {
-    struct.pack('>h', 1): cmd_kos_stop,
+    struct.pack('>h', 1): cmd_abort,
     struct.pack('>h', 2): cmd_kos_stop,
     struct.pack('>h', 3): cmd_stage,
     struct.pack('>h', 4): cmd_set_system,
@@ -129,8 +142,7 @@ COMMANDS = {
     struct.pack('>h', 7): cmd_import_script,
 }
 
-
 # for each kos script in the config file, add it to the list of commands
-for name, scritp_config in config.scripts.items():
+for name, scritp_config in config['scripts'].items():
     cmd_id, funk = cmd_script(name, scritp_config)
-    COMMANDS[id] = funk
+    COMMANDS[cmd_id] = funk

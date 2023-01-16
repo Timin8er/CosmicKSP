@@ -17,12 +17,13 @@ kos_connection = KosConnection(
     config['kos']['timeout'])
 
 logger = get_logger(name='CosmicKSP_Commanding')
-logger.setLevel(config['LOGGING_LEVEL'])
+logger.setLevel(config['logging_level'])
 
 
 def openc3_to_kos_command(b_command: ByteString) -> str:
     """translate the given openc3 command into a kos command"""
     for id_str, cmd in COMMANDS.items():
+        print(id_str, cmd)
         if b_command.startswith(id_str):
             return cmd(b_command)
 

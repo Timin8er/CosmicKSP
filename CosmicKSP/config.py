@@ -11,7 +11,7 @@ def get_config(filepath: str, default_values: Dict) -> Dict:
         create_config_file(filepath, default_values)
 
     with open(filepath, 'r', encoding="utf-8") as file:
-        return yaml.load(file)
+        return yaml.safe_load(file)
 
 
 def create_config_file(filepath: str, default_values: Dict) -> None:
@@ -50,11 +50,6 @@ default_config = {
                 'create_node_circularise_at_apoapsis',
                 'execute_next_manuever_node',
             ],
-        },
-        'dual_stage_delay': {
-            'id': None,
-            'struct': None,
-            'dependancies': [],
         },
         'create_node_circularise_at_apoapsis': {
             'id': 102,

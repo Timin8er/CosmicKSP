@@ -13,8 +13,8 @@ import os
 def main():
     """opens two new terminals and runs the uplink and downlink in each"""
     if sys.platform == "win32":
-        os.system('start cmd.exe /K CosmicRelayDownlink"')
-        os.system('start cmd.exe /K CosmicRelayUplink"')
+        os.system('start cmd.exe /K CosmicRelay_Telemetry')
+        os.system('start cmd.exe /K CosmicRelay_Commanding')
 
     else:
         os.system('gnome-terminal --tab --title=TelemachusRelayDownlink -- CosmicRelayDownlink')
