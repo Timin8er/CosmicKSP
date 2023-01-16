@@ -1,7 +1,7 @@
 from CosmicKSP.logging import logger
-from CosmicKSP.openc3_links import OpenC3TelemetryLink
+from CosmicKSP.openc3 import OpenC3TelemetryLink
 import time
-from CosmicKSP.telemetry import vehicle_telemetry_bstring, game_telemetry_bstring
+from CosmicKSP.telemachus.telemetry import vehicle_telemetry_bstring, game_telemetry_bstring
 
 
 test_telemetry = {

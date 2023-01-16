@@ -2,50 +2,43 @@
 from time import sleep, time
 from typing import ByteString
 import telnetlib
-from CosmicKSP.logging import logger
-from CosmicKSP.config import config
 
 
 class KosConnection():
     """manager for the telnet connection to KOS"""
 
-    def __init__(self):
+    def __init__(self, host, port, timeout):
+        self.host = host
+        self.port = port
+        self.timeout = timeout
+
         self.telnet_connection = None
         self.timeout_deadline = 0
 
-        self.open()
+        self.reconect()
 
 
-    def open(self):
+    def reconect(self):
         """open the connection to the KOS telnet port"""
-        try:
-            self.telnet_connection = telnetlib.Telnet(
-                    config['KOS']['HOST'],
-                    config['KOS']['PORT'],
-                    config['KOS']['TIMEOUT'])
+        self.telnet_connection = telnetlib.Telnet(self.host, self.port, self.timeout)
 
-            self.telnet_connection.read_eager()
-            self.telnet_connection.write(b'1\n')
-            sleep(.2)
-            self.telnet_connection.write(b'1\n')
-            sleep(.2)
-            self.telnet_connection.read_until(b'')
-
-        except Exception:
-            logger.exception('Failed to connect to KOS')
-            raise
+        self.telnet_connection.read_eager()
+        self.telnet_connection.write(b'1\n')
+        sleep(.2)
+        self.telnet_connection.write(b'1\n')
+        sleep(.2)
+        self.telnet_connection.read_until(b'')
 
 
     def send(self, command_str: ByteString):
         """ execute a single kos command """
         if self.timeout_deadline < time():
-            self.open()
-        self.timeout_deadline = time() + config['KOS']['TIMEOUT']
+            self.reconect()
+        self.timeout_deadline = time() + self.timeout
 
         self.telnet_connection.write(command_str)
         self.telnet_connection.read_until(b'')
 
-        logger.info('Command Sent: %s', command_str)
         sleep(.2)
 
 

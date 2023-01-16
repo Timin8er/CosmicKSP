@@ -1,12 +1,12 @@
 """These are the processes for running the command and telemetrie relays from openc3 to KSP"""
 import sys
 import os
-from CosmicKSP.logging import logger
-from CosmicKSP.config import config
-from CosmicRelay.telemetry_down import telemetry_loop
-from CosmicRelay.commands_up import commands_loop
+# from CosmicKSP.logging import logger
+# from CosmicKSP.config import config
+# from CosmicRelay.telemetry_relay import telemetry_loop
+# from CosmicRelay.commands_relay import commands_loop
 
-logger.setLevel(config['LOGGING_LEVEL'])
+# logger.setLevel(config['LOGGING_LEVEL'])
 
 
 
@@ -21,22 +21,22 @@ def main():
         os.system('gnome-terminal --tab --title=TelemachusRelayUplink -- CosmicRelayUplink')
 
 
-def up_main():
-    """run the commands uplink relay"""
-    try:
-        commands_loop()
+# def up_main():
+#     """run the commands uplink relay"""
+#     try:
+#         commands_loop()
 
-    except Exception:
-        logger.exception('Main Failed')
+#     except Exception:
+#         logger.exception('Main Failed')
 
 
-def down_main():
-    """run the telemetry downlink relay"""
-    try:
-        telemetry_loop()
+# def down_main():
+#     """run the telemetry downlink relay"""
+#     try:
+#         telemetry_loop()
 
-    except Exception:
-        logger.exception('Main Failed')
+#     except Exception:
+#         logger.exception('Main Failed')
 
 
 if __name__ == '__main__':

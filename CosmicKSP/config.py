@@ -1,28 +1,72 @@
 """the configuration manager for the Cosmic KSP project"""
+from typing import Dict
 import os
 from logging import INFO
-from pyqt_data_framework.core import config_manager
+import yaml
+
+
+def get_config(filepath: str, default_values: Dict) -> Dict:
+    """get the config data for the given file"""
+    if not os.path.isfile(filepath):
+        create_config_file(filepath, default_values)
+
+    with open(filepath, 'r', encoding="utf-8") as file:
+        return yaml.load(file)
+
+
+def create_config_file(filepath: str, default_values: Dict) -> None:
+    """create a config file with the given default values"""
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+
+    with open(filepath, 'w', encoding="utf-8") as file:
+        yaml.dump(default_values, file)
+
 
 config_path = os.path.expanduser(os.path.join('~', 'Documents', 'CosmicKSP', 'CosmicKSP.config'))
 
-
 default_config = {
-    'LOGGING_LEVEL': INFO,
-    'OPENC3': {
-        'HOST': 'localhost',
-        'COMMANDS_PORT': 8091,
-        'TELEMETRY_PORT': 8092,
+    'logging_level': INFO,
+    'openc3': {
+        'host': 'localhost',
+        'commands_port': 8091,
+        'telemetry_port': 8092,
     },
-    'TELEMACHUS':{
-        'HOST':'localhost',
-        'PORT':8085,
-        'FREQUENCY':1000,
+    'telemachus':{
+        'host':'localhost',
+        'port':8085,
+        'frequency':1000,
     },
-    'KOS': {
-        'HOST':'localhost',
-        'PORT':5410,
-        'TIMEOUT':10,
+    'kos': {
+        'host':'localhost',
+        'port':5410,
+        'timeout':10,
+    },
+    'scripts':{
+        'launch_target_ap': {
+            'id': 101,
+            'struct': '>hIffffffp',
+            'dependancies': [
+                'dual_stage_delay',
+                'create_node_circularise_at_apoapsis',
+                'execute_next_manuever_node',
+            ],
+        },
+        'dual_stage_delay': {
+            'id': None,
+            'struct': None,
+            'dependancies': [],
+        },
+        'create_node_circularise_at_apoapsis': {
+            'id': 102,
+            'struct': '>h',
+            'dependancies': [],
+        },
+        'execute_next_manuever_node': {
+            'id': 103,
+            'struct': '>hp',
+            'dependancies': [],
+        },
     },
 }
 
-config = config_manager.get_config(config_path, default_config)
+config = get_config(config_path, default_config)

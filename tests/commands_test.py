@@ -1,7 +1,7 @@
 """openc3 commands test"""
 from CosmicKSP.logging import logger
-from CosmicKSP.openc3_links import OpenC3CommandsLink
-from CosmicKSP.commands import COMMANDS
+from CosmicKSP.openc3 import OpenC3CommandsLink
+from CosmicKSP.kos.commands import COMMANDS
 
 
 def main():
