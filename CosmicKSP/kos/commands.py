@@ -37,14 +37,14 @@ def cmd_set_system(bstr: ByteString) -> ByteString:
     ][args[1]]
 
     onoff = 'ON' if args[2] else 'OFF'
-    return f'{system} {onoff}.\n'.encode()
+    return f'{system} {onoff}.\n'
 
 
 def cmd_set_action_group(bstr: ByteString) -> ByteString:
     """return the kos command to turn GEAR on or off"""
     args = struct.unpack('>hB?', bstr)
     onoff = 'ON' if args[2] else 'OFF'
-    return f'AG{args[1]} {onoff}.\n'.encode()
+    return f'AG{args[1]} {onoff}.\n'
 
 
 def cmd_direct_sas(bstr: ByteString) -> ByteString:
@@ -61,7 +61,7 @@ def cmd_direct_sas(bstr: ByteString) -> ByteString:
         "MANEUVER",
         "STABILITYASSIST",
         "STABILITY"][args[1]]
-    return f'set SASMODE to "{direction}".\n'.encode()
+    return f'set SASMODE to "{direction}".\n'
 
 
 def cmd_import_script(bstr: ByteString) -> ByteString:
@@ -73,30 +73,11 @@ def cmd_import_script(bstr: ByteString) -> ByteString:
     
     scripts = [script_name] + config['scripts'][script_name]['dependancies']
 
-    return (' '.join([_cmd_import(i) for i in scripts])).encode('utf-8')
+    return (' '.join([_cmd_import(i) for i in scripts]))
 
 
 def _cmd_import(script_name: str) -> str:
     return f'copypath("0:/{script_name}.ks", "1:/{script_name}.ks").\n'
-
-
-# def cmd_launch_target_ap(bstr: ByteString) -> ByteString:
-#     """return the kos command for the launch_target_ap.ks """
-#     length = struct.calcsize('>hIffffff')
-#     args = struct.unpack('>hIffffff', bstr[:length])
-#     main_args = ', '.join([str(i) for i in args[1:]])
-#     stage_args = bstr[length:].decode('utf-8')
-#     return f'runpath("1:/launch_target_ap.ks", {main_args}, list({stage_args})).\n'.encode()
-
-
-# def cmd_create_node_circularise_at_apoapsis(bstr: ByteString) -> ByteString: # pylint: disable=unused-argument
-#     """return the kos command for to copy a script to the 'internal' kos volumn """
-#     return b'runpath("0:/create_node_circularise_at_apoapsis.ks").\n'
-
-
-# def cmd_execute_next_manuever_node(*_) -> ByteString:
-#     """return the kos command for to copy a script to the 'internal' kos volumn """
-#     return 'runpath("0:/execute_next_manuever_node.ks").\n'.encode()
 
 
 def cmd_script(script_name: str, script_config: Dict):
@@ -106,7 +87,7 @@ def cmd_script(script_name: str, script_config: Dict):
 
     if len(script_config['struct']) <= 2:
         def _cmd_script(bstr: ByteString) -> ByteString:
-            return f'runpath("1:/{script_name}.ks").\n'.encode('utf-8')
+            return f'runpath("1:/{script_name}.ks").\n'
         return id_str, _cmd_script
 
     # simple version has no trailing string argument
@@ -115,7 +96,7 @@ def cmd_script(script_name: str, script_config: Dict):
         def _cmd_script(bstr: ByteString) -> ByteString:
             args = struct.unpack(script_config['struct'], bstr)
             args_str = ', '.join([str(i) for i in args[1:]])
-            return f'runpath("1:/{script_name}.ks", {args_str}).\n'.encode('utf-8')
+            return f'runpath("1:/{script_name}.ks", {args_str}).\n'
 
         return id_str, _cmd_script
 
@@ -126,7 +107,7 @@ def cmd_script(script_name: str, script_config: Dict):
         args = struct.unpack(short_struct, bstr[:length])
         string_arg = bstr[length:].decode('utf-8')
         args_str = ', '.join([str(i) for i in args[1:]] + [string_arg])
-        return f'runpath("1:/{script_name}.ks", {args_str}).\n'.encode()
+        return f'runpath("1:/{script_name}.ks", {args_str}).\n'
 
     return id_str, _cmd_script
 

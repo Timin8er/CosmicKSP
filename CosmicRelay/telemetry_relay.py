@@ -137,26 +137,6 @@ def game_telemetry_loop():
             logger.info('T+%s Game: %s', mission_time, STATE_STRINGS[telemetry_data['p.paused']])
 
 
-        # if telemetry_data.get('p.paused') != game_state:
-        #     game_state = telemetry_data.get('p.paused')
-        #     telem = game_telemetry_bstring(telemetry_data)
-        #     openc3_connection.send(telem)
-        #     log_state(telemetry_data)
-
-        # # log telemetry if not construction or paused
-        # if game_state == STATE_FLIGHT:
-        #     telem = vehicle_telemetry_bstring(telemetry_data)
-        #     openc3_connection.send(telem)
-        #     log_telemetry(telemetry_data)
-
-
-# def log_state(data):
-#     """log the connection state"""
-#     mission_time = datetime.timedelta(seconds=data.get('v.missionTime', 0))
-#     game_state = STATE_STRINGS[data['p.paused']]
-#     logger.info('T+%s Game State: %s', mission_time, game_state)
-
-
 def main():
     """run the telemetry downlink relay"""
     try:
