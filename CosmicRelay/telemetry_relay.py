@@ -48,7 +48,7 @@ def telemetry_loop():
 
         telem = game_telemetry_bstring(telemetry_data)
         openc3_connection.send(telem)
-        log_state(telemetry_data)
+        log_telemetry(telemetry_data)
 
         # if telemetry_data.get('p.paused') != game_state:
         #     game_state = telemetry_data.get('p.paused')
@@ -73,7 +73,7 @@ def log_state(data):
 def log_telemetry(data):
     """log the telemetry data"""
     mission_time = datetime.timedelta(seconds=data.get('v.missionTime', 0))
-    logger.info('T+%s Altitude: %s', mission_time, data.get('v.altitude'))
+    logger.info('T+%s', mission_time)
 
 
 def main():

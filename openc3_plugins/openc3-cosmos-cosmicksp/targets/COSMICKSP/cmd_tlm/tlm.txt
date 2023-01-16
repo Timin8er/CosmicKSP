@@ -14,7 +14,7 @@ TELEMETRY COSMICKSP VEHICLE_STATUS BIG_ENDIAN "Telemetry for the active vehicle"
   APPEND_ITEM    NAME         0       STRING    "Vehicle Name"
 
 
-TELEMETRY COSMICKSP VEHICLE_STATUS BIG_ENDIAN "Telemetry for the active vehicle"
+TELEMETRY COSMICKSP ORBIT_STATUS BIG_ENDIAN "Telemetry for the active vehicle"
   # Keyword      Name           BitSize Type  ID  Description
   APPEND_ID_ITEM ID             16      INT   2   "Identifier"
   APPEND_ITEM    UNIVERSAL_TIME 64      FLOAT     "Universal Time"
