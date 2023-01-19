@@ -27,7 +27,7 @@ def cmd_set_system(bstr: ByteString) -> ByteString:
         'SAS',
         'RCS',
         'LIGHTS',
-        'BREAKS',
+        'BRAKES',
         'GEAR',
         'LEGS',
         'CHUTES',

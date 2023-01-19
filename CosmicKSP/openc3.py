@@ -1,6 +1,6 @@
 """contains the socket link managers for the OpenC3 connections"""
 import socket
-
+import asyncio
 
 class OpenC3Connection():
     """manages the socket connection to the OpenC3 telemetry"""
@@ -35,6 +35,11 @@ class OpenC3Connection():
     def recieve(self):
         """wait for the next command and return the contents"""
         return self.socket.recv(1024)
+
+
+    async def a_recieve(self):
+        """async version of recieve"""
+        return self.recieve()
 
 
     def __del__(self):

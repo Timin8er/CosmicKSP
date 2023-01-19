@@ -6,6 +6,8 @@ from CosmicKSP.config import config
 from CosmicKSP.telemachus import TelemachusConnector
 from CosmicKSP.telemachus.telemetry import *
 from CosmicKSP.openc3 import OpenC3Connection
+import asyncio
+import telnetlib3
 
 STATE_STRINGS = {
     STATE_SIGNAL_LOST: 'Signal Lost',
@@ -137,8 +139,65 @@ def game_telemetry_loop():
             logger.info('T+%s Game: %s', mission_time, STATE_STRINGS[telemetry_data['p.paused']])
 
 
+
+async def kos_telemetry_shell(reader, writer):
+    """the kos telemetry loop"""
+    gotten = ''
+
+    await asyncio.sleep(2)
+
+    outp = await reader.read(1024)
+    # print(outp, flush=True)
+    writer.write('1\n')
+
+    outp = await reader.read(1024)
+    # print(outp, flush=True)
+
+    logger.info('KOS Telemetry Connection Established')
+
+    while True:
+        outp = await reader.read(1024)
+        if not outp or outp.isspace():
+            # End of File
+            break
+
+        new_val = outp.encode("ascii", "ignore")
+        gotten += new_val.decode()
+        while '\n' in gotten:
+            msg, gotten = gotten.split('\n', 1)
+            logger.debug(msg)
+
+        if '{Detaching from' in outp:
+            break
+
+
+def kos_telemetry_loop():
+    """thread for monitoring the kos terminal"""
+    try:
+        loop = asyncio.get_event_loop()
+    except RuntimeError as exc:
+        if str(exc).startswith('There is no current event loop in thread'):
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+        else:
+            raise
+
+    while True:
+
+        coro = telnetlib3.open_connection(
+            config['kos']['host'],
+            config['kos']['port'],
+            shell=kos_telemetry_shell)
+
+        reader, writer = loop.run_until_complete(coro)
+
+        loop.run_until_complete(writer.protocol.waiter_closed)
+
+
 def main():
     """run the telemetry downlink relay"""
+    loop = asyncio.get_event_loop()
+
     try:
         vtt = threading.Thread(target = vehicle_telemetry_loop, daemon = True)
         vtt.start()
@@ -148,6 +207,9 @@ def main():
 
         gtt = threading.Thread(target = game_telemetry_loop, daemon = True)
         gtt.start()
+
+        # ktt = threading.Thread(target = kos_telemetry_loop, daemon = True)
+        # ktt.start()
 
     except Exception:
         logger.exception('Main Failed')

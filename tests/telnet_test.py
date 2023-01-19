@@ -1,34 +1,86 @@
-"""CMNDJKSNCVJKDF"""
+"""the controll loops for the commands relay pipeline"""
+from typing import ByteString
 import asyncio
 import telnetlib3
+import socket
+from socket import timeout as TimeoutException
+from CosmicKSP.logging import get_logger
+from CosmicKSP.config import config
+from CosmicKSP.kos.commands import COMMANDS
 
-@asyncio.coroutine
-def register_telnet_command(loop, Client, host, port, command):
-    transport, protocol = yield from loop.create_connection(Client, host, port)
+logger = get_logger(name='CosmicKSP_Commanding')
+logger.setLevel(config['logging_level'])
 
-    print("{} async connection OK for command {}".format(host, command))
 
-    def send_command():
-        EOF = chr(4)
-        EOL = '\n'
-        # adding newline and end-of-file for this simple example
-        command_line = command + EOL + EOF
-        protocol.stream.write(protocol.shell.encode(command_line))
+def openc3_to_kos_command(b_command: ByteString) -> str:
+    """translate the given openc3 command into a kos command"""
+    for id_str, cmd in COMMANDS.items():
+        if b_command.startswith(id_str):
+            return cmd(b_command)
 
-    # one shot invokation of the command
-    loop.call_soon(send_command)
-    # what does this do exactly ?
-    yield from protocol.waiter_closed
+    return ''
+
+
+async def relay_loop(reader, writer):
+    """the commanding loop"""
+    # get through the startup prompt
+    await reader.read(1024)
+    writer.write('1\n')
+    outp = await reader.read(1024)
+
+    logger.info('KOS Connection Established')
+
+    # connect to openc3
+    openc3_connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    openc3_connection.settimeout(15)
+    server_address = (config['openc3']['host'], config['openc3']['commands_port'])
+    openc3_connection.connect(server_address)
+
+    logger.info('OpenC3 Connection Established')
+
+    while '{Detaching from' not in outp:
+        try:
+            openc3_command = openc3_connection.recv(1024)
+
+        except TimeoutException:
+            writer.write('.')
+            await reader.read(1024)
+            continue
+
+        logger.info('Command Recieved: %s', openc3_command)
+
+        if not openc3_command:
+            logger.error('empty command: %s', openc3_command)
+            continue
+
+        kos_command = openc3_to_kos_command(openc3_command)
+
+        if not kos_command:
+            logger.error('Command unable to be translated: %s', kos_command)
+            continue
+
+        logger.info('Relaying Command: "%s"', kos_command)
+
+        writer.write(kos_command)
+        outp = await reader.read(1024)
+
+    logger.info('Connection Closed')
 
 
 def main():
-    def ClientFactory():
-        return telnetlib3.TelnetClient(encoding='utf-8', shell = telnetlib3.TerminalShell)
-    # create as many clients as we have hosts
+    """main function for telnetlib3 version"""
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
 
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(
-        register_telnet_command(loop, log, ClientFactory,
-                                host = 'localhost', port = 5410,
-                                command = "id"))
-    return 0
+    telnet_coroutine = telnetlib3.open_connection(
+        config['kos']['host'],
+        config['kos']['port'],
+        shell = relay_loop)
+
+    reader, writer = loop.run_until_complete(telnet_coroutine)
+
+    loop.run_until_complete(writer.protocol.waiter_closed)
+
+
+if __name__ == '__main__':
+    main()
