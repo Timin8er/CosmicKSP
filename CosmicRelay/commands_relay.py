@@ -1,6 +1,7 @@
 """the controll loops for the commands relay pipeline"""
 from typing import ByteString
 import asyncio
+import re
 from socket import timeout as TimeoutException
 import telnetlib3
 from CosmicKSP.logging import get_logger
@@ -24,27 +25,31 @@ def openc3_to_kos_command(b_command: ByteString) -> str:
 async def relay_loop(reader, writer):
     """the commanding loop"""
     # get through the startup prompt
-    await reader.read(1024)
-    writer.write('1\n')
     outp = await reader.read(1024)
+    writer.write('1\n')
+    # outp = await reader.read(1024)
 
     logger.info('KOS Connection Established')
 
     # connect to openc3
     openc3_connection = OpenC3Connection(
         config['openc3']['host'],
-        config['openc3']['telemetry_port'])
+        config['openc3']['commands_port'])
     openc3_connection.socket.settimeout(15)
 
     logger.info('OpenC3 Connection Established')
 
+    last_posistion = None
+
     while '{Detaching from' not in outp:
+        print('new loop')
         try:
-            openc3_command = openc3_connection.recieve
+            openc3_command = openc3_connection.recieve()
 
         except TimeoutException:
+            print('reading')
+            outp = await reader.read(1024)
             writer.write('.')
-            await reader.read(1024)
             continue
 
         logger.info('Command Recieved: %s', openc3_command)
@@ -61,8 +66,8 @@ async def relay_loop(reader, writer):
 
         logger.info('Relaying Command: "%s"', kos_command)
 
-        writer.write(kos_command)
         outp = await reader.read(1024)
+        writer.write(kos_command)
 
     logger.info('Connection Closed')
 
@@ -75,7 +80,9 @@ def main():
         coroutine = telnetlib3.open_connection(
             config['kos']['host'],
             config['kos']['port'],
-            shell = relay_loop)
+            shell = relay_loop,
+            encoding_errors = 'strict',
+            term='XTERM')
 
         reader, writer = loop.run_until_complete(coroutine)
 

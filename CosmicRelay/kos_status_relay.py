@@ -14,11 +14,9 @@ logger.setLevel(config['logging_level'])
 async def relay_loop(reader, writer):
     """the commanding loop"""
     # get through the startup prompt
-    outp = await reader.read(1024)
-    # print(outp)
+    await reader.read(1024)
     writer.write('1\n')
     outp = await reader.read(1024)
-    # print(outp)
 
     logger.info('KOS Connection Established')
 
@@ -33,11 +31,10 @@ async def relay_loop(reader, writer):
 
     while '{Detaching from' not in outp:
         outp = await reader.read(1024)
-        # outp = outp.decode('utf-8')
         outp = re.sub(r'(\x9B|\x1B\[)[0-?]*;1H', "\n", outp) # detect a "new line"
         # outp = re.sub(r'(\x9B|\x1B\[)[0-?]*H', " ", outp) # detect a "space"
-        outp = re.sub(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]', "", outp) # remove remaining ansi excape codes
-        # print(outp)
+        outp = re.sub(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]', "", outp) # remaining ansi excape codes
+
         if '\n' in outp:
             outps = '\n'.split(outp)
             outps[0] = last_output + outps[0]
@@ -50,11 +47,9 @@ async def relay_loop(reader, writer):
 
         else:
             last_output += outp
-        # print(last_output)
 
     logger.info('Connection Closed')
-# ←[25;5H
-# ←[S←[25;1H
+
 
 def main():
     """main function for telnetlib3 version"""
@@ -67,7 +62,6 @@ def main():
             shell = relay_loop,
             encoding_errors = 'strict',
             term='XTERM')
-            # encoding='utf8')
 
         reader, writer = loop.run_until_complete(coroutine)
 
