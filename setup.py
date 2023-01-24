@@ -23,6 +23,7 @@ setup(
                 'CosmicRelay = CosmicRelay:main',
                 'CosmicRelay_Telemetry = CosmicRelay.telemetry_relay:main',
                 'CosmicRelay_Commanding = CosmicRelay.commands_relay:main',
+                'CosmicRelay_KOS_Status = CosmicRelay.kos_status_relay:main',
                 'CosmicGameManager = CosmicGameManager:main',
             ]
         }

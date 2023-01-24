@@ -50,7 +50,7 @@ ORBIT_TELEMETRY_SUBSCIPTIONS = [
 ]
 
 
-def vehicle_telemetry_bstring(data: Dict):
+def vehicle_telemetry_bstring(data: Dict) -> ByteString:
     """translate the given vehivcle telemachus data to openc3 string"""
     return struct.pack('>hdffbbbbbff',
         1,
