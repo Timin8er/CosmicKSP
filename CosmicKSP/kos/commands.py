@@ -67,10 +67,10 @@ def cmd_direct_sas(bstr: ByteString) -> ByteString:
 def cmd_import_script(bstr: ByteString) -> ByteString:
     """return the kos command for to copy a script to the 'internal' kos volumn """
     script_name = bstr[2:].decode('utf-8')
-    
+
     if script_name not in config['scripts']:
         return _cmd_import(script_name)
-    
+
     scripts = [script_name] + config['scripts'][script_name]['dependancies']
 
     return (' '.join([_cmd_import(i) for i in scripts]))

@@ -1,4 +1,5 @@
 """functions for moving file and states between ksp instances"""
+from typing import ByteString
 import shutil
 import os
 from CosmicKSP.config import config

@@ -74,7 +74,13 @@ COMMAND COSMICKSP QUICKLOAD BIG_ENDIAN "Import a script and it's dependancies to
   APPEND_ID_PARAMETER ID         16      INT    9   9    9      "Identifier" 
 
 
-COMMAND COSMICKSP EXECUTE_KOS_COMMAND BIG_ENDIAN "Launch the vehicle to a target apoapsis"
+COMMAND COSMICKSP SWITCH_TO_VESSEL BIG_ENDIAN "Switch to a different Vessel"
+  # Keyword           Name           BitSize Type   Min Max  Default  Description
+  APPEND_ID_PARAMETER ID             16      INT    100 100  100      "Identifier"
+  APPEND_PARAMETER    VESSEL_NAME    0       STRING          ""       "The Vessel Name"
+
+
+COMMAND COSMICKSP EXECUTE_KOS_COMMAND BIG_ENDIAN "Execute a KOS command"
   # Keyword           Name           BitSize Type   Min Max  Default  Description
   APPEND_ID_PARAMETER ID             16      INT    100 100  100      "Identifier"
   APPEND_PARAMETER    STAGING_TIMING 0       STRING          "."      "KOS command."

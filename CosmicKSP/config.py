@@ -62,6 +62,10 @@ default_config = {
             'dependancies': [],
         },
     },
+    'ksp':{
+        'dir': 'C:\Steam\steamapps\common\Kerbal Space Program',
+        'save': 'default',
+    }
 }
 
 config = get_config(config_path, default_config)
