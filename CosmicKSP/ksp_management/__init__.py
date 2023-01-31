@@ -1,10 +1,13 @@
 """functions for managing the ksp games"""
 import sys
-from CosmicKSP.logging import logger
+from CosmicKSP.logging import get_logger
+from CosmicKSP.config import config
 from . import save_management
 
 def main():
     """run a function based on system arguements"""
+    logger = get_logger(name='CosmicKSP_Commanding')
+    logger.setLevel(config['logging_level'])
     try:
         match sys.argv:
             case [script]:
