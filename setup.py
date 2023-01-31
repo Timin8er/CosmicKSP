@@ -16,7 +16,8 @@ setup(
         'PyQt5',
         'websocket-client',
         # 'telnetlib',
-        'pyyaml'
+        'pyyaml',
+        'keyboard',
         ],
     entry_points={
             'console_scripts': [

@@ -1,19 +1,23 @@
 """the controll loops for the commands relay pipeline"""
 from typing import ByteString
 import asyncio
-import re
 from socket import timeout as TimeoutException
 import telnetlib3
 from CosmicKSP.logging import get_logger
 from CosmicKSP.config import config
-from CosmicKSP.kos.commands import COMMANDS
+from CosmicKSP.kos.commands import COMMANDS as kos_commands
+from CosmicKSP.ksp_management.commands import COMMANDS as ksp_commands
 from CosmicKSP.openc3 import OpenC3Connection
 
 logger = get_logger(name='CosmicKSP_Commanding')
 logger.setLevel(config['logging_level'])
 
 
-def openc3_to_kos_command(b_command: ByteString) -> str:
+COMMANDS = kos_commands.copy()
+COMMANDS.update(ksp_commands)
+
+
+def openc3_to_command(b_command: ByteString) -> str:
     """translate the given openc3 command into a kos command"""
     for id_str, cmd in COMMANDS.items():
         if b_command.startswith(id_str):
@@ -39,15 +43,11 @@ async def relay_loop(reader, writer):
 
     logger.info('OpenC3 Connection Established')
 
-    last_posistion = None
-
     while '{Detaching from' not in outp:
-        print('new loop')
         try:
             openc3_command = openc3_connection.recieve()
 
         except TimeoutException:
-            print('reading')
             outp = await reader.read(1024)
             writer.write('.')
             continue
@@ -58,10 +58,9 @@ async def relay_loop(reader, writer):
             logger.error('empty command: %s', openc3_command)
             continue
 
-        kos_command = openc3_to_kos_command(openc3_command)
+        kos_command = openc3_to_command(openc3_command)
 
         if not kos_command:
-            logger.error('Command unable to be translated: %s', kos_command)
             continue
 
         logger.info('Relaying Command: "%s"', kos_command)

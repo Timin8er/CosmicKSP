@@ -13,7 +13,7 @@ COMMAND COSMICKSP STAGE BIG_ENDIAN "Activate the next stage"
   APPEND_ID_PARAMETER ID    16      INT    3   3    3        "Identifier"
 
 
-COMMAND COSMICKSP SET_SYSTEM BIG_ENDIAN "Set KSP System to On or Off"
+COMMAND COSMICKSP SET_SYSTEM_POWER BIG_ENDIAN "Set KSP System to On or Off"
   # Keyword           Name   BitSize Type   Min Max  Default  Description
   APPEND_ID_PARAMETER ID     16      INT    4   4    4        "Identifier"
   APPEND_PARAMETER    SYSTEM 16      UINT   0   9    0        "The Directon"
@@ -62,6 +62,16 @@ COMMAND COSMICKSP IMPORT_SCRIPT BIG_ENDIAN "Import a script and it's dependancie
   # Keyword           Name       BitSize Type   Min Max  Default  Description
   APPEND_ID_PARAMETER ID         16      INT    7   7    7      "Identifier" 
   APPEND_PARAMETER    SCRIPT     0       STRING                   "The script name"
+
+
+COMMAND COSMICKSP QUICKSAVE BIG_ENDIAN "Import a script and it's dependancies to the onboard kos"
+  # Keyword           Name       BitSize Type   Min Max  Default  Description
+  APPEND_ID_PARAMETER ID         16      INT    8   8    8      "Identifier" 
+
+
+COMMAND COSMICKSP QUICKLOAD BIG_ENDIAN "Import a script and it's dependancies to the onboard kos"
+  # Keyword           Name       BitSize Type   Min Max  Default  Description
+  APPEND_ID_PARAMETER ID         16      INT    9   9    9      "Identifier" 
 
 
 COMMAND COSMICKSP LAUNCH_TO_TARGET_AP BIG_ENDIAN "Launch the vehicle to a target apoapsis"
