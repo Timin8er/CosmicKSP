@@ -41,7 +41,6 @@ def cmd_switch_to_vesstle(bstr: ByteString) -> str:
         qs_content = file.read()
         # check if string present or not
         if vesstle_name_line not in qs_content:
-            print('string does not exist')
             return ""
 
     # fin the index of the new current vessel and set the active vessel key
@@ -51,7 +50,7 @@ def cmd_switch_to_vesstle(bstr: ByteString) -> str:
             break
 
     # write new quicksave content to file
-    with open(qs_file, 'r', encoding='utf-8') as file:
+    with open(qs_file, 'w', encoding='utf-8') as file:
         file.write(qs_content)
 
     # load the quicksave
