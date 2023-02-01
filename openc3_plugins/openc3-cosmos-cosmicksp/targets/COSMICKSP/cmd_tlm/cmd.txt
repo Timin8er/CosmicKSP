@@ -76,7 +76,7 @@ COMMAND COSMICKSP QUICKLOAD BIG_ENDIAN "Import a script and it's dependancies to
 
 COMMAND COSMICKSP SWITCH_TO_VESSEL BIG_ENDIAN "Switch to a different Vessel"
   # Keyword           Name           BitSize Type   Min Max  Default  Description
-  APPEND_ID_PARAMETER ID             16      INT    100 100  100      "Identifier"
+  APPEND_ID_PARAMETER ID             16      INT    10  10   10       "Identifier"
   APPEND_PARAMETER    VESSEL_NAME    0       STRING          ""       "The Vessel Name"
 
 
