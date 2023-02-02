@@ -22,7 +22,8 @@ def cmd_generic(bstr: ByteString) -> ByteString:
 def cmd_attach_cpu(bstr: ByteString) -> ByteString:
     """return ctrl+d command to reattach to a cpu"""
     args = struct.unpack('>hH', bstr)
-    return f'\x04\n{args[1]}'
+    # return ('\u0004\n', f'{args[1]}\n')
+    return f'{args[1]}\n'
 
 
 def cmd_stage(*_) -> ByteString:

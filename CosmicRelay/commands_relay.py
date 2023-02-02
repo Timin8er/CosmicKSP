@@ -29,6 +29,7 @@ def openc3_to_command(b_command: ByteString) -> str:
 async def telemetry_loop(kos_reader, openc3_writer) -> None:
     """threa for listening to kos and relaying messages to openc3"""
     total_output = ''
+    last_10_messages = []
 
     while True:
         kos_message = await kos_reader.read(1024)
@@ -44,14 +45,23 @@ async def telemetry_loop(kos_reader, openc3_writer) -> None:
         total_output += kos_message
         if '\n' in total_output:
             lines = total_output.split('\n')
+
+            # detect and report weather 
+            if 'Choose a CPU' in total_output:
+                msg = "Choose a CPU:\n" + '\n'.join(
+                    [line[15:-1] for line in lines if line.startswith('               ')]
+                    )
+                openc3_writer.write(kos_status_telemetry({'message': msg}))
+                await openc3_writer.drain()
+
+            else:
+                for line in lines:
+                    if line.startswith('//'):
+                        logger.info('Status Message: %s', line[2:])
+                        openc3_writer.write(kos_status_telemetry({'message': line[2:]}))
+                        await openc3_writer.drain()
+
             total_output = lines[-1]
-
-            for line in lines:
-                if line.startswith('//'):
-                    logger.info('Status Message: %s', line[2:])
-                    openc3_writer.write(kos_status_telemetry({'message': line[2:]}))
-                    await openc3_writer.drain()
-
 
 
 async def commaning_loop(openc3_reader, kos_writer) -> None:
@@ -71,17 +81,10 @@ async def commaning_loop(openc3_reader, kos_writer) -> None:
         if not kos_command:
             continue
 
+        # if not isinstance(kos_command, tuple):
         logger.info('Relaying Command: "%s"', kos_command)
-
-        if '\n' not in kos_command:
-            kos_writer.write(kos_command)
-            await kos_writer.drain()
-
-        else:
-            for kos_cmd in kos_command.split('\n'):
-                kos_writer.write(kos_cmd)
-                await kos_writer.drain()
-                asyncio.sleep(1)
+        kos_writer.write(kos_command)
+        await kos_writer.drain()
 
 
 
