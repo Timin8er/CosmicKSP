@@ -6,20 +6,31 @@ from CosmicKSP.config import config
 
 def cmd_abort(*_) -> ByteString:
     """returns the stop command for kos"""
-    return b'ABORT ON.\n'
+    return 'ABORT ON.\n'
 
 
 def cmd_kos_stop(*_) -> ByteString:
     """returns the stop command for kos"""
-    return b'\xf4'
+    return '\xf4'
+
+
+def cmd_generic(bstr: ByteString) -> ByteString:
+    """extract and return the command within"""
+    return bstr[2:].decode('utf-8')
+
+
+def cmd_attach_cpu(bstr: ByteString) -> ByteString:
+    """return ctrl+d command to reattach to a cpu"""
+    args = struct.unpack('>hH', bstr)
+    return f'\x04\n{args[1]}'
 
 
 def cmd_stage(*_) -> ByteString:
     """returns the KOS command to stage the vehicle"""
-    return b"stage.\n"
+    return "stage.\n"
 
 
-def cmd_set_system(bstr: ByteString) -> ByteString:
+def cmd_set_system_power(bstr: ByteString) -> ByteString:
     """return the KOS command to set SAS on or off"""
     args = struct.unpack('>hH?', bstr)
 
@@ -113,13 +124,15 @@ def cmd_script(script_name: str, script_config: Dict):
 
 
 COMMANDS = {
-    struct.pack('>h', 1): cmd_abort,
-    struct.pack('>h', 2): cmd_kos_stop,
-    struct.pack('>h', 3): cmd_stage,
-    struct.pack('>h', 4): cmd_set_system,
-    struct.pack('>h', 5): cmd_set_action_group,
-    struct.pack('>h', 6): cmd_direct_sas,
-    struct.pack('>h', 7): cmd_import_script,
+    struct.pack('>h', 100): cmd_attach_cpu,
+    struct.pack('>h', 101): cmd_kos_stop,
+    struct.pack('>h', 102): cmd_generic,
+    struct.pack('>h', 103): cmd_abort,
+    struct.pack('>h', 104): cmd_stage,
+    struct.pack('>h', 105): cmd_set_system_power,
+    struct.pack('>h', 106): cmd_set_action_group,
+    struct.pack('>h', 107): cmd_direct_sas,
+    struct.pack('>h', 200): cmd_import_script,
 }
 
 # for each kos script in the config file, add it to the list of commands

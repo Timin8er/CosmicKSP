@@ -1,0 +1,28 @@
+COMMAND COSMICKSP IMPORT_SCRIPT BIG_ENDIAN "Import a script and it's dependancies to the onboard kos"
+  # Keyword            Name    BitSize Type    Min  Max  Default  Description
+  APPEND_ID_PARAMETER  ID      16      INT     200  200  200      "Identifier" 
+  APPEND_PARAMETER     SCRIPT  0       STRING            ""       "The script name"
+
+
+COMMAND COSMICKSP LAUNCH_TO_TARGET_AP BIG_ENDIAN "Launch the vehicle to a target apoapsis"
+  # Keyword            Name            BitSize  Type    Min  Max  Default  Description
+  APPEND_ID_PARAMETER  ID              16       INT     201  201  201      "Identifier"
+  APPEND_PARAMETER     APOAPSIS        32       UINT    0    MAX  100000   "The Target Apoapsis"
+  APPEND_PARAMETER     PITCH_LINE_MOD  32       FLOAT   0    MAX  35       "Pitch Linear Modifier"
+  APPEND_PARAMETER     PITCH_POW_MOD   32       FLOAT   0    MAX  40       "Pitch Squared Modifier"
+  APPEND_PARAMETER     PITCH_SQRT_MOD  32       FLOAT   0    MAX  16       "Pitch Square Root Modifier"
+  APPEND_PARAMETER     PITCH_MINIMUM   32       FLOAT   0    MAX  10       "Pitch Minimum"
+  APPEND_PARAMETER     SPEED_MIN       32       FLOAT   0    MAX  20       "Minimum speed before turn"
+  APPEND_PARAMETER     SHIP_ROLL       32       FLOAT   0    MAX  0        "Target Ship Roll"
+  APPEND_PARAMETER     STAGING_TIMING  0        STRING            list()   "List of floats"
+
+
+COMMAND COSMICKSP CREATE_NODE_CIRCULARISE_AT_AP BIG_ENDIAN "Create a manuever node to circularise at apoapsis."
+  # Keyword            Name  BitSize  Type  Min  Max  Default  Description
+  APPEND_ID_PARAMETER  ID    16       INT   202  202  202      "Identifier
+
+
+COMMAND COSMICKSP EXECUTE_NEXT_MANUEVER_NODE BIG_ENDIAN "Execute the next manuever node"
+  # Keyword            Name            BitSize  Type    Min  Max  Default  Description
+  APPEND_ID_PARAMETER  ID              16       INT     203  203  203      "Identifier"
+  APPEND_PARAMETER     STAGING_TIMING  0        STRING            list()   "List of Floats"

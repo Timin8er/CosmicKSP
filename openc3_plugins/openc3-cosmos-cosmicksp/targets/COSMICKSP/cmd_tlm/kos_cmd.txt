@@ -1,0 +1,71 @@
+COMMAND COSMICKSP ATTACH_CPU BIG_ENDIAN "Stop the KOS script"
+  # Keyword            Name  BitSize  Type   Min  Max  Default  Description
+  APPEND_ID_PARAMETER  ID    16       INT    100  100  100      "Identifier"
+  APPEND_PARAMETER     CPU   16       UINT   1    9    1        "The Directon"
+
+
+COMMAND COSMICKSP KOS_STOP BIG_ENDIAN "Stop the KOS script"
+  # Keyword            Name  BitSize  Type   Min  Max  Default  Description
+  APPEND_ID_PARAMETER  ID    16       INT    101  101  101      "Identifier"
+
+
+COMMAND COSMICKSP EXECUTE_KOS_COMMAND BIG_ENDIAN "Execute a KOS command"
+  # Keyword           Name           BitSize Type   Min  Max  Default  Description
+  APPEND_ID_PARAMETER ID             16      INT    102  102  102      "Identifier"
+  APPEND_PARAMETER    STAGING_TIMING 0       STRING           "."      "KOS command."
+
+
+COMMAND COSMICKSP ABORT BIG_ENDIAN "Activate the Abort action Group"
+  # Keyword            Name  BitSize  Type   Min  Max  Default  Description
+  APPEND_ID_PARAMETER  ID    16       INT    103  103  103      "Identifier"
+
+
+COMMAND COSMICKSP STAGE BIG_ENDIAN "Activate the next stage"
+  # Keyword            Name  BitSize  Type  Min  Max  Default  Description
+  APPEND_ID_PARAMETER  ID    16       INT   104  104  104      "Identifier"
+
+
+COMMAND COSMICKSP SET_SYSTEM_POWER BIG_ENDIAN "Set KSP System to On or Off"
+  # Keyword            Name    BitSize  Type   Min  Max  Default  Description
+  APPEND_ID_PARAMETER  ID      16       INT    105  105  105      "Identifier"
+  APPEND_PARAMETER     SYSTEM  16       UINT   0    9    0        "The Directon"
+    STATE SAS       0
+    STATE RCS       1
+    STATE LIGHTS    2
+    STATE BRAKES    3
+    STATE GEAR      4
+    STATE LEGS      5
+    STATE CHUTES    6
+    STATE RADIATORS 7
+    STATE LADDERS   8
+    STATE BAYS      9
+  APPEND_PARAMETER     STATE   8        UINT   MIN  MAX  0        "Boolean"
+    STATE OFF 0
+    STATE ON  1
+
+
+COMMAND COSMICKSP SET_ACTION_GROUP BIG_ENDIAN "Set an action group to On or Off"
+  # Keyword            Name   BitSize  Type  Min  Max  Default  Description
+  APPEND_ID_PARAMETER  ID     16       INT   106  106  106      "Identifier"
+  APPEND_PARAMETER     INDEX  8        UINT  1    10   1        "the action group index"
+  APPEND_PARAMETER     BOOL   8        UINT  MIN  MAX  1        "Boolean"
+    STATE OFF 0
+    STATE ON 1
+
+
+COMMAND COSMICKSP DIRECT_SAS BIG_ENDIAN "Direct SAS to a direction"
+  # Keyword            Name       BitSize  Type  Min  Max  Default  Description
+  APPEND_ID_PARAMETER  ID         16       INT   107  107  107      "Identifier"
+  APPEND_PARAMETER     DIRECTION  8        UINT  0    10   9        "The Directon"
+    STATE PROGRADE        0
+    STATE RETROGRADE      1
+    STATE NORMAL          2
+    STATE ANTINORMAL      3
+    STATE RADIALOUT       4
+    STATE RADIALIN        5
+    STATE TARGET          6
+    STATE ANTITARGET      7
+    STATE MANEUVER        8
+    STATE STABILITYASSIST 9
+    STATE STABILITY       10
+

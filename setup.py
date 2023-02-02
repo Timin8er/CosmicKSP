@@ -13,10 +13,9 @@ setup(
     zip_safe=False,
     package_data={'CosmicKSP.kos_scripts': ['*.ks']},
     install_requires=[
-        'PyQt5',
         'websocket-client',
-        # 'telnetlib',
         'pyyaml',
+        'telnetlib3',
         'keyboard',
         ],
     entry_points={

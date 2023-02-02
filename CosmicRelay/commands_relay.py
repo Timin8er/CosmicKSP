@@ -73,52 +73,57 @@ async def commaning_loop(openc3_reader, kos_writer) -> None:
 
         logger.info('Relaying Command: "%s"', kos_command)
 
-        kos_writer.write(kos_command)
-        await kos_writer.drain()
+        if '\n' not in kos_command:
+            kos_writer.write(kos_command)
+            await kos_writer.drain()
+
+        else:
+            for kos_cmd in kos_command.split('\n'):
+                kos_writer.write(kos_cmd)
+                await kos_writer.drain()
+                asyncio.sleep(1)
 
 
-async def kos_init(kos_reader, kos_writer) -> None:
+
+async def kos_init(kos_reader, kos_writer, cpu: int = 1) -> None:
     """initialize the kos connection by selecting the 1st cpu"""
     _ = await kos_reader.read(4096)
-    kos_writer.write('1\n')
+    kos_writer.write(f'{cpu}\n')
     await kos_writer.drain()
-    msg = await kos_reader.read(4096)
-    print(msg)
+    _ = await kos_reader.read(4096)
 
-    logger.info('KOS Connection Opened')
 
 
 async def relay_loop(kos_reader, kos_writer) -> None:
-    """the main loop"""
+    """the main async function"""
 
-    _ = await kos_reader.read(4096)
-    kos_writer.write('1\n')
-    await kos_writer.drain()
-    msg = await kos_reader.read(4096)
-    # print(msg)
-
+    # initialize to a kos cpu
+    await kos_init(kos_reader, kos_writer)
     logger.info('KOS Connection Opened')
 
+    # connect to the openc3 commanding port
     openc3_commands_reader, openc3_commands_writer = \
         await asyncio.open_connection(config['openc3']['host'], config['openc3']['commands_port'])
 
     logger.info('OpenC3 Commanding Connection Opened')
 
+    # connect to the open c3 telemetry port
     openc3_telemetry_reader, openc3_telemetry_writer = \
         await asyncio.open_connection(config['openc3']['host'], config['openc3']['telemetry_port'])
 
     logger.info('OpenC3 Telemetry Connection Opened')
 
+    # start the tasks
     commanding_task = asyncio.create_task(commaning_loop(openc3_commands_reader, kos_writer))
     telemetry_task = asyncio.create_task(telemetry_loop(kos_reader, openc3_telemetry_writer))
 
-    while True:
-        await asyncio.sleep(10)
+    await commanding_task
+    await telemetry_task
 
 
 
 def main():
-    """main function for telnetlib3 version"""
+    """main function for Commandig relay"""
     loop = asyncio.get_event_loop()
 
     coroutine = telnetlib3.open_connection(

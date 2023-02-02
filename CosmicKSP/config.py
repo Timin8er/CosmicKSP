@@ -43,7 +43,7 @@ default_config = {
     },
     'scripts':{
         'launch_target_ap': {
-            'id': 101,
+            'id': 201,
             'struct': '>hIffffffp',
             'dependancies': [
                 'dual_stage_delay',
@@ -52,12 +52,12 @@ default_config = {
             ],
         },
         'create_node_circularise_at_apoapsis': {
-            'id': 102,
+            'id': 202,
             'struct': '>h',
             'dependancies': [],
         },
         'execute_next_manuever_node': {
-            'id': 103,
+            'id': 203,
             'struct': '>hp',
             'dependancies': [],
         },

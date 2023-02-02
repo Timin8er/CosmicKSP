@@ -60,7 +60,7 @@ def cmd_switch_to_vesstle(bstr: ByteString) -> str:
 
 
 COMMANDS = {
-    struct.pack('>h', 8): cmd_quicksave,
-    struct.pack('>h', 9): cmd_quickload,
-    struct.pack('>h', 10): cmd_switch_to_vesstle,
+    struct.pack('>h', 3): cmd_quicksave,
+    struct.pack('>h', 4): cmd_quickload,
+    struct.pack('>h', 5): cmd_switch_to_vesstle,
 }
