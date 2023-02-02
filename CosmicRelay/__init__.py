@@ -8,12 +8,10 @@ def main():
     if sys.platform == "win32":
         os.system('start cmd.exe /K CosmicRelay_Telemetry')
         os.system('start cmd.exe /K CosmicRelay_Commanding')
-        os.system('start cmd.exe /K CosmicRelay_KOS_Status')
 
     else:
         os.system('gnome-terminal --tab --title="CosmicKSP Telemetry" -- CosmicRelay_Telemetry')
         os.system('gnome-terminal --tab --title="CosmicKSP Commanding" -- CosmicRelay_Commanding')
-        os.system('gnome-terminal --tab --title="CosmicKSP KOS Status" -- CosmicRelay_KOS_Status')
 
 
 if __name__ == '__main__':
