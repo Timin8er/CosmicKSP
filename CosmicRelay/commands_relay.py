@@ -12,17 +12,15 @@ from CosmicKSP.kos import kos_status_telemetry
 logger = get_logger(name='CosmicKSP_Commanding')
 logger.setLevel(config['logging_level'])
 
-
 COMMANDS = kos_commands.copy()
 COMMANDS.update(ksp_commands)
-
 
 READY = 0
 BUISY = 1
 DETACHED = 2
 
 STATE_DATA ={
-    'status': DETACHED,
+    'state': DETACHED,
     'cpu_id': 0,
     'cpu_name': '',
     'vessel_name': '',
@@ -45,7 +43,7 @@ def openc3_to_command(b_command: ByteString) -> str:
 async def telemetry_loop(kos_reader, openc3_writer) -> None:
     """threa for listening to kos and relaying messages to openc3"""
     total_output = ''
-    in_comment = False
+    # in_comment = False
 
     while True:
         kos_message = await kos_reader.read(1024)
@@ -66,27 +64,54 @@ async def telemetry_loop(kos_reader, openc3_writer) -> None:
 
         # detect and report a detached state
         if 'Choose a CPU' in total_output:
+            STATE_DATA['state'] = DETACHED
             STATE_DATA['cpu_id'] = 0
             STATE_DATA['cpu_name'] = ''
             STATE_DATA['vessel_name'] = ''
-            STATE_DATA['status'] = DETACHED
 
             del AVAILABLE_CPUS[:]
 
             for line in lines:
                 if re.search(r'\[\d+\]', line):
                     cpu_data = re.split(r'\s+', line)
+
                     AVAILABLE_CPUS.append((
-                        int(cpu_data[0][1:-1]),
-                        ' '.join(cpu_data[3:-2]),
-                        cpu_data[-1][1:-1]
+                        int(cpu_data[1][1:-1]),
+                        ' '.join(cpu_data[4:-2]),
+                        cpu_data[-2][1:-1],
                     ))
 
-            msg = "Choose a CPU:\n" + '\n'.join(
+            STATE_DATA['message'] = "Choose a CPU:\n" + '\n'.join(
                 [f'{avc[0]}: {avc[2]}:{avc[1]}' for avc in AVAILABLE_CPUS]
                 )
 
-            logger.log('Detached from CPU')
+            logger.info('Detached from CPU')
+            openc3_writer.write(kos_status_telemetry(STATE_DATA))
+            await openc3_writer.drain()
+        
+
+        elif 'kOS Operating System' in total_output:
+            # get the first digit
+            cpu_id = int(re.search('\d', total_output)[0])
+            STATE_DATA['cpu_id'] = cpu_id
+
+            for id, vessel_name, cpu_name in AVAILABLE_CPUS:
+                if id == cpu_id:
+                    STATE_DATA['state'] = READY
+                    STATE_DATA['cpu_name'] = cpu_name
+                    STATE_DATA['vessel_name'] = vessel_name
+                    STATE_DATA['running_script'] = ''
+                    STATE_DATA['message'] = ''
+
+                    logger.info('Status Message: Attaching to CPU: %s', cpu_id)
+                    openc3_writer.write(kos_status_telemetry(STATE_DATA))
+                    await openc3_writer.drain()
+                    break
+
+        elif 'Program ended.' in total_output:
+            STATE_DATA['state'] = READY
+            STATE_DATA['running_script'] = ''
+            logger.info('Status Message: Program Ended')
             openc3_writer.write(kos_status_telemetry(STATE_DATA))
             await openc3_writer.drain()
 

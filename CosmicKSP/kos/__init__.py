@@ -13,4 +13,4 @@ def kos_status_telemetry(data: Dict) -> ByteString:
         + data.get('cpu_name',       'None').ljust(32)[:32].encode('utf-8')\
         + data.get('vessel_name',    'None').ljust(32)[:32].encode('utf-8')\
         + data.get('running_script', 'None').ljust(32)[:32].encode('utf-8')\
-        + data.get('message',        'None').ljust(32)[:32].encode('utf-8')
+        + data.get('message',        'None').encode('utf-8')
