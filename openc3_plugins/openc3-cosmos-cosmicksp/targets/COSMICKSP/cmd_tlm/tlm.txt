@@ -1,60 +1,67 @@
 TELEMETRY COSMICKSP VEHICLE_STATUS BIG_ENDIAN "Telemetry for the active vehicle"
-  # Keyword      Name         BitSize Type  ID  Description
-  APPEND_ID_ITEM ID           16      INT   1   "Identifier"
-  APPEND_ITEM    MISSONTIME   64      FLOAT     "Mision Time in seconds since launch"
-  APPEND_ITEM    G_FORGE      32      FLOAT     "G Forge magnatude on craft"
-  APPEND_ITEM    THROTTLE     32      FLOAT     "Throttle Positon"
-  APPEND_ITEM    SAS_VALUE    8       INT       "SAS Value"
-  APPEND_ITEM    RCS_VALUE    8       INT       "RCS Value"
-  APPEND_ITEM    LIGHTS_VALUE 8       INT       "Lights Value"
-  APPEND_ITEM    BREAKS_VALUE 8       INT       "Breaks Value"
-  APPEND_ITEM    GEAR_VALUE   8       INT       "Gear Value"
-  APPEND_ITEM    ATMO_DENSITY 32      FLOAT     "Density of Atmospher"
-  APPEND_ITEM    DYNAMIC_PRESSURE 32  FLOAT     "Dynamic Pressure"
-  APPEND_ITEM    NAME         0       STRING    "Vehicle Name"
+  # Keyword       Name              BitSize Type  ID  Description
+  APPEND_ID_ITEM  ID                16      INT   1   "Identifier"
+  APPEND_ITEM     MISSONTIME        64      FLOAT     "Mision Time in seconds since launch"
+  APPEND_ITEM     G_FORGE           32      FLOAT     "G Forge magnatude on craft"
+  APPEND_ITEM     THROTTLE          32      FLOAT     "Throttle Positon"
+  APPEND_ITEM     SAS_VALUE         8       INT       "SAS Value"
+  APPEND_ITEM     RCS_VALUE         8       INT       "RCS Value"
+  APPEND_ITEM     LIGHTS_VALUE      8       INT       "Lights Value"
+  APPEND_ITEM     BREAKS_VALUE      8       INT       "Breaks Value"
+  APPEND_ITEM     GEAR_VALUE        8       INT       "Gear Value"
+  APPEND_ITEM     ATMO_DENSITY      32      FLOAT     "Density of Atmospher"
+  APPEND_ITEM     DYNAMIC_PRESSURE  32      FLOAT     "Dynamic Pressure"
+  APPEND_ITEM     NAME              0       STRING    "Vehicle Name"
+
 
 
 TELEMETRY COSMICKSP ORBIT_STATUS BIG_ENDIAN "Telemetry for the active vehicle"
-  # Keyword      Name           BitSize Type  ID  Description
-  APPEND_ID_ITEM ID             16      INT   2   "Identifier"
-  APPEND_ITEM    UNIVERSAL_TIME 64      FLOAT     "Universal Time"
-  APPEND_ITEM    ALTITUDE       64      FLOAT     "Altitude abobe the current body, in km"
-  APPEND_ITEM    LATITUDE       32      FLOAT     "Latitude"
-  APPEND_ITEM    LONGITUDE      32      FLOAT     "Longitude"
-  APPEND_ITEM    APOAPSIS       64      FLOAT     "Apoapsis"
-  APPEND_ITEM    PERIAPSIS      64      FLOAT     "Periapsis"
-  APPEND_ITEM    SMA            64      FLOAT     "Semimajor Axis"
-  APPEND_ITEM    APOAPSIS_TIME  64      FLOAT     "Time To Apoapsis"
-  APPEND_ITEM    PERIAPSIS_TIME 64      FLOAT     "Time To Periapsis"
-  APPEND_ITEM    INCLINATION    32      FLOAT     "Orbit Inclination"
-  APPEND_ITEM    ECCENTRICITY   32      FLOAT     "Orbit Eccentricity"
-  APPEND_ITEM    EPOCH          32      FLOAT     "Orbit Epoch"
-  APPEND_ITEM    PERIOD         64      FLOAT     "Orbit Period"
-  APPEND_ITEM    ARG_OF_PER     32      FLOAT     "Arguement Of Periapsis"
-  APPEND_ITEM    TIME_TO_SOI    64      FLOAT     "Time To SOI Change"
-  APPEND_ITEM    LAN            32      FLOAT     "Longitude of Ascending Node"
-  APPEND_ITEM    MAAE           32      FLOAT     "Mean Anomaly at Epoch"
-  APPEND_ITEM    NAME           0       STRING    "Body Name"
+  # Keyword       Name           BitSize Type  ID  Description
+  APPEND_ID_ITEM  ID             16      INT   2   "Identifier"
+  APPEND_ITEM     UNIVERSAL_TIME 64      FLOAT     "Universal Time"
+  APPEND_ITEM     ALTITUDE       64      FLOAT     "Altitude abobe the current body, in km"
+  APPEND_ITEM     LATITUDE       32      FLOAT     "Latitude"
+  APPEND_ITEM     LONGITUDE      32      FLOAT     "Longitude"
+  APPEND_ITEM     APOAPSIS       64      FLOAT     "Apoapsis"
+  APPEND_ITEM     PERIAPSIS      64      FLOAT     "Periapsis"
+  APPEND_ITEM     SMA            64      FLOAT     "Semimajor Axis"
+  APPEND_ITEM     APOAPSIS_TIME  64      FLOAT     "Time To Apoapsis"
+  APPEND_ITEM     PERIAPSIS_TIME 64      FLOAT     "Time To Periapsis"
+  APPEND_ITEM     INCLINATION    32      FLOAT     "Orbit Inclination"
+  APPEND_ITEM     ECCENTRICITY   32      FLOAT     "Orbit Eccentricity"
+  APPEND_ITEM     EPOCH          32      FLOAT     "Orbit Epoch"
+  APPEND_ITEM     PERIOD         64      FLOAT     "Orbit Period"
+  APPEND_ITEM     ARG_OF_PER     32      FLOAT     "Arguement Of Periapsis"
+  APPEND_ITEM     TIME_TO_SOI    64      FLOAT     "Time To SOI Change"
+  APPEND_ITEM     LAN            32      FLOAT     "Longitude of Ascending Node"
+  APPEND_ITEM     MAAE           32      FLOAT     "Mean Anomaly at Epoch"
+  APPEND_ITEM     NAME           0       STRING    "Body Name"
 
 
 
 TELEMETRY COSMICKSP GAME_STATE BIG_ENDIAN "Telemetry for the game instance"
-  # Keyword      Name       BitSize Type  ID  Description
-  APPEND_ID_ITEM ID         16      INT   3   "Identifier"
-  APPEND_ITEM    GAME_STATE 16      INT       "The Sagte of the ksp game instance"
-    STATE SIGNAL_LOST -1
-    STATE FLIGHT 0
-    STATE PAUSED 1
-    STATE NO_POWER 2
-    STATE OFF 3
-    STATE NOT_FOUND 4
-    STATE CONSTRUCTION 5
+  # Keyword       Name        BitSize  Type  ID  Description
+  APPEND_ID_ITEM  ID          16       INT   3   "Identifier"
+  APPEND_ITEM     GAME_STATE  16       INT       "The Sagte of the ksp game instance"
+    STATE  SIGNAL_LOST  -1  RED
+    STATE  FLIGHT        0  GREEN
+    STATE  PAUSED        1  YELLOW
+    STATE  NO_POWER      2  YELLOW
+    STATE  OFF           3  YELLOW
+    STATE  NOT_FOUND     4  RED
+    STATE  CONSTRUCTION  5  YELLOW
 
 
-TELEMETRY COSMICKSP SCRIPT_STATUS BIG_ENDIAN "status from the KOS console"
-  # Keyword      Name       BitSize Type  ID  Description
-  APPEND_ID_ITEM ID         16      INT   4   "Identifier"
-  APPEND_ITEM    STATUS     16      UINT      "The state of the console"
-    STATE WAITING_FOR_INPUT 0
-    STATE BUISY 1
-  APPEND_ITEM    MESSAGE    0       STRING    "The status message from the KOS console"
+
+TELEMETRY COSMICKSP KOS_STATUS BIG_ENDIAN "status from the KOS console"
+  # Keyword       Name               BitSize Type  ID  Description
+  APPEND_ID_ITEM  ID                 16      INT   4   "Identifier"
+  APPEND_ITEM     STATUS             16      UINT      "The state of the console"
+    STATE  READY     0  GREEN
+    STATE  BUISY     1  YELLOW
+    STATE  DETACHED  2  RED
+  APPEND_ITEM     CPU_ID             16   UINT    "current CPU index"
+  APPEND_ITEM     CPU_NAME           256  STRING  "The cpu part name"
+  APPEND_ITEM     VESSEL_NAME        256  STRING  "The vessel attached to"
+  APPEND_ITEM     CURRENTLY_RUNNING  256  STRING  "The currently running script"
+  APPEND_ITEM     MESSAGE            0    STRING  "The status message from the KOS console"

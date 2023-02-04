@@ -17,6 +17,22 @@ COMMANDS = kos_commands.copy()
 COMMANDS.update(ksp_commands)
 
 
+READY = 0
+BUISY = 1
+DETACHED = 2
+
+STATE_DATA ={
+    'status': DETACHED,
+    'cpu_id': 0,
+    'cpu_name': '',
+    'vessel_name': '',
+    'running_script': '',
+    'message': ''
+}
+
+AVAILABLE_CPUS = []
+
+
 def openc3_to_command(b_command: ByteString) -> str:
     """translate the given openc3 command into a kos command"""
     for id_str, cmd in COMMANDS.items():
@@ -29,7 +45,7 @@ def openc3_to_command(b_command: ByteString) -> str:
 async def telemetry_loop(kos_reader, openc3_writer) -> None:
     """threa for listening to kos and relaying messages to openc3"""
     total_output = ''
-    last_10_messages = []
+    in_comment = False
 
     while True:
         kos_message = await kos_reader.read(1024)
@@ -43,25 +59,47 @@ async def telemetry_loop(kos_reader, openc3_writer) -> None:
         kos_message = re.sub(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]', "", kos_message)
 
         total_output += kos_message
-        if '\n' in total_output:
-            lines = total_output.split('\n')
+        if '\n' not in total_output:
+            continue
 
-            # detect and report weather 
-            if 'Choose a CPU' in total_output:
-                msg = "Choose a CPU:\n" + '\n'.join(
-                    [line[15:-1] for line in lines if line.startswith('               ')]
-                    )
-                openc3_writer.write(kos_status_telemetry({'message': msg}))
-                await openc3_writer.drain()
+        lines = total_output.split('\n')
 
-            else:
-                for line in lines:
-                    if line.startswith('//'):
-                        logger.info('Status Message: %s', line[2:])
-                        openc3_writer.write(kos_status_telemetry({'message': line[2:]}))
-                        await openc3_writer.drain()
+        # detect and report a detached state
+        if 'Choose a CPU' in total_output:
+            STATE_DATA['cpu_id'] = 0
+            STATE_DATA['cpu_name'] = ''
+            STATE_DATA['vessel_name'] = ''
+            STATE_DATA['status'] = DETACHED
 
-            total_output = lines[-1]
+            del AVAILABLE_CPUS[:]
+
+            for line in lines:
+                if re.search(r'\[\d+\]', line):
+                    cpu_data = re.split(r'\s+', line)
+                    AVAILABLE_CPUS.append((
+                        int(cpu_data[0][1:-1]),
+                        ' '.join(cpu_data[3:-2]),
+                        cpu_data[-1][1:-1]
+                    ))
+
+            msg = "Choose a CPU:\n" + '\n'.join(
+                [f'{avc[0]}: {avc[2]}:{avc[1]}' for avc in AVAILABLE_CPUS]
+                )
+
+            logger.log('Detached from CPU')
+            openc3_writer.write(kos_status_telemetry(STATE_DATA))
+            await openc3_writer.drain()
+
+        else:
+            for line in lines:
+                if line.startswith('//'):
+                    STATE_DATA['message'] = line[2:]
+
+                    logger.info('Status Message: %s', line[2:])
+                    openc3_writer.write(kos_status_telemetry(STATE_DATA))
+                    await openc3_writer.drain()
+
+        total_output = lines[-1]
 
 
 async def commaning_loop(openc3_reader, kos_writer) -> None:
@@ -101,7 +139,7 @@ async def relay_loop(kos_reader, kos_writer) -> None:
     """the main async function"""
 
     # initialize to a kos cpu
-    await kos_init(kos_reader, kos_writer)
+    # await kos_init(kos_reader, kos_writer)
     logger.info('KOS Connection Opened')
 
     # connect to the openc3 commanding port
