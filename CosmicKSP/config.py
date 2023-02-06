@@ -63,7 +63,7 @@ default_config = {
         },
     },
     'ksp':{
-        'dir': 'C:\Steam\steamapps\common\Kerbal Space Program',
+        'dir': 'C:\\Steam\\steamapps\\common\\Kerbal Space Program',
         'save': 'default',
     }
 }

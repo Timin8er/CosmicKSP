@@ -8,34 +8,31 @@ def main():
     """run a function based on system arguements"""
     logger = get_logger(name='CosmicKSP_Commanding')
     logger.setLevel(config['logging_level'])
-    try:
-        match sys.argv:
-            case [script]:
-                logger.error('not enough arguements')
 
-            case [script, 'sync']:
-                save_management.sync_quicksave('REAL', 'SIM')
+    match sys.argv:
+        case [_]:
+            logger.error('not enough arguements')
 
-            case [script, 'sync', from_save, to_save]:
-                save_management.sync_quicksave(from_save, to_save)
+        case [_, 'sync']:
+            save_management.sync_quicksave('REAL', 'SIM')
 
-            case [script, 'copysave']:
-                save_management.sync_save('REAL', 'SIM')
+        case [_, 'sync', from_save, to_save]:
+            save_management.sync_quicksave(from_save, to_save)
 
-            case [script, 'copysave', from_save, to_save]:
-                save_management.sync_save(from_save, to_save)
+        case [_, 'copysave']:
+            save_management.sync_save('REAL', 'SIM')
 
-            case [script, 'copyships']:
-                save_management.sync_ships('REAL', 'SIM')
+        case [_, 'copysave', from_save, to_save]:
+            save_management.sync_save(from_save, to_save)
 
-            case [script, 'copyships', from_save, to_save]:
-                save_management.sync_ships(from_save, to_save)
+        case [_, 'copyships']:
+            save_management.sync_ships('REAL', 'SIM')
 
-            case _:
-                logger.error('invalid arguements')
+        case [_, 'copyships', from_save, to_save]:
+            save_management.sync_ships(from_save, to_save)
 
-    except Exception:
-        logger.exception('Main Failed')
+        case _:
+            logger.error('invalid arguements')
 
 
 if __name__ == "__main__":

@@ -24,8 +24,8 @@ class ColoredFormatter(logging.Formatter):
 
     FORMATS: Dict = {
         logging.NOTSET:    logging.Formatter(DEFAULT_FORMAT),
-        logging.DEBUG:     logging.Formatter('  | \033[96;20m%(levelname)-8s\x1b[0m %(asctime)s | %(filename)s \
-            , Line %(lineno)s \n    %(message)s'),
+        logging.DEBUG:     logging.Formatter(
+            '  | \033[96;20m%(levelname)-8s\x1b[0m %(asctime)s | %(filename)s, Line %(lineno)s \n    %(message)s'),
         logging.INFO:      logging.Formatter(DEFAULT_FORMAT),
         logging.WARNING:   logging.Formatter('  | \x1b[33;20m%(levelname)-8s\x1b[0m %(asctime)s | %(message)s'),
         logging.ERROR:     logging.Formatter('  | \x1b[31;20m%(levelname)-8s\x1b[0m %(asctime)s | %(message)s'),
@@ -92,9 +92,9 @@ def tail_file(file):
         os.system(f'gnome-terminal -- tail -f -n 20 {file}', shell=True)
 
 
-def open_directory(dir):
+def open_directory(log_dir):
     """open the log directory in your file explorer"""
     if sys.platform == "win32":
-        os.system('start cmd.exe /K CosmicRelayDownlink"')
+        os.system(f'start {log_dir}')
     else:
-        os.system(f'gio open "{dir}"')
+        os.system(f'gio open "{log_dir}"')

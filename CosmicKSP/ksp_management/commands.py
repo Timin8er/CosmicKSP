@@ -11,13 +11,13 @@ from CosmicKSP.config import config
 VESSTLE_PATTERN = r"VESSEL\n\t*\{\n\t*pid = .+\n\t*persistentId = .+\n\t*name = .+\n"
 
 
-def cmd_quicksave(bstr: ByteString) -> str:
+def cmd_quicksave(*_) -> str:
     """press the f5 key to create a quicksave"""
     keyboard.press_and_release('f5')
     return ''
 
 
-def cmd_quickload(bstr: ByteString) -> str:
+def cmd_quickload(*_) -> str:
     """press the f9 key to load the quicksave"""
     keyboard.press('f9')
     time.sleep(2)

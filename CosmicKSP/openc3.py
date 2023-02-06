@@ -1,6 +1,5 @@
 """contains the socket link managers for the OpenC3 connections"""
 import socket
-import asyncio
 
 class OpenC3Connection():
     """manages the socket connection to the OpenC3 telemetry"""

@@ -98,7 +98,7 @@ def cmd_script(script_name: str, script_config: Dict):
     id_str = struct.pack(script_config['struct'][0:2], script_config['id'])
 
     if len(script_config['struct']) <= 2:
-        def _cmd_script(bstr: ByteString) -> ByteString:
+        def _cmd_script(*_) -> ByteString:
             return f'runpath("1:/{script_name}.ks").\n'
         return id_str, _cmd_script
 
