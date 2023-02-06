@@ -88,16 +88,15 @@ async def telemetry_loop(kos_reader, openc3_writer) -> None:
             logger.info('Detached from CPU')
             openc3_writer.write(kos_status_telemetry(STATE_DATA))
             await openc3_writer.drain()
-        
 
         elif 'kOS Operating System' in total_output:
             # get the first digit
-            cpu_id = int(re.search('\d', total_output)[0])
-            STATE_DATA['cpu_id'] = cpu_id
+            cpu_id = int(re.search(r'\d', total_output)[0])
 
-            for id, vessel_name, cpu_name in AVAILABLE_CPUS:
-                if id == cpu_id:
+            for cpuid, vessel_name, cpu_name in AVAILABLE_CPUS:
+                if cpuid == cpu_id:
                     STATE_DATA['state'] = READY
+                    STATE_DATA['cpu_id'] = cpu_id
                     STATE_DATA['cpu_name'] = cpu_name
                     STATE_DATA['vessel_name'] = vessel_name
                     STATE_DATA['running_script'] = ''
@@ -150,21 +149,10 @@ async def commaning_loop(openc3_reader, kos_writer) -> None:
         await kos_writer.drain()
 
 
-
-async def kos_init(kos_reader, kos_writer, cpu: int = 1) -> None:
-    """initialize the kos connection by selecting the 1st cpu"""
-    _ = await kos_reader.read(4096)
-    kos_writer.write(f'{cpu}\n')
-    await kos_writer.drain()
-    _ = await kos_reader.read(4096)
-
-
-
 async def relay_loop(kos_reader, kos_writer) -> None:
     """the main async function"""
 
     # initialize to a kos cpu
-    # await kos_init(kos_reader, kos_writer)
     logger.info('KOS Connection Opened')
 
     # connect to the openc3 commanding port
