@@ -1,8 +1,11 @@
 """functions for managing the ksp games"""
 import sys
+import os
 from CosmicKSP.logging import get_logger
 from CosmicKSP.config import config
 from . import save_management
+
+SAVES_DIR = os.path.expanduser(os.path.join(config['ksp']['dir'], 'saves', config['ksp']['save']))
 
 def main():
     """run a function based on system arguements"""

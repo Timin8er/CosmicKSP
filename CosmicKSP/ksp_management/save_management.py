@@ -4,7 +4,6 @@ import shutil
 import os
 from CosmicKSP.config import config
 
-
 def sync_quicksave(from_i, to_i):
     """copy the ksp quicksave file from the real game to the sim game"""
     from_instance = config.getInstance(from_i)

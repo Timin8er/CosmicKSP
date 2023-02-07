@@ -1,217 +1,90 @@
 """the telemetry traslation layer between Telemechus and OpenC3"""
+from typing import Callable
 import datetime
 import threading
-import asyncio
-import telnetlib3
 from CosmicKSP.logging import get_logger
 from CosmicKSP.config import config
-from CosmicKSP.telemachus import TelemachusConnector, STATE_CONSTRUCTION, STATE_FLIGHT, STATE_NO_POWER, \
-    STATE_NOT_FOUND, STATE_OFF, STATE_PAUSED, STATE_SIGNAL_LOST
+from CosmicKSP.telemachus import TelemachusConnector, STATE_FLIGHT
 from CosmicKSP.telemachus.telemetry import game_telemetry_bstring, orbit_telemetry_bstring, vehicle_telemetry_bstring, \
     VEHICLE_TELEMETRY_SUBSCIPTIONS, ORBIT_TELEMETRY_SUBSCIPTIONS
 from CosmicKSP.openc3 import OpenC3Connection
 
-STATE_STRINGS = {
-    STATE_SIGNAL_LOST: 'Signal Lost',
-    STATE_FLIGHT: 'Flight',
-    STATE_PAUSED: 'Paused',
-    STATE_NO_POWER: 'No Power',
-    STATE_OFF: 'Off',
-    STATE_NOT_FOUND: 'Not Found',
-    STATE_CONSTRUCTION: 'Construction',
-}
 
 logger = get_logger(name='CosmicKSP_Telemetry')
 logger.setLevel(config['logging_level'])
 
 stop_event = threading.Event()
 
-def vehicle_telemetry_loop():
-    """loop of recieving telemetry from Telemachus, translating it, and sending it to OpenC3"""
+
+def relay_loop(subscriptions: list,
+                         rate: int,
+                         conversion_function: Callable,
+                         title: str,
+                         flight_only: bool = True) -> None:
+    """loop to wait for telemetry, convert it and send it to openc3"""
+
     openc3_connection = OpenC3Connection(
         config['openc3']['host'],
         config['openc3']['telemetry_port'])
 
-    telemachus_link_vehicle = TelemachusConnector(
+    telemachus_connection = TelemachusConnector(
         config['telemachus']['host'],
         config['telemachus']['port'],
-        config['telemachus']['frequency'])
+        rate)
 
-    for sub in VEHICLE_TELEMETRY_SUBSCIPTIONS:
-        telemachus_link_vehicle.subscribe(sub)
+    logger.info('%s connected', title)
 
-    logger.info('Vehicle Telemetry Starting')
+    for sub in subscriptions:
+        telemachus_connection.subscribe(sub)
 
     while True:
         if stop_event.is_set():
             break
 
-        if telemachus_link_vehicle.web_socket is None:
-            telemachus_link_vehicle.reconnect()
+        data = telemachus_connection.recieve() # get telem data
+        if not data:
             continue
 
-        telemetry_data = telemachus_link_vehicle.recieve() # get telem data
-        if not telemetry_data:
+        if flight_only and data.get('p.paused', False) != STATE_FLIGHT:
             continue
 
-        if telemetry_data['p.paused'] != STATE_FLIGHT:
+        data_str = conversion_function(data)
+        if not data_str:
             continue
 
-        telem = vehicle_telemetry_bstring(telemetry_data)
-        openc3_connection.send(telem)
+        openc3_connection.send(data_str)
 
-        mission_time = datetime.timedelta(seconds=telemetry_data.get('v.missionTime', 0))
-        logger.info('T+%s Vehicle: %s', mission_time, telemetry_data.get('v.name', 'None'))
-
-
-def orbit_telemetry_loop():
-    """loop of recieving telemetry from Telemachus, translating it, and sending it to OpenC3"""
-    openc3_connection = OpenC3Connection(
-        config['openc3']['host'],
-        config['openc3']['telemetry_port'])
-
-    telemachus_link_vehicle = TelemachusConnector(
-        config['telemachus']['host'],
-        config['telemachus']['port'],
-        10_000)
-
-    for sub in ORBIT_TELEMETRY_SUBSCIPTIONS:
-        telemachus_link_vehicle.subscribe(sub)
-
-    logger.info('Orbit Telemetry Starting')
-
-    while True:
-        if stop_event.is_set():
-            break
-
-        if telemachus_link_vehicle.web_socket is None:
-            telemachus_link_vehicle.reconnect()
-            continue
-
-        telemetry_data = telemachus_link_vehicle.recieve() # get telem data
-        if not telemetry_data:
-            continue
-
-        if telemetry_data['p.paused'] != STATE_FLIGHT:
-            continue
-
-        telem = orbit_telemetry_bstring(telemetry_data)
-        openc3_connection.send(telem)
-
-        mission_time = datetime.timedelta(seconds=telemetry_data.get('v.missionTime', 0))
-        logger.info('T+%s Orbit: %s', mission_time, telemetry_data.get('v.body', 'None'))
-
-
-def game_telemetry_loop():
-    """loop of recieving telemetry from Telemachus, translating it, and sending it to OpenC3"""
-    openc3_connection = OpenC3Connection(
-        config['openc3']['host'],
-        config['openc3']['telemetry_port'])
-
-    telemachus_link_vehicle = TelemachusConnector(
-        config['telemachus']['host'],
-        config['telemachus']['port'],
-        1_000)
-
-    telemachus_link_vehicle.subscribe('p.paused')
-
-    logger.info('Orbit Telemetry Starting')
-
-    game_state = None
-
-    while True:
-        if stop_event.is_set():
-            break
-
-        if telemachus_link_vehicle.web_socket is None:
-            telemachus_link_vehicle.reconnect()
-            continue
-
-        telemetry_data = telemachus_link_vehicle.recieve() # get telem data
-        if not telemetry_data:
-            continue
-
-        telem = game_telemetry_bstring(telemetry_data)
-        openc3_connection.send(telem)
-
-        if game_state != telemetry_data['p.paused']:
-            game_state = telemetry_data['p.paused']
-
-            mission_time = datetime.timedelta(seconds=telemetry_data.get('v.missionTime', 0))
-            logger.info('T+%s Game: %s', mission_time, STATE_STRINGS[telemetry_data['p.paused']])
-
-
-
-async def kos_telemetry_shell(reader, writer):
-    """the kos telemetry loop"""
-    gotten = ''
-
-    await asyncio.sleep(2)
-
-    outp = await reader.read(1024)
-    # print(outp, flush=True)
-    writer.write('1\n')
-
-    outp = await reader.read(1024)
-    # print(outp, flush=True)
-
-    logger.info('KOS Telemetry Connection Established')
-
-    while True:
-        outp = await reader.read(1024)
-        if not outp or outp.isspace():
-            # End of File
-            break
-
-        new_val = outp.encode("ascii", "ignore")
-        gotten += new_val.decode()
-        while '\n' in gotten:
-            msg, gotten = gotten.split('\n', 1)
-            logger.debug(msg)
-
-        if '{Detaching from' in outp:
-            break
-
-
-def kos_telemetry_loop():
-    """thread for monitoring the kos terminal"""
-    try:
-        loop = asyncio.get_event_loop()
-    except RuntimeError as exc:
-        if str(exc).startswith('There is no current event loop in thread'):
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-        else:
-            raise
-
-    while True:
-
-        coro = telnetlib3.open_connection(
-            config['kos']['host'],
-            config['kos']['port'],
-            shell=kos_telemetry_shell)
-
-        reader, writer = loop.run_until_complete(coro)
-
-        loop.run_until_complete(writer.protocol.waiter_closed)
+        mission_time = datetime.timedelta(seconds=data.get('v.missionTime', 0))
+        logger.info('T+%s Relaying Telemetry: %s', mission_time, title)
 
 
 def main():
     """run the telemetry downlink relay"""
-    loop = asyncio.get_event_loop()
-
     try:
-        vtt = threading.Thread(target = vehicle_telemetry_loop, daemon = True)
+        vtt = threading.Thread(target = relay_loop,
+                               daemon = True,
+                               args = (VEHICLE_TELEMETRY_SUBSCIPTIONS,
+                                       1000,
+                                       vehicle_telemetry_bstring,
+                                       "Vehicle"))
         vtt.start()
 
-        ott = threading.Thread(target = orbit_telemetry_loop, daemon = True)
+        ott = threading.Thread(target = relay_loop,
+                               daemon = True,
+                               args = (ORBIT_TELEMETRY_SUBSCIPTIONS,
+                                       3000,
+                                       orbit_telemetry_bstring,
+                                       "Orbit"))
         ott.start()
 
-        gtt = threading.Thread(target = game_telemetry_loop, daemon = True)
+        gtt = threading.Thread(target = relay_loop,
+                               daemon = True,
+                               args = (['p.paused'],
+                                       2000,
+                                       game_telemetry_bstring,
+                                       "Game",
+                                       False))
         gtt.start()
-
-        # ktt = threading.Thread(target = kos_telemetry_loop, daemon = True)
-        # ktt.start()
 
     except Exception:
         logger.exception('Main Failed')

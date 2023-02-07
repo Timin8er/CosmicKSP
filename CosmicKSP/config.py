@@ -34,7 +34,6 @@ default_config = {
     'telemachus':{
         'host':'localhost',
         'port':8085,
-        'frequency':1000,
     },
     'kos': {
         'host':'localhost',
