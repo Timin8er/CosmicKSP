@@ -1,15 +1,7 @@
 """package for managing telemetry packets"""
 from typing import Dict, ByteString
 import struct
-
-STATE_SIGNAL_LOST = -1
-STATE_FLIGHT = 0
-STATE_PAUSED = 1
-STATE_NO_POWER = 2
-STATE_OFF = 3
-STATE_NOT_FOUND = 4
-STATE_CONSTRUCTION = 5
-
+from CosmicKSP.telemachus import STATE_SIGNAL_LOST
 
 VEHICLE_TELEMETRY_SUBSCIPTIONS = [
     'p.paused',

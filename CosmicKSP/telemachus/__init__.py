@@ -2,7 +2,15 @@
 from typing import Dict
 import json
 import websocket
-from .telemetry import STATE_SIGNAL_LOST, STATE_PAUSED
+
+
+STATE_SIGNAL_LOST = -1
+STATE_FLIGHT = 0
+STATE_PAUSED = 1
+STATE_NO_POWER = 2
+STATE_OFF = 3
+STATE_NOT_FOUND = 4
+STATE_CONSTRUCTION = 5
 
 
 class TelemachusConnector():

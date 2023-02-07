@@ -1,13 +1,15 @@
 """the telemetry traslation layer between Telemechus and OpenC3"""
 import datetime
 import threading
-from CosmicKSP.logging import get_logger
-from CosmicKSP.config import config
-from CosmicKSP.telemachus import TelemachusConnector
-from CosmicKSP.telemachus.telemetry import *
-from CosmicKSP.openc3 import OpenC3Connection
 import asyncio
 import telnetlib3
+from CosmicKSP.logging import get_logger
+from CosmicKSP.config import config
+from CosmicKSP.telemachus import TelemachusConnector, STATE_CONSTRUCTION, STATE_FLIGHT, STATE_NO_POWER, \
+    STATE_NOT_FOUND, STATE_OFF, STATE_PAUSED, STATE_SIGNAL_LOST
+from CosmicKSP.telemachus.telemetry import game_telemetry_bstring, orbit_telemetry_bstring, vehicle_telemetry_bstring, \
+    VEHICLE_TELEMETRY_SUBSCIPTIONS, ORBIT_TELEMETRY_SUBSCIPTIONS
+from CosmicKSP.openc3 import OpenC3Connection
 
 STATE_STRINGS = {
     STATE_SIGNAL_LOST: 'Signal Lost',
