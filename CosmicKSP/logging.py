@@ -10,7 +10,11 @@ faulthandler.enable()
 
 DEFAULT_FORMAT: str = "  | %(levelname)-8s %(asctime)s | %(message)s"
 FILE_FORMAT: str = "  | %(levelname)-8s %(asctime)s | %(message)s"
-DEFAULT_LOG_DIR = os.path.expanduser(os.path.join('~', 'Documents', 'CosmicKSP'))
+
+if len(sys.argv) > 1:
+    DEFAULT_LOG_DIR = sys.argv[1]
+else:
+    DEFAULT_LOG_DIR = os.path.expanduser(os.path.join('~', 'Documents', 'CosmicKSP'))
 
 class ColoredFormatter(logging.Formatter):
     """adds colors reflecting the siverity of the log message"""

@@ -1,0 +1,14 @@
+services:
+  commanding-relay:
+    build: ./
+    container_name: Commanding_Relay
+    command: "CosmicRelay_Commanding /logs"
+    volumes:
+      - ~/Documents/CosmicKSP:/logs
+
+  telemetry-relay:
+    build: ./
+    container_name: Telemetry_Relay
+    command: "CosmicRelay_Telemetry /logs"
+    volumes:
+      - ~/Documents/CosmicKSP:/logs

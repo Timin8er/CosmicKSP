@@ -1,6 +1,7 @@
 """the configuration manager for the Cosmic KSP project"""
 from typing import Dict
 import os
+import sys
 from logging import INFO
 import yaml
 
@@ -21,8 +22,6 @@ def create_config_file(filepath: str, default_values: Dict) -> None:
     with open(filepath, 'w', encoding="utf-8") as file:
         yaml.dump(default_values, file)
 
-
-config_path = os.path.expanduser(os.path.join('~', 'Documents', 'CosmicKSP', 'CosmicKSP.config'))
 
 default_config = {
     'logging_level': INFO,
@@ -67,4 +66,11 @@ default_config = {
     }
 }
 
+
+if len(sys.argv) > 1:
+    config_path = os.path.join(sys.argv[1], 'CosmicKSP.config')
+else:
+    config_path = os.path.expanduser(os.path.join('~', 'Documents', 'CosmicKSP', 'CosmicKSP.config'))
+
+print('config file is', config_path)
 config = get_config(config_path, default_config)
