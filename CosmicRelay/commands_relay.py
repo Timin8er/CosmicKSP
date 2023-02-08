@@ -91,8 +91,25 @@ async def report_cpu_attachment(openc3_writer, kos_output: str) -> None:
 async def report_script_ended(openc3_writer) -> None:
     """report to openc3 that the running kos script has ended"""
     STATE_DATA['state'] = READY
+    STATE_DATA['message'] = f'Program Ended: {STATE_DATA["running_script"]}'
     STATE_DATA['running_script'] = ''
+
     logger.info('Status Message: Program Ended')
+    openc3_writer.write(kos_status_telemetry(STATE_DATA))
+    await openc3_writer.drain()
+
+
+async def report_script_start(openc3_writer, kos_output) -> None:
+    """report that a script has started running"""
+    for line in kos_output.split('\n'):
+        if line.startswith('runpath'):
+            STATE_DATA['running_script'] = re.findall(r'\w+\.ks', line)[0]
+            break
+
+    STATE_DATA['state'] = BUISY
+    STATE_DATA['message'] = kos_output
+
+    logger.info('Status Message: Script Starting')
     openc3_writer.write(kos_status_telemetry(STATE_DATA))
     await openc3_writer.drain()
 
@@ -117,28 +134,30 @@ async def telemetry_loop(kos_reader, openc3_writer) -> None:
         if '\n' not in total_output:
             continue
 
-        lines = total_output.split('\n')
-
         # detect and report a detached state
         if 'Choose a CPU' in total_output:
             await report_cpu_detachment(openc3_writer, total_output)
 
+        # detect and report and attached state
         elif 'kOS Operating System' in total_output:
             await report_cpu_attachment(openc3_writer, total_output)
 
+        # detent the end of a script
         elif 'Program ended.' in total_output:
             await report_script_ended(openc3_writer)
 
+        # detect the start of a script
+        elif 'runpath' in total_output:
+            await report_script_start(openc3_writer, total_output)
+
         else:
-            for line in lines:
-                if line.startswith('//'):
-                    STATE_DATA['message'] = line[2:]
+            STATE_DATA['message'] = total_output
 
-                    logger.info('Status Message: %s', line[2:])
-                    openc3_writer.write(kos_status_telemetry(STATE_DATA))
-                    await openc3_writer.drain()
+            logger.info('KOS Message: %s', total_output)
+            openc3_writer.write(kos_status_telemetry(STATE_DATA))
+            await openc3_writer.drain()
 
-        total_output = lines[-1]
+        total_output = total_output.split('\n')[-1]
 
 
 async def commaning_loop(openc3_reader, kos_writer) -> None:
