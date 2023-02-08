@@ -4,31 +4,68 @@ import time
 import struct
 import os
 import re
+import shutil
 import keyboard
 from CosmicKSP.config import config
 
 
 VESSTLE_PATTERN = r"VESSEL\n\t*\{\n\t*pid = .+\n\t*persistentId = .+\n\t*name = .+\n"
+SAVES_DIR = os.path.join(config['ksp']['dir'], 'saves', config['ksp']['save'])
 
 
-def cmd_quicksave(*_) -> str:
+def quicksave(name: str = None) -> None:
     """press the f5 key to create a quicksave"""
     keyboard.press_and_release('f5')
-    return ''
+
+    if name:
+        shutil.copy(
+            os.path.join(SAVES_DIR, 'quicksave.sfs'),
+            os.path.join(SAVES_DIR, f'{name}_quicksave.sfs')
+            )
+        shutil.copy(
+            os.path.join(SAVES_DIR, 'quicksave.loadmeta'),
+            os.path.join(SAVES_DIR, f'{name}_quicksave.loadmeta')
+            )
 
 
-def cmd_quickload(*_) -> str:
+
+def quickload(name: str = None) -> None:
     """press the f9 key to load the quicksave"""
+    if name:
+        shutil.copy(
+            os.path.join(SAVES_DIR, f'{name}_quicksave.sfs'),
+            os.path.join(SAVES_DIR, 'quicksave.sfs')
+            )
+        shutil.copy(
+            os.path.join(SAVES_DIR, f'{name}_quicksave.loadmeta'),
+            os.path.join(SAVES_DIR, 'quicksave.loadmeta')
+            )
+
     keyboard.press('f9')
     time.sleep(2)
     keyboard.release('f9')
+
+
+def cmd_quicksave(bstr: ByteString) -> str:
+    """press the f5 key to create a quicksave"""
+    print('quicksave')
+    name = bstr[2:].decode('utf-8').strip()
+    quicksave(name)
+    return ''
+
+
+def cmd_quickload(bstr: ByteString) -> str:
+    """press the f9 key to load the quicksave"""
+    print('quickload')
+    name = bstr[2:].decode('utf-8')
+    quickload(name)
     return ''
 
 
 def cmd_switch_to_vesstle(bstr: ByteString) -> str:
     """set the current vessle in a quicksave"""
     # create the quicksave file
-    cmd_quicksave(bstr)
+    quicksave()
     time.sleep(0.5) # sleep due to asyncronus nature file creation
 
     # the quicksave file
@@ -54,7 +91,7 @@ def cmd_switch_to_vesstle(bstr: ByteString) -> str:
         file.write(qs_content)
 
     # load the quicksave
-    cmd_quickload(bstr)
+    quickload()
     return ""
 
 

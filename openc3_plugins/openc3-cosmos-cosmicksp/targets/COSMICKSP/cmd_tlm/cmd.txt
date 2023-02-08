@@ -1,11 +1,13 @@
 COMMAND COSMICKSP QUICKSAVE BIG_ENDIAN "Import a script and it's dependancies to the onboard kos"
   # Keyword            Name  BitSize  Type  Min  Max  Default  Description
-  APPEND_ID_PARAMETER  ID    16       INT   3    3    3        "Identifier" 
+  APPEND_ID_PARAMETER  ID    16       INT   3    3    3        "Identifier"
+  APPEND_PARAMETER     NAME  0        STRING          ""       "The Quicksave Name"
 
 
 COMMAND COSMICKSP QUICKLOAD BIG_ENDIAN "Import a script and it's dependancies to the onboard kos"
   # Keyword            Name  BitSize  Type  Min  Max  Default  Description
-  APPEND_ID_PARAMETER  ID    16       INT   4    4    4        "Identifier" 
+  APPEND_ID_PARAMETER  ID    16       INT   4    4    4        "Identifier"
+  APPEND_PARAMETER     NAME  0        STRING          ""       "The Quicksave Name"
 
 
 COMMAND COSMICKSP SWITCH_TO_VESSEL BIG_ENDIAN "Switch to a different Vessel"
