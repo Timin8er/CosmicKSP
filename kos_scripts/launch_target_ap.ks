@@ -23,6 +23,7 @@ LOCK THROTTLE TO 1.0.
 LOCK STEERING TO head.
 
 run dual_stage_delay(staging_timing[0]).
+print("Launching").
 
 ////////// Maintain Heading //////////
 UNTIL SHIP:APOAPSIS > target_ap {
@@ -43,15 +44,16 @@ UNTIL SHIP:APOAPSIS > target_ap {
   LIST ENGINES IN ENGLIST.
   FOR ENG IN ENGLIST {
   	IF ENG:FLAMEOUT = TRUE {
+	  print("Staging #" + staging_timing_index + ": delay " + staging_timing[staging_timing_index] + "s").
       RUN dual_stage_delay(staging_timing[staging_timing_index]).
 	  set staging_timing_index TO staging_timing_index + 1.
       BREAK.
   	}.
   }.
-
 }.
 
 ////////// Coast //////////
+print("Burn Complete; Coasting out of atmosphere.").
 UNLOCK STEERING.
 SET SHIP:CONTROL:PILOTMAINTHROTTLE TO 0.
 LOCK THROTTLE TO 0.
