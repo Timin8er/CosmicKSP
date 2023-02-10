@@ -59,6 +59,11 @@ default_config = {
             'struct': '>hp',
             'dependancies': [],
         },
+        'report_orbit': {
+            'id': 204,
+            'struct': '>hH',
+            'dependancies': [],
+        },
     },
     'ksp':{
         'dir': 'C:\\Steam\\steamapps\\common\\Kerbal Space Program',
