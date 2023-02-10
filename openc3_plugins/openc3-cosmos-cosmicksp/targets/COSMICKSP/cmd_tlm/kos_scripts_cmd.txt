@@ -1,7 +1,11 @@
 COMMAND COSMICKSP IMPORT_SCRIPT BIG_ENDIAN "Import a script and it's dependancies to the onboard kos"
   # Keyword            Name    BitSize Type    Min  Max  Default  Description
   APPEND_ID_PARAMETER  ID      16      INT     200  200  200      "Identifier" 
-  APPEND_PARAMETER     SCRIPT  0       STRING            ""       "The script name"
+  APPEND_PARAMETER     SCRIPT  0       STRING            null     "The script name"
+    STATE launch_target_ap launch_target_ap
+    STATE create_node_circularise_at_apoapsis create_node_circularise_at_apoapsis
+    STATE execute_next_manuever_node execute_next_manuever_node
+    STATE report_orbit report_orbit
 
 
 COMMAND COSMICKSP LAUNCH_TO_TARGET_AP BIG_ENDIAN "Launch the vehicle to a target apoapsis"
@@ -26,3 +30,9 @@ COMMAND COSMICKSP EXECUTE_NEXT_MANUEVER_NODE BIG_ENDIAN "Execute the next manuev
   # Keyword            Name            BitSize  Type    Min  Max  Default  Description
   APPEND_ID_PARAMETER  ID              16       INT     203  203  203      "Identifier"
   APPEND_PARAMETER     STAGING_TIMING  0        STRING            list()   "List of Floats"
+
+
+COMMAND COSMICKSP REPORT_ORBIT BIG_ENDIAN "Execute the next manuever node"
+  # Keyword            Name            BitSize  Type    Min  Max  Default  Description
+  APPEND_ID_PARAMETER  ID              16       INT     204  204  204      "Identifier"
+  APPEND_PARAMETER     STAGING_TIMING  16       UINT    0    999  1        "Index of the orbit patch"

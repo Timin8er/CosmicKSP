@@ -5,7 +5,7 @@ SAS OFF.
 
 LOCAL next_node to nextnode.
 
-print "Node in: " + round(next_node:eta) + ", DeltaV: " + round(next_node:deltav:mag).
+print "Node in: " + round(next_node:eta) + " s, DeltaV: " + round(next_node:deltav:mag) + " m/s".
 
 LOCAL max_acc to ship:maxthrust/ship:mass.
 
@@ -24,7 +24,7 @@ wait until vang(np, ship:facing:vector) < 0.25.
 //the ship is facing the right direction, let's wait for our burn time
 wait until next_node:eta <= (burn_duration/2).
 
-print("begining burn")
+print("begining burn").
 
 //we only need to lock throttle once to a certain variable in the beginning of the loop, and adjust only the variable itself inside it
 LOCAL tset to 0.

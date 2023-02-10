@@ -88,10 +88,10 @@ async def report_cpu_attachment(openc3_writer, kos_output: str) -> None:
             return
 
 
-async def report_script_ended(openc3_writer) -> None:
+async def report_script_ended(openc3_writer, kos_output) -> None:
     """report to openc3 that the running kos script has ended"""
     STATE_DATA['state'] = READY
-    STATE_DATA['message'] = f'Program Ended: {STATE_DATA["running_script"]}'
+    STATE_DATA['message'] = f'Program Ended: {STATE_DATA["running_script"]}\n{kos_output}'
     STATE_DATA['running_script'] = ''
 
     logger.info('Status Message: Program Ended')
@@ -144,7 +144,7 @@ async def telemetry_loop(kos_reader, openc3_writer) -> None:
 
         # detent the end of a script
         elif 'Program ended.' in total_output:
-            await report_script_ended(openc3_writer)
+            await report_script_ended(openc3_writer, total_output)
 
         # detect the start of a script
         elif 'runpath' in total_output:
