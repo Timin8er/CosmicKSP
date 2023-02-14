@@ -19,15 +19,15 @@ def cmd_generic(bstr: ByteString) -> ByteString:
     return bstr[2:].decode('utf-8')
 
 
-def cmd_detach_cpu(bstr: ByteString) -> ByteString:
+def cmd_detach_cpu(*_) -> ByteString:
     """return ctrl+d command to detach to a cpu"""
     return '\x04'
 
 
 def cmd_attach_cpu(bstr: ByteString) -> ByteString:
     """return the command to reattach to a cpu"""
-    args = struct.unpack('>hH', bstr)
-    return f'{args[1]}\n'
+    _, cpu_index = struct.unpack('>hH', bstr)
+    return f'{cpu_index}\n'
 
 
 def cmd_stage(*_) -> ByteString:
@@ -37,7 +37,7 @@ def cmd_stage(*_) -> ByteString:
 
 def cmd_set_system_power(bstr: ByteString) -> ByteString:
     """return the KOS command to set SAS on or off"""
-    args = struct.unpack('>hH?', bstr)
+    _, system_index, onoff = struct.unpack('>hH?', bstr)
 
     system = [
         'SAS',
@@ -50,22 +50,20 @@ def cmd_set_system_power(bstr: ByteString) -> ByteString:
         'RADIATORS',
         'LADDERS',
         'BAYS',
-    ][args[1]]
+    ][system_index]
 
-    onoff = 'ON' if args[2] else 'OFF'
-    return f'{system} {onoff}.\n'
+    return f'{system} {"ON" if onoff else "OFF"}.\n'
 
 
 def cmd_set_action_group(bstr: ByteString) -> ByteString:
     """return the kos command to turn GEAR on or off"""
-    args = struct.unpack('>hB?', bstr)
-    onoff = 'ON' if args[2] else 'OFF'
-    return f'AG{args[1]} {onoff}.\n'
+    _, index, onoff = struct.unpack('>hB?', bstr)
+    return f'AG{index} {"ON" if onoff else "OFF"}.\n'
 
 
 def cmd_direct_sas(bstr: ByteString) -> ByteString:
     """return the KOS command to set the SAS to a direction"""
-    args = struct.unpack('>hB', bstr)
+    _, dir_i = struct.unpack('>hB', bstr)
     direction = ["PROGRADE",
         "RETROGRADE",
         "NORMAL",
@@ -76,7 +74,7 @@ def cmd_direct_sas(bstr: ByteString) -> ByteString:
         "ANTITARGET",
         "MANEUVER",
         "STABILITYASSIST",
-        "STABILITY"][args[1]]
+        "STABILITY"][dir_i]
     return f'set SASMODE to "{direction}".\n'
 
 
@@ -84,17 +82,16 @@ def cmd_timewarp_to(bstr: ByteString) -> str:
     """return kos command to timewarp to a time"""
     _, timestamp, time_delta = struct.unpack('>hBl', bstr)
 
-    if timestamp == 0:
-        return f'kuniverse:timewarp:warpto(time:seconds + {time_delta}).\n'
-    elif timestamp == 1:
+    if timestamp == 1:
         return f'kuniverse:timewarp:warpto(time:seconds + {time_delta} + ETA:APOAPSIS).\n'
-    elif timestamp == 2:
+    if timestamp == 2:
         return f'kuniverse:timewarp:warpto(time:seconds + {time_delta} + ETA:PERIAPSIS).\n'
-    elif timestamp == 3:
+    if timestamp == 3:
         return f'kuniverse:timewarp:warpto(time:seconds + {time_delta} + ETA:TRANSITION).\n'
-    elif timestamp == 4:
+    if timestamp == 4:
         return f'kuniverse:timewarp:warpto(time:seconds + {time_delta} + ETA:NEXTNODE).\n'
 
+    return f'kuniverse:timewarp:warpto(time:seconds + {time_delta}).\n'
 
 
 def cmd_import_script(bstr: ByteString) -> ByteString:

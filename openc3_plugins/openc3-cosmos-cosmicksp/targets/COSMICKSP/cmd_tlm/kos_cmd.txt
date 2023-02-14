@@ -74,6 +74,7 @@ COMMAND COSMICKSP DIRECT_SAS BIG_ENDIAN "Direct SAS to a direction"
     STATE STABILITYASSIST 9
     STATE STABILITY       10
 
+
 COMMAND COSMICKSP TIMEWARP_TO BIG_ENDIAN "Direct SAS to a direction"
   # Keyword            Name       BitSize  Type  Min  Max  Default  Description
   APPEND_ID_PARAMETER  ID         16       INT   116  116  116      "Identifier"
