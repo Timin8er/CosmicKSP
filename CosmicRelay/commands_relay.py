@@ -125,10 +125,12 @@ async def telemetry_loop(kos_reader, openc3_writer) -> None:
         if not kos_message:
             raise Exception("KOS Connection Closed")
 
+
         # detect and insert a "new line"
         kos_message = re.sub(r'(\x9B|\x1B\[)[0-?]*;1H', "\n", kos_message)
         # remove remaining ansi excape codes
         kos_message = re.sub(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]', "", kos_message)
+        # print(kos_message)
 
         total_output += kos_message
         if '\n' not in total_output:
@@ -143,7 +145,7 @@ async def telemetry_loop(kos_reader, openc3_writer) -> None:
             await report_cpu_attachment(openc3_writer, total_output)
 
         # detent the end of a script
-        elif 'Program ended.' in total_output:
+        elif 'Program ended.' in total_output or 'Program aborted.' in total_output:
             await report_script_ended(openc3_writer, total_output)
 
         # detect the start of a script

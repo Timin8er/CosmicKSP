@@ -11,7 +11,7 @@ def cmd_abort(*_) -> ByteString:
 
 def cmd_kos_stop(*_) -> ByteString:
     """returns the stop command for kos"""
-    return '\xf4'
+    return '\x03'
 
 
 def cmd_generic(bstr: ByteString) -> ByteString:
@@ -19,10 +19,14 @@ def cmd_generic(bstr: ByteString) -> ByteString:
     return bstr[2:].decode('utf-8')
 
 
+def cmd_detach_cpu(bstr: ByteString) -> ByteString:
+    """return ctrl+d command to detach to a cpu"""
+    return '\x04'
+
+
 def cmd_attach_cpu(bstr: ByteString) -> ByteString:
-    """return ctrl+d command to reattach to a cpu"""
+    """return the command to reattach to a cpu"""
     args = struct.unpack('>hH', bstr)
-    # return ('\u0004\n', f'{args[1]}\n')
     return f'{args[1]}\n'
 
 
@@ -76,6 +80,23 @@ def cmd_direct_sas(bstr: ByteString) -> ByteString:
     return f'set SASMODE to "{direction}".\n'
 
 
+def cmd_timewarp_to(bstr: ByteString) -> str:
+    """return kos command to timewarp to a time"""
+    _, timestamp, time_delta = struct.unpack('>hBl', bstr)
+
+    if timestamp == 0:
+        return f'kuniverse:timewarp:warpto(time:seconds + {time_delta}).\n'
+    elif timestamp == 1:
+        return f'kuniverse:timewarp:warpto(time:seconds + {time_delta} + ETA:APOAPSIS).\n'
+    elif timestamp == 2:
+        return f'kuniverse:timewarp:warpto(time:seconds + {time_delta} + ETA:PERIAPSIS).\n'
+    elif timestamp == 3:
+        return f'kuniverse:timewarp:warpto(time:seconds + {time_delta} + ETA:TRANSITION).\n'
+    elif timestamp == 4:
+        return f'kuniverse:timewarp:warpto(time:seconds + {time_delta} + ETA:NEXTNODE).\n'
+
+
+
 def cmd_import_script(bstr: ByteString) -> ByteString:
     """return the kos command for to copy a script to the 'internal' kos volumn """
     script_name = bstr[2:].decode('utf-8')
@@ -126,13 +147,15 @@ def cmd_script(script_name: str, script_config: Dict):
 
 COMMANDS = {
     struct.pack('>h', 100): cmd_attach_cpu,
-    struct.pack('>h', 101): cmd_kos_stop,
-    struct.pack('>h', 102): cmd_generic,
+    struct.pack('>h', 101): cmd_detach_cpu,
+    struct.pack('>h', 102): cmd_kos_stop,
     struct.pack('>h', 103): cmd_abort,
-    struct.pack('>h', 104): cmd_stage,
-    struct.pack('>h', 105): cmd_set_system_power,
-    struct.pack('>h', 106): cmd_set_action_group,
-    struct.pack('>h', 107): cmd_direct_sas,
+    struct.pack('>h', 110): cmd_generic,
+    struct.pack('>h', 112): cmd_stage,
+    struct.pack('>h', 113): cmd_set_system_power,
+    struct.pack('>h', 114): cmd_set_action_group,
+    struct.pack('>h', 115): cmd_direct_sas,
+    struct.pack('>h', 116): cmd_timewarp_to,
     struct.pack('>h', 200): cmd_import_script,
 }
 

@@ -1,6 +1,9 @@
-PARAMETER orbit_index.
+PARAMETER orbit_index, after_node.
 
-local o TO SHIP:PATCHES[orbit_index].
+local o to SHIP:ORBIT.
+if node_index != -1 {
+    ALLNODES[node_index]
+}
 
 print("Orbit Index: " + orbit_index + "/" + SHIP:PATCHES:LENGTH).
 print("Name: " + o:NAME).

@@ -1,18 +1,17 @@
-COMMAND COSMICKSP ATTACH_CPU BIG_ENDIAN "Stop the KOS script"
+COMMAND COSMICKSP ATTACH_CPU BIG_ENDIAN "Attach to a KOS cpu"
   # Keyword            Name  BitSize  Type   Min  Max  Default  Description
   APPEND_ID_PARAMETER  ID    16       INT    100  100  100      "Identifier"
-  APPEND_PARAMETER     CPU   16       UINT   1    9    1        "The Directon"
+  APPEND_PARAMETER     CPU   16       UINT   1    9    1        "The cpu id"
 
 
-COMMAND COSMICKSP KOS_STOP BIG_ENDIAN "Stop the KOS script"
+COMMAND COSMICKSP DETACH_CPU BIG_ENDIAN "Detach from the KOS cpu"
   # Keyword            Name  BitSize  Type   Min  Max  Default  Description
   APPEND_ID_PARAMETER  ID    16       INT    101  101  101      "Identifier"
 
 
-COMMAND COSMICKSP EXECUTE_KOS_COMMAND BIG_ENDIAN "Execute a KOS command"
-  # Keyword           Name           BitSize Type   Min  Max  Default  Description
-  APPEND_ID_PARAMETER ID             16      INT    102  102  102      "Identifier"
-  APPEND_PARAMETER    STAGING_TIMING 0       STRING           "."      "KOS command."
+COMMAND COSMICKSP KOS_STOP BIG_ENDIAN "Stop the KOS script"
+  # Keyword            Name  BitSize  Type   Min  Max  Default  Description
+  APPEND_ID_PARAMETER  ID    16       INT    102  102  102      "Identifier"
 
 
 COMMAND COSMICKSP ABORT BIG_ENDIAN "Activate the Abort action Group"
@@ -20,14 +19,20 @@ COMMAND COSMICKSP ABORT BIG_ENDIAN "Activate the Abort action Group"
   APPEND_ID_PARAMETER  ID    16       INT    103  103  103      "Identifier"
 
 
+COMMAND COSMICKSP EXECUTE_KOS_COMMAND BIG_ENDIAN "Execute a KOS command"
+  # Keyword           Name           BitSize Type   Min  Max  Default  Description
+  APPEND_ID_PARAMETER ID             16      INT    110  110  110      "Identifier"
+  APPEND_PARAMETER    STAGING_TIMING 0       STRING           "."      "KOS command."
+
+
 COMMAND COSMICKSP STAGE BIG_ENDIAN "Activate the next stage"
   # Keyword            Name  BitSize  Type  Min  Max  Default  Description
-  APPEND_ID_PARAMETER  ID    16       INT   104  104  104      "Identifier"
+  APPEND_ID_PARAMETER  ID    16       INT   112  112  112      "Identifier"
 
 
 COMMAND COSMICKSP SET_SYSTEM_POWER BIG_ENDIAN "Set KSP System to On or Off"
   # Keyword            Name    BitSize  Type   Min  Max  Default  Description
-  APPEND_ID_PARAMETER  ID      16       INT    105  105  105      "Identifier"
+  APPEND_ID_PARAMETER  ID      16       INT    113  113  113      "Identifier"
   APPEND_PARAMETER     SYSTEM  16       UINT   0    9    0        "The Directon"
     STATE SAS       0
     STATE RCS       1
@@ -46,7 +51,7 @@ COMMAND COSMICKSP SET_SYSTEM_POWER BIG_ENDIAN "Set KSP System to On or Off"
 
 COMMAND COSMICKSP SET_ACTION_GROUP BIG_ENDIAN "Set an action group to On or Off"
   # Keyword            Name   BitSize  Type  Min  Max  Default  Description
-  APPEND_ID_PARAMETER  ID     16       INT   106  106  106      "Identifier"
+  APPEND_ID_PARAMETER  ID     16       INT   114  114  114      "Identifier"
   APPEND_PARAMETER     INDEX  8        UINT  1    10   1        "the action group index"
   APPEND_PARAMETER     BOOL   8        UINT  MIN  MAX  1        "Boolean"
     STATE OFF 0
@@ -55,7 +60,7 @@ COMMAND COSMICKSP SET_ACTION_GROUP BIG_ENDIAN "Set an action group to On or Off"
 
 COMMAND COSMICKSP DIRECT_SAS BIG_ENDIAN "Direct SAS to a direction"
   # Keyword            Name       BitSize  Type  Min  Max  Default  Description
-  APPEND_ID_PARAMETER  ID         16       INT   107  107  107      "Identifier"
+  APPEND_ID_PARAMETER  ID         16       INT   115  115  115      "Identifier"
   APPEND_PARAMETER     DIRECTION  8        UINT  0    10   9        "The Directon"
     STATE PROGRADE        0
     STATE RETROGRADE      1
@@ -69,3 +74,13 @@ COMMAND COSMICKSP DIRECT_SAS BIG_ENDIAN "Direct SAS to a direction"
     STATE STABILITYASSIST 9
     STATE STABILITY       10
 
+COMMAND COSMICKSP TIMEWARP_TO BIG_ENDIAN "Direct SAS to a direction"
+  # Keyword            Name       BitSize  Type  Min  Max  Default  Description
+  APPEND_ID_PARAMETER  ID         16       INT   116  116  116      "Identifier"
+  APPEND_PARAMETER     RELATIVE   8        UINT  0    5    0        "The time milestone to warp relative to"
+    STATE NOW            0
+    STATE APOAPSIS       1
+    STATE PERIAPSIS      2
+    STATE SOI_CHANGE     3
+    STATE MANEUVER_NODE  4
+  APPEND_PARAMETER     SECONDS    32       INT   MIN  MAX  0        "The time modifyer, in seconds, relative to the target timestamp"
