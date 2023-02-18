@@ -5,7 +5,7 @@ COMMAND COSMICKSP IMPORT_SCRIPT BIG_ENDIAN "Import a script and it's dependancie
     STATE launch_target_ap launch_target_ap
     STATE create_node_circularise_at_apoapsis create_node_circularise_at_apoapsis
     STATE execute_next_manuever_node execute_next_manuever_node
-    STATE report_orbit report_orbit
+    STATE report_orbit_patch report_orbit_patch
 
 
 COMMAND COSMICKSP LAUNCH_TO_TARGET_AP BIG_ENDIAN "Launch the vehicle to a target apoapsis"
@@ -33,6 +33,7 @@ COMMAND COSMICKSP EXECUTE_NEXT_MANUEVER_NODE BIG_ENDIAN "Execute the next manuev
 
 
 COMMAND COSMICKSP REPORT_ORBIT BIG_ENDIAN "Execute the next manuever node"
-  # Keyword            Name            BitSize  Type    Min  Max  Default  Description
-  APPEND_ID_PARAMETER  ID              16       INT     204  204  204      "Identifier"
-  APPEND_PARAMETER     STAGING_TIMING  16       UINT    0    999  1        "Index of the orbit patch"
+  # Keyword            Name         BitSize  Type    Min  Max  Default  Description
+  APPEND_ID_PARAMETER  ID           16       INT     204  204  204      "Identifier"
+  APPEND_PARAMETER     PATCH_INDEX  16       UINT    0    4    0        "Index of the orbit patch"
+  APPEND_PARAMETER     AFTER_NODE   8        UINT    0    1    0        "Weather to report node orbit patch"

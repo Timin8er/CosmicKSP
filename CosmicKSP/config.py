@@ -61,7 +61,7 @@ default_config = {
         },
         'report_orbit': {
             'id': 204,
-            'struct': '>hH',
+            'struct': '>hH?',
             'dependancies': [],
         },
     },
