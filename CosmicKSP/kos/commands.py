@@ -103,7 +103,8 @@ def cmd_import_script(bstr: ByteString) -> ByteString:
 
     scripts = [script_name] + config['scripts'][script_name]['dependancies']
 
-    return (' '.join([_cmd_import(i) for i in scripts]))
+    return ' '.join([_cmd_import(i) for i in scripts]) + \
+        'print(CORE:CURRENTVOLUME:FREESPACE + " Free / " + CORE:CURRENTVOLUME:CAPACITY).\n'
 
 
 def _cmd_import(script_name: str) -> str:
@@ -111,17 +112,18 @@ def _cmd_import(script_name: str) -> str:
 
 
 def cmd_script(script_name: str, script_config: Dict):
-    """returns the translation function for a kos script crom the config file"""
+    """returns the translation function for a kos script from the config file"""
     # the id that the translator will look up this function by
     id_str = struct.pack(script_config['struct'][0:2], script_config['id'])
 
+    # if the scipt has no arguements
     if len(script_config['struct']) <= 2:
         def _cmd_script(*_) -> ByteString:
             return f'runpath("1:/{script_name}.ks").\n'
         return id_str, _cmd_script
 
     # simple version has no trailing string argument
-    if not script_config['struct'].endswith('p'):
+    if not script_config['struct'].endswith('_'):
 
         def _cmd_script(bstr: ByteString) -> ByteString:
             args = struct.unpack(script_config['struct'], bstr)
@@ -131,11 +133,11 @@ def cmd_script(script_name: str, script_config: Dict):
         return id_str, _cmd_script
 
     short_struct = script_config['struct'][0:-1]
-    length = struct.calcsize(short_struct)
+    unpackable_length = struct.calcsize(short_struct)
 
     def _cmd_script(bstr: ByteString) -> ByteString:
-        args = struct.unpack(short_struct, bstr[:length])
-        string_arg = bstr[length:].decode('utf-8')
+        args = struct.unpack(short_struct, bstr[:unpackable_length])
+        string_arg = bstr[unpackable_length:].decode('utf-8')
         args_str = ', '.join([str(i) for i in args[1:]] + [string_arg])
         return f'runpath("1:/{script_name}.ks", {args_str}).\n'
 
