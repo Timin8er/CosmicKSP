@@ -22,6 +22,7 @@ LOCK steering to np.
 wait until vang(np, ship:facing:vector) < 0.25.
 
 //the ship is facing the right direction, let's wait for our burn time
+run countdown("Burn", TIME:SECONDS + next_node:eta - (burn_duration/2)).
 wait until next_node:eta <= (burn_duration/2).
 
 print("begining burn").

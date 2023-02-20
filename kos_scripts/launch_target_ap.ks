@@ -22,6 +22,8 @@ WAIT 0.
 LOCK THROTTLE TO 1.0.
 LOCK STEERING TO head.
 
+run countdown("launch", TIME:SECONDS + 10).
+
 run dual_stage_delay(staging_timing[0]).
 print("Launching").
 

@@ -47,6 +47,7 @@ default_config = {
                 'dual_stage_delay',
                 'create_node_circularise_at_apoapsis',
                 'execute_next_manuever_node',
+                'countdown',
             ],
         },
         'create_node_circularise_at_apoapsis': {
@@ -57,7 +58,9 @@ default_config = {
         'execute_next_manuever_node': {
             'id': 203,
             'struct': '>h_',
-            'dependancies': [],
+            'dependancies': [
+                'countdown',
+            ],
         },
         'report_orbit_patch': {
             'id': 204,
