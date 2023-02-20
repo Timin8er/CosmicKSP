@@ -11,6 +11,9 @@ TELEMETRY COSMICKSP VEHICLE_STATUS BIG_ENDIAN "Telemetry for the active vehicle"
   APPEND_ITEM     GEAR_VALUE        8       INT       "Gear Value"
   APPEND_ITEM     ATMO_DENSITY      32      FLOAT     "Density of Atmospher"
   APPEND_ITEM     DYNAMIC_PRESSURE  32      FLOAT     "Dynamic Pressure"
+  APPEND_ITEM     HEADING           32      FLOAT     "Heading"
+  APPEND_ITEM     PITCH             32      FLOAT     "Pitch"
+  APPEND_ITEM     ROLL              32      FLOAT     "Roll"
   APPEND_ITEM     NAME              0       STRING    "Vehicle Name"
 
 

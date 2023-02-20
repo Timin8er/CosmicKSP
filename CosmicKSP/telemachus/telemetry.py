@@ -16,6 +16,9 @@ VEHICLE_TELEMETRY_SUBSCIPTIONS = [
     'v.atmosphericDensity',
     'v.dynamicPressure',
     'v.name',
+    'n.rawheading',
+    'n.rawpitch',
+    'n.rawroll'
 ]
 
 
@@ -44,7 +47,7 @@ ORBIT_TELEMETRY_SUBSCIPTIONS = [
 
 def vehicle_telemetry_bstring(data: Dict) -> ByteString:
     """translate the given vehivcle telemachus data to openc3 string"""
-    return struct.pack('>hdffbbbbbff',
+    return struct.pack('>hdffbbbbbfffff',
         1,
         data.get('v.missionTime', 0.0),
         data.get('v.geeForce', 0.0),
@@ -56,6 +59,9 @@ def vehicle_telemetry_bstring(data: Dict) -> ByteString:
         data.get('v.gearValue', -1),
         data.get('v.atmosphericDensity', 0.0),
         data.get('v.dynamicPressure', 0.0),
+        data.get('n.rawheading', 0.0),
+        data.get('n.rawpitch', 0.0),
+        data.get('n.rawroll', 0.0),
     ) + data.get('v.name', 'None').encode('utf-8')
 
 
