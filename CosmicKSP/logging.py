@@ -77,7 +77,7 @@ def get_logger(name: str, log_dir: str = DEFAULT_LOG_DIR, level = logging.INFO):
     logger.LOG_FILE = os.path.join(log_dir, f'{name}.log')
 
     file_formatter = logging.Formatter(fmt=FILE_FORMAT)
-    file_handler = RotatingFileHandler(logger.LOG_FILE, mode='a', maxBytes=1000000, backupCount=5)
+    file_handler = RotatingFileHandler(logger.LOG_FILE, mode='a', maxBytes=100_000_000, backupCount=5)
     file_handler.setFormatter(file_formatter)
     logger.addHandler(file_handler)
 
