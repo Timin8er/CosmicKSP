@@ -16,6 +16,8 @@ def cmd_kos_stop(*_) -> ByteString:
 
 def cmd_generic(bstr: ByteString) -> ByteString:
     """extract and return the command within"""
+    if not bstr.endswith('\n'.encode('utf-8')):
+        bstr += '\n'.encode('utf-8')
     return bstr[2:].decode('utf-8')
 
 
