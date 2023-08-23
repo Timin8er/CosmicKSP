@@ -13,7 +13,7 @@ LOCAL burn_duration to next_node:deltav:mag/max_acc.
 print "Crude Estimated burn duration: " + round(burn_duration) + "s".
 
 
-wait until next_node:eta <= (burn_duration/2 + 60).
+//wait until next_node:eta <= (burn_duration/2 + 60).
 
 LOCAL np to next_node:deltav. //points to node, don't care about the roll direction.
 LOCK steering to np.
